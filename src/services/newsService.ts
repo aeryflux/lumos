@@ -20,11 +20,12 @@ export interface NewsArticle {
 
 export interface CountryNewsData {
   [countryName: string]: {
-    scale: number;
+    scale: number;          // Normalized 0-1 for globe extrusion
     lat: number | null;
     lon: number | null;
-    color?: string;
-    themeId?: number;
+    color?: string;         // Theme-based color from analysis
+    themeId?: number;       // Detected theme ID
+    themeName?: string;     // Detected theme name
   };
 }
 

@@ -21,11 +21,12 @@ export interface WeatherCountryData {
   temperature?: number;
   humidity?: number;
   windSpeed?: number;
-  color?: string;
-  normalizedValue?: number;
-  viewValue?: number;
-  viewUnit?: string;
-  viewName?: string;
+  color?: string;             // Temperature-based color gradient from API
+  normalizedValue?: number;   // View-specific normalized value
+  viewValue?: number;         // Raw value for the current view
+  viewUnit?: string;          // Unit for the view (°C, %, km/h)
+  viewName?: string;          // Name of the view
+  condition?: string;         // Weather condition (sunny, cloudy, etc.)
 }
 
 export type WeatherDataMap = Record<string, WeatherCountryData>;

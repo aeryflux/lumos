@@ -18,8 +18,8 @@ export interface WikiCountryData {
   scale: number;
   lat: number | null;
   lon: number | null;
-  color?: string;
-  articleCount?: number;
+  color?: string;         // Portal-based color or default gray
+  articleCount?: number;  // Number of Wikipedia articles found
 }
 
 export type WikiDataMap = Record<string, WikiCountryData>;
