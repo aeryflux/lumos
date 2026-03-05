@@ -1,4 +1,4 @@
-import { BookOpen, ExternalLink, Globe } from 'lucide-react';
+import { BookOpen, ExternalLink, MapPin, FileText } from 'lucide-react';
 import type { WikiDataMap } from '../services/wikiService';
 import './WikiResults.css';
 
@@ -50,22 +50,40 @@ export function WikiResults({ data, query, isLoading, onClose }: WikiResultsProp
       </div>
 
       <div className="wiki-list">
-        {sorted.map(([country, countryData]) => (
-          <a
-            key={country}
-            href={`https://en.wikipedia.org/wiki/${encodeURIComponent(country)}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="wiki-item"
-            style={{ '--wiki-color': countryData.color || '#888888' } as React.CSSProperties}
-          >
-            <Globe size={14} className="wiki-item-icon" />
-            <span className="wiki-item-country">{country}</span>
-            <span className="wiki-item-scale">
-              {(countryData.scale * 100).toFixed(0)}%
-            </span>
-          </a>
-        ))}
+        {sorted.map(([country, countryData]) => {
+          const relevance = Math.round(countryData.scale * 100);
+          return (
+            <a
+              key={country}
+              href={`https://en.wikipedia.org/wiki/${encodeURIComponent(country)}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="wiki-item"
+              style={{ '--wiki-color': countryData.color || '#888888' } as React.CSSProperties}
+            >
+              <MapPin size={14} className="wiki-item-icon" />
+              <div className="wiki-item-content">
+                <span className="wiki-item-country">{country}</span>
+                <div className="wiki-item-bar">
+                  <div
+                    className="wiki-item-bar-fill"
+                    style={{ width: `${relevance}%` }}
+                  />
+                </div>
+              </div>
+              <div className="wiki-item-meta">
+                {countryData.articleCount && (
+                  <span className="wiki-item-count">
+                    <FileText size={10} />
+                    {countryData.articleCount}
+                  </span>
+                )}
+                <span className="wiki-item-scale">{relevance}%</span>
+              </div>
+              <ExternalLink size={12} className="wiki-item-link" />
+            </a>
+          );
+        })}
       </div>
 
       <a

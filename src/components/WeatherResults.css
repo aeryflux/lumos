@@ -106,29 +106,60 @@
   background: rgba(5, 5, 10, 0.95);
   padding: 12px;
   text-align: center;
+  border-left: 2px solid transparent;
+  border-left-color: var(--temp-color, transparent);
+  transition: background 0.15s ease;
+}
+
+.weather-card:hover {
+  background: rgba(20, 20, 30, 0.95);
+}
+
+.weather-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  margin-bottom: 6px;
+}
+
+.weather-card-icon {
+  display: flex;
+  align-items: center;
+  color: var(--temp-color, var(--text-muted));
+  opacity: 0.8;
 }
 
 .weather-card-country {
   font-size: 11px;
-  color: var(--text-muted);
-  margin-bottom: 4px;
+  color: var(--text-secondary);
   text-transform: uppercase;
   letter-spacing: 0.3px;
+  font-weight: 500;
 }
 
 .weather-card-temp {
-  font-size: 24px;
-  font-weight: 600;
-  color: var(--text-primary);
+  font-size: 28px;
+  font-weight: 700;
   line-height: 1;
+  margin-bottom: 2px;
+}
+
+.weather-card-condition {
+  font-size: 10px;
+  color: var(--text-muted);
+  margin-bottom: 6px;
+  text-transform: capitalize;
 }
 
 .weather-card-details {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
+  gap: 10px;
   margin-top: 6px;
+  padding-top: 6px;
+  border-top: 1px solid rgba(255, 255, 255, 0.04);
 }
 
 .weather-detail {
@@ -137,6 +168,10 @@
   gap: 3px;
   font-size: 10px;
   color: var(--text-muted);
+}
+
+.weather-detail svg {
+  opacity: 0.7;
 }
 
 /* Atlas link */

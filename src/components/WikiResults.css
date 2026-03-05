@@ -116,19 +116,75 @@
   flex-shrink: 0;
 }
 
-.wiki-item-country {
+.wiki-item-content {
   flex: 1;
+  min-width: 0;
+}
+
+.wiki-item-country {
+  display: block;
   font-size: 13px;
+  font-weight: 500;
   color: var(--text-primary);
+  margin-bottom: 4px;
 }
 
 .wiki-item:hover .wiki-item-country {
   color: var(--wiki-color);
 }
 
+/* Relevance bar */
+.wiki-item-bar {
+  height: 3px;
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.wiki-item-bar-fill {
+  height: 100%;
+  background: var(--wiki-color);
+  border-radius: 2px;
+  transition: width 0.3s ease;
+}
+
+/* Meta info */
+.wiki-item-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.wiki-item-count {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 10px;
+  color: var(--text-muted);
+}
+
+.wiki-item-count svg {
+  opacity: 0.7;
+}
+
 .wiki-item-scale {
   font-size: 11px;
+  font-weight: 600;
+  color: var(--wiki-color);
+  min-width: 32px;
+  text-align: right;
+}
+
+.wiki-item-link {
   color: var(--text-muted);
+  opacity: 0;
+  transition: opacity 0.15s ease;
+  flex-shrink: 0;
+}
+
+.wiki-item:hover .wiki-item-link {
+  opacity: 1;
 }
 
 /* Atlas link */

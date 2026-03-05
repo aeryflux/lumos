@@ -97,10 +97,12 @@
 
 /* Item */
 .news-item {
+  position: relative;
   display: flex;
   align-items: flex-start;
   gap: 10px;
   padding: 12px 14px;
+  padding-left: 18px;
   text-decoration: none;
   border-bottom: 1px solid rgba(255, 255, 255, 0.03);
   transition: background 0.15s ease;
@@ -112,6 +114,16 @@
 
 .news-item:hover {
   background: rgba(255, 255, 255, 0.03);
+}
+
+/* Color badge indicator */
+.news-item-badge {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  border-radius: 0 2px 2px 0;
 }
 
 .news-item-content {
@@ -158,11 +170,26 @@
   color: var(--text-muted);
 }
 
+.news-date {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 10px;
+  color: var(--text-muted);
+}
+
+.news-date svg {
+  opacity: 0.7;
+}
+
 .news-theme {
   font-size: 9px;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.3px;
+  padding: 1px 5px;
+  border-radius: 3px;
+  background: rgba(255, 255, 255, 0.05);
 }
 
 .news-item-icon {
