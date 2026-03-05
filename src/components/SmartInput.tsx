@@ -63,6 +63,8 @@ export function SmartInput({
   const [value, setValue] = useState('');
   const [selectedMode, setSelectedMode] = useState<SearchMode>('auto');
   const [suggestionIndex, setSuggestionIndex] = useState(0);
+  const [typedText, setTypedText] = useState('');
+  const [isTyping, setIsTyping] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
   const currentMode = MODES.find(m => m.id === selectedMode) || MODES[0];
@@ -70,28 +72,67 @@ export function SmartInput({
   const suggestions = SUGGESTIONS[selectedMode];
   const currentSuggestion = suggestions[suggestionIndex];
 
+  // Typing effect for placeholder
+  useEffect(() => {
+    if (isActive || value || !autoDemo) {
+      setTypedText(currentSuggestion);
+      return;
+    }
+
+    setTypedText('');
+    setIsTyping(true);
+    let charIndex = 0;
+
+    const typeInterval = setInterval(() => {
+      if (charIndex < currentSuggestion.length) {
+        setTypedText(currentSuggestion.slice(0, charIndex + 1));
+        charIndex++;
+      } else {
+        setIsTyping(false);
+        clearInterval(typeInterval);
+      }
+    }, 50); // 50ms per character
+
+    return () => clearInterval(typeInterval);
+  }, [currentSuggestion, isActive, value, autoDemo]);
+
+  // Trigger initial demo on mount
+  useEffect(() => {
+    if (!autoDemo || !onDemoChange || isActive || value) return;
+
+    // Small delay to avoid setState during render
+    const timeout = setTimeout(() => {
+      onDemoChange(currentSuggestion, selectedMode);
+    }, 100);
+
+    return () => clearTimeout(timeout);
+  }, []); // Only run once on mount
+
   // Rotate suggestions when idle (and auto-demo if enabled)
   useEffect(() => {
     if (isActive || value) return;
 
-    // Trigger initial demo on mount if autoDemo
-    if (autoDemo && onDemoChange) {
-      onDemoChange(currentSuggestion, selectedMode);
-    }
-
     const interval = setInterval(() => {
       setSuggestionIndex((prev) => {
         const nextIndex = (prev + 1) % suggestions.length;
-        // Auto-demo: trigger search when suggestion changes
-        if (autoDemo && onDemoChange) {
-          onDemoChange(suggestions[nextIndex], selectedMode);
-        }
         return nextIndex;
       });
-    }, 4000); // Slightly longer for demo visibility
+    }, 8000); // Longer interval for smooth demo experience
 
     return () => clearInterval(interval);
-  }, [isActive, value, suggestions.length, autoDemo, onDemoChange, selectedMode, suggestions, currentSuggestion]);
+  }, [isActive, value, suggestions.length]);
+
+  // Trigger demo when suggestion changes (separate effect to avoid setState in render)
+  useEffect(() => {
+    if (!autoDemo || !onDemoChange || isActive || value) return;
+
+    // Skip the initial render (handled by mount effect)
+    const timeout = setTimeout(() => {
+      onDemoChange(currentSuggestion, selectedMode);
+    }, 50);
+
+    return () => clearTimeout(timeout);
+  }, [suggestionIndex, autoDemo, onDemoChange, isActive, value, currentSuggestion, selectedMode]);
 
   // Reset suggestion index when mode changes
   useEffect(() => {
@@ -148,8 +189,8 @@ export function SmartInput({
             onChange={(e) => setValue(e.target.value)}
             onFocus={onFocus}
             onBlur={onBlur}
-            placeholder={currentSuggestion}
-            className="smart-input-field"
+            placeholder={autoDemo ? typedText + (isTyping ? '|' : '') : currentSuggestion}
+            className={`smart-input-field ${isTyping ? 'smart-input-field--typing' : ''}`}
             autoComplete="off"
             spellCheck="false"
           />

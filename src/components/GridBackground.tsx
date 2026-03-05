@@ -55,10 +55,19 @@ export function GridBackground({
   const [activeEffect, setActiveEffect] = useState<GridEffect>('none');
   const [scrollProgress, setScrollProgress] = useState(0);
   const effectTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const gridRef = useRef<HTMLDivElement>(null);
 
   // Handle external effect triggers
   useEffect(() => {
     if (effect !== 'none') {
+      // Force animation restart by removing and re-adding class
+      if (gridRef.current) {
+        gridRef.current.style.animation = 'none';
+        // Trigger reflow
+        void gridRef.current.offsetHeight;
+        gridRef.current.style.animation = '';
+      }
+
       setActiveEffect(effect);
 
       // Clear previous timeout
@@ -70,7 +79,7 @@ export function GridBackground({
       effectTimeoutRef.current = setTimeout(() => {
         setActiveEffect('none');
         onEffectComplete?.();
-      }, 1000); // Effect duration
+      }, 1700); // Effect duration (slightly longer than 1.5s animation)
     }
 
     return () => {
@@ -105,6 +114,7 @@ export function GridBackground({
 
   return (
     <div
+      ref={gridRef}
       className={`${patternClass} ${fadeClass} ${twinkleClass} ${effectClass} ${scrollClass} ${className}`}
       style={{
         '--grid-size': `${size}px`,

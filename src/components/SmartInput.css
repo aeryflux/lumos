@@ -111,6 +111,12 @@
 
 .smart-input-field::placeholder {
   color: var(--text-muted);
+  transition: none;
+}
+
+/* Typing animation state */
+.smart-input-field--typing::placeholder {
+  color: var(--text-secondary);
 }
 
 /* Submit button */

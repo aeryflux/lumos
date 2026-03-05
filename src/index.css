@@ -33,8 +33,8 @@
   --surface-hover: rgba(255, 255, 255, 0.06);
   --surface-active: rgba(255, 255, 255, 0.09);
 
-  /* Text */
-  --text-primary: #f0f0f5;
+  /* Text - slightly dimmed for softer look */
+  --text-primary: #c8c8d0;
   --text-secondary: #9090a8;
   --text-muted: #606080;
 

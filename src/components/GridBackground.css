@@ -37,6 +37,7 @@
       transparent 1px
     );
   background-size: var(--grid-size, 40px) var(--grid-size, 40px);
+  background-position: 0 0;
   opacity: var(--grid-opacity, 0.1);
 }
 
@@ -475,33 +476,61 @@
 
 /* ===========================================
    Effect: Laser Scan - grid glow
-   Simple flash effect on grid lines
+   Flash effect using pseudo-element overlay
    =========================================== */
 
-.grid-bg--effect-laser-scan.grid-bg--grid {
-  animation: grid-glow 0.6s ease-out;
+/* Colored grid overlay that fades in/out */
+.grid-bg--effect-laser-scan.grid-bg--grid::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  pointer-events: none;
+  background-image:
+    linear-gradient(to right, var(--accent, #00ff88) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--accent, #00ff88) 1px, transparent 1px);
+  background-size: inherit;
+  background-position: inherit;
+  animation: grid-glow-overlay 1.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
 }
 
-@keyframes grid-glow {
+/* Glow effect on the main grid */
+.grid-bg--effect-laser-scan.grid-bg--grid {
+  animation: grid-glow-filter 1.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+@keyframes grid-glow-overlay {
   0% {
-    opacity: var(--grid-opacity, 0.15);
-    filter: brightness(1) drop-shadow(0 0 0 transparent);
-    background-image:
-      linear-gradient(to right, rgba(255, 255, 255, 0.05) 1px, transparent 1px),
-      linear-gradient(to bottom, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+    opacity: 0;
   }
-  20% {
-    opacity: 0.5;
-    filter: brightness(2) drop-shadow(0 0 8px var(--grid-effect-color, #00ff88));
-    background-image:
-      linear-gradient(to right, var(--grid-effect-color, #00ff88) 1px, transparent 1px),
-      linear-gradient(to bottom, var(--grid-effect-color, #00ff88) 1px, transparent 1px);
+  15% {
+    opacity: 0.7;
+    filter: drop-shadow(0 0 15px var(--accent, #00ff88))
+            drop-shadow(0 0 30px var(--accent, #00ff88));
+  }
+  40% {
+    opacity: 0.4;
+    filter: drop-shadow(0 0 8px var(--accent, #00ff88));
   }
   100% {
-    opacity: var(--grid-opacity, 0.15);
-    filter: brightness(1) drop-shadow(0 0 0 transparent);
-    background-image:
-      linear-gradient(to right, rgba(255, 255, 255, 0.05) 1px, transparent 1px),
-      linear-gradient(to bottom, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+    opacity: 0;
+    filter: none;
+  }
+}
+
+@keyframes grid-glow-filter {
+  0% {
+    filter: brightness(1);
+  }
+  15% {
+    filter: brightness(1.5) drop-shadow(0 0 20px var(--accent, #00ff88));
+  }
+  40% {
+    filter: brightness(1.2) drop-shadow(0 0 10px var(--accent, #00ff88));
+  }
+  100% {
+    filter: brightness(1);
   }
 }

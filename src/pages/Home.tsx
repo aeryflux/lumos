@@ -48,11 +48,11 @@ export function Home() {
   // Auto-demo state: shows preview data on globe without full results panel
   const [demoData, setDemoData] = useState<{ countryData: CountryDataMap; color: string } | null>(null);
 
-  // Trigger laser scan effect on page load
+  // Trigger laser scan effect on page load (uses theme accent color)
   useEffect(() => {
     // Small delay to ensure DOM is ready
     const timer = setTimeout(() => {
-      triggerEffect('laser-scan', '#00ff88');
+      triggerEffect('laser-scan'); // No color = uses theme accent
     }, 100);
     return () => clearTimeout(timer);
   }, [triggerEffect]);
@@ -79,20 +79,23 @@ export function Home() {
         }
       }
 
-      setDemoData({ countryData, color: highlightColor });
+      // Only trigger effect and update if we have data
+      if (Object.keys(countryData).length > 0) {
+        triggerEffect('laser-scan');
+        setDemoData({ countryData, color: highlightColor });
+      }
     } catch (error) {
       console.error('Demo search error:', error);
     }
-  }, []);
+  }, [triggerEffect]);
 
   const handleQuery = useCallback(async (query: string, mode: SearchMode) => {
     // Clear demo mode when user submits real query
     setDemoData(null);
     setQueryState('loading');
 
-    // Trigger laser scan effect with mode color
-    const modeColor = MODE_HIGHLIGHT_COLORS[mode] || '#00ff88';
-    triggerEffect('laser-scan', modeColor);
+    // Trigger laser scan effect with consistent green color
+    triggerEffect('laser-scan');
 
     const searchResult = await executeSearch(query, mode);
 

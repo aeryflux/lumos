@@ -59,10 +59,10 @@ export function EffectsProvider({ children }: EffectsProviderProps) {
     setEffectColor(color);
     setEffect(type);
 
-    // Auto-clear after animation
+    // Auto-clear after animation (matches 1.5s CSS animation + buffer)
     setTimeout(() => {
       setEffect('none');
-    }, 1000);
+    }, 1700);
   }, []);
 
   const triggerModeEffect = useCallback((mode: ModeId, effectType: GridEffect = 'pulse') => {
