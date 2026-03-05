@@ -354,6 +354,39 @@ export const en = {
     },
   },
 
+  // Search / DemoPreview
+  search: {
+    placeholder: 'Try "news from Japan" or "weather in Europe"...',
+    loading: 'Searching...',
+    noResults: 'No results found',
+    error: 'Search failed. Please try again.',
+    resultsFor: 'Results for "{query}"',
+    viewAll: 'View all',
+    articles: 'articles',
+    countries: 'countries',
+    subjects: 'related subjects',
+    readMore: 'Read article',
+    learnMore: 'Learn more',
+    seeOnGlobe: 'See on globe',
+    modes: {
+      news: 'News',
+      weather: 'Weather',
+      wiki: 'Wikipedia',
+    },
+    weather: {
+      temperature: 'Temperature',
+      humidity: 'Humidity',
+      wind: 'Wind',
+      feelsLike: 'Feels like',
+      condition: 'Condition',
+    },
+    hints: {
+      news: 'Search global news headlines',
+      weather: 'Get weather for any country',
+      wiki: 'Explore Wikipedia articles by topic',
+    },
+  },
+
   // Download Page
   download: {
     title: 'Download AeryFlux',

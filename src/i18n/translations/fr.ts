@@ -354,6 +354,39 @@ export const fr = {
     },
   },
 
+  // Search / DemoPreview
+  search: {
+    placeholder: 'Essayez "actualités du Japon" ou "météo en Europe"...',
+    loading: 'Recherche...',
+    noResults: 'Aucun résultat trouvé',
+    error: 'La recherche a échoué. Veuillez réessayer.',
+    resultsFor: 'Résultats pour "{query}"',
+    viewAll: 'Voir tout',
+    articles: 'articles',
+    countries: 'pays',
+    subjects: 'sujets associés',
+    readMore: 'Lire l\'article',
+    learnMore: 'En savoir plus',
+    seeOnGlobe: 'Voir sur le globe',
+    modes: {
+      news: 'Actualités',
+      weather: 'Météo',
+      wiki: 'Wikipédia',
+    },
+    weather: {
+      temperature: 'Température',
+      humidity: 'Humidité',
+      wind: 'Vent',
+      feelsLike: 'Ressenti',
+      condition: 'Conditions',
+    },
+    hints: {
+      news: 'Rechercher dans les actualités mondiales',
+      weather: 'Obtenir la météo de n\'importe quel pays',
+      wiki: 'Explorer les articles Wikipédia par sujet',
+    },
+  },
+
   // Download Page
   download: {
     title: 'Télécharger AeryFlux',
