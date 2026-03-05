@@ -1,0 +1,85 @@
+/* HexLoader - Assassin's Creed / Beehive style hexagonal loader */
+
+.hex-loader {
+  --hex-color: var(--accent, #00ff88);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Sizes */
+.hex-loader--sm { --hex-size: 12px; }
+.hex-loader--md { --hex-size: 18px; }
+.hex-loader--lg { --hex-size: 28px; }
+
+.hex-grid {
+  display: grid;
+  grid-template-columns: repeat(3, var(--hex-size));
+  gap: 2px;
+  transform: rotate(0deg);
+}
+
+.hex-cell {
+  width: var(--hex-size);
+  height: calc(var(--hex-size) * 1.15);
+  animation: hex-pulse 1.4s ease-in-out infinite;
+  animation-delay: calc(var(--delay) * 0.1s);
+}
+
+/* Offset every other row for honeycomb pattern */
+.hex-cell:nth-child(4),
+.hex-cell:nth-child(5),
+.hex-cell:nth-child(6) {
+  transform: translateX(calc(var(--hex-size) * 0.5 + 1px));
+}
+
+.hex-svg {
+  width: 100%;
+  height: 100%;
+}
+
+.hex-shape {
+  fill: transparent;
+  stroke: var(--hex-color);
+  stroke-width: 4;
+  opacity: 0.3;
+  transition: all 0.2s ease;
+}
+
+@keyframes hex-pulse {
+  0%, 100% {
+    opacity: 0.2;
+    transform: scale(0.85);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Alternative: Wave animation */
+.hex-loader--wave .hex-cell {
+  animation: hex-wave 1.8s ease-in-out infinite;
+}
+
+@keyframes hex-wave {
+  0%, 100% {
+    opacity: 0.15;
+  }
+  25% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.15;
+  }
+}
+
+/* Alternative: Spin animation for single hex */
+.hex-loader--spin {
+  animation: hex-spin 2s linear infinite;
+}
+
+@keyframes hex-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}

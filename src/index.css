@@ -1,0 +1,524 @@
+/* TODO: Uncomment when Tailwind is properly installed
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+*/
+
+/* Inter - Primary UI font (Google Fonts) */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+/* HemiHead - Brand names only (AeryFlux, Atlas, Lumos, Holocron, Pythagoras) */
+@font-face {
+  font-family: 'HemiHead';
+  src: url('/fonts/HemiHead.otf') format('opentype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* ============================================
+   Theme Variables - Dark (Default)
+   OpenClaw-inspired: warmer, more vibrant
+   ============================================ */
+:root,
+[data-theme="dark"] {
+  /* Backgrounds - darker, more contrast */
+  --bg-primary: #050508;
+  --bg-secondary: #0a0a10;
+  --bg-tertiary: #12121a;
+  --bg-card: linear-gradient(135deg, rgba(20, 20, 30, 0.8) 0%, rgba(10, 10, 18, 0.9) 100%);
+
+  /* Primary surface color - subtle neutral, not green-tinted */
+  --surface-primary: rgba(255, 255, 255, 0.03);
+  --surface-hover: rgba(255, 255, 255, 0.06);
+  --surface-active: rgba(255, 255, 255, 0.09);
+
+  /* Text */
+  --text-primary: #f0f0f5;
+  --text-secondary: #9090a8;
+  --text-muted: #606080;
+
+  /* Accent - Bright green primary */
+  --accent: #00ff88;
+  --accent-secondary: #00d4ff;
+  --accent-warm: #ff6b6b;
+  --accent-glow: rgba(0, 255, 136, 0.25);
+  --border-glow: rgba(0, 255, 136, 0.15);
+
+  /* Borders */
+  --border: rgba(255, 255, 255, 0.06);
+  --border-hover: rgba(0, 255, 136, 0.2);
+
+  /* Status */
+  --danger: #ff4d6d;
+  --warning: #ffc107;
+  --success: #00ff88;
+
+  /* Mode Colors - more vibrant */
+  --mode-music: #a855f7;
+  --mode-news: #f87171;
+  --mode-weather: #60a5fa;
+  --mode-wiki: #94a3b8;
+  --mode-challenge: #fbbf24;
+
+  /* Logo Filter - Dark theme: bright with subtle green accent */
+  --logo-filter: brightness(1.1) drop-shadow(0 0 8px rgba(0, 255, 136, 0.3));
+
+  /* Nav - Dark theme */
+  --nav-bg: rgba(5, 5, 8, 0.9);
+  --nav-border: rgba(255, 255, 255, 0.06);
+  --nav-text: #e8e8f0;
+  --nav-text-secondary: #8888a0;
+  --nav-hover-bg: rgba(255, 255, 255, 0.04);
+  --nav-active-bg: rgba(255, 255, 255, 0.08);
+
+  /* Vignette - Dark theme */
+  --vignette-mid: rgba(5, 5, 8, 0.5);
+  --vignette-edge: rgba(5, 5, 8, 0.95);
+
+  /* Globe colors - Dark theme: dark fill, green accent borders */
+  --globe-fill: #0a0a12;
+  --globe-country: #1a1a28;
+  --globe-border: #00ff88;
+  --globe-filter: none;
+
+  /* Hero text - Light text on dark background */
+  --hero-text: #f0f0f5;
+  --hero-text-secondary: #9090a8;
+  --hero-text-shadow: 0 2px 30px rgba(0, 0, 0, 0.8);
+  --hero-btn-secondary-text: #f0f0f5;
+  --hero-btn-secondary-border: rgba(255, 255, 255, 0.15);
+
+  font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+
+  color-scheme: dark;
+  color: var(--text-primary);
+
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Brand name styling - HemiHead for app/brand names only */
+.brand-name {
+  font-family: 'HemiHead', system-ui, sans-serif;
+  letter-spacing: 1px;
+}
+
+/* ============================================
+   Theme Variables - Green
+   ============================================ */
+[data-theme="green"] {
+  /* Backgrounds - semi-transparent to let starfield show through subtly */
+  --bg-primary: rgba(5, 5, 8, 0.92);
+  --bg-secondary: rgba(10, 15, 12, 0.94);
+  --bg-tertiary: rgba(18, 26, 21, 0.95);
+  --bg-card: linear-gradient(135deg, rgba(10, 20, 15, 0.9) 0%, rgba(8, 15, 10, 0.95) 100%);
+
+  /* Text - Green tinted */
+  --text-primary: #00ff88;
+  --text-secondary: #00cc6a;
+  --text-muted: #00aa55;
+
+  /* Accent - Green */
+  --accent: #00ff88;
+  --accent-secondary: #00d4ff;
+  --accent-glow: rgba(0, 255, 136, 0.3);
+  --border-glow: rgba(0, 255, 136, 0.15);
+
+  /* Borders - Green tinted */
+  --border: rgba(0, 255, 136, 0.1);
+  --border-hover: rgba(0, 255, 136, 0.2);
+
+  /* Logo Filter - Green theme: hue-rotate to green + saturate */
+  --logo-filter: sepia(1) saturate(5) hue-rotate(85deg) brightness(0.9);
+
+  /* Nav - Green theme */
+  --nav-bg: rgba(5, 8, 5, 0.85);
+  --nav-border: rgba(0, 255, 136, 0.15);
+  --nav-text: #00ff88;
+  --nav-text-secondary: #00cc6a;
+  --nav-hover-bg: rgba(0, 255, 136, 0.08);
+  --nav-active-bg: rgba(0, 255, 136, 0.15);
+
+  /* Vignette - Green theme */
+  --vignette-mid: rgba(5, 5, 8, 0.5);
+  --vignette-edge: rgba(5, 5, 8, 0.95);
+
+  /* Globe colors - Green theme: GREEN ocean fill, BLACK countries, green borders */
+  --globe-fill: #00ff88;
+  --globe-country: #0a0a0f;
+  --globe-border: #00ff88;
+  --globe-filter: none;
+
+  /* Hero text - Green theme: WHITE text for contrast */
+  --hero-text: #ffffff;
+  --hero-text-secondary: rgba(255, 255, 255, 0.9);
+  --hero-text-shadow: 0 2px 30px rgba(0, 0, 0, 0.8);
+  --hero-btn-secondary-text: #ffffff;
+  --hero-btn-secondary-border: rgba(255, 255, 255, 0.3);
+
+  color-scheme: dark;
+}
+
+/* ============================================
+   Theme Variables - Light
+   ============================================ */
+[data-theme="light"] {
+  /* Backgrounds - Light */
+  --bg-primary: #ffffff;
+  --bg-secondary: #f5f5f8;
+  --bg-tertiary: #eaeaef;
+  --bg-card: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(248, 248, 252, 0.98) 100%);
+
+  /* Text - Dark */
+  --text-primary: #1a1a1a;
+  --text-secondary: #555555;
+  --text-muted: #777777;
+
+  /* Accent - Black */
+  --accent: #1a1a1a;
+  --accent-secondary: #333333;
+  --accent-glow: rgba(0, 0, 0, 0.15);
+  --border-glow: rgba(0, 0, 0, 0.08);
+
+  /* Borders - Dark */
+  --border: rgba(0, 0, 0, 0.08);
+  --border-hover: rgba(0, 0, 0, 0.15);
+
+  /* Logo Filter - Light theme: invert colors */
+  --logo-filter: invert(1);
+
+  /* Nav - Light theme (white background with subtle border) */
+  --nav-bg: rgba(255, 255, 255, 0.95);
+  --nav-border: rgba(0, 0, 0, 0.1);
+  --nav-text: #1a1a1a;
+  --nav-text-secondary: #555555;
+  --nav-hover-bg: rgba(0, 0, 0, 0.05);
+  --nav-active-bg: rgba(0, 0, 0, 0.1);
+
+  /* Vignette - Light theme (white edges) */
+  --vignette-mid: rgba(255, 255, 255, 0.5);
+  --vignette-edge: rgba(255, 255, 255, 0.95);
+
+  /* Globe colors - Light theme: dark ocean (black), light countries (white), dark borders */
+  --globe-fill: #0a0a0f;
+  --globe-country: #f0f0f5;
+  --globe-border: #1a1a1a;
+
+  /* Hero text - WHITE text on light theme to contrast with DARK globe fill */
+  --hero-text: #ffffff;
+  --hero-text-secondary: rgba(255, 255, 255, 0.9);
+  --hero-text-shadow: 0 2px 30px rgba(0, 0, 0, 0.8);
+  --hero-btn-secondary-text: #ffffff;
+  --hero-btn-secondary-border: rgba(255, 255, 255, 0.4);
+  --globe-filter: none;
+
+  color-scheme: light;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+  /* Solid base background for semi-transparent layers to blend against */
+  background: #030306;
+}
+
+body {
+  min-height: 100vh;
+  overflow-x: hidden;
+  /* Transparent to let starfield show through */
+  background: transparent;
+  transition: background 0.3s ease, color 0.3s ease;
+}
+
+a {
+  color: var(--accent);
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+a:hover {
+  color: var(--accent-secondary);
+  text-shadow: 0 0 10px var(--accent-glow);
+}
+
+::selection {
+  background: var(--accent);
+  color: var(--bg-primary);
+}
+
+/* ============================================
+   Shared Button Styles
+   ============================================ */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 14px 28px;
+  font-size: 14px;
+  font-weight: 600;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  letter-spacing: 0.5px;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  text-decoration: none;
+  border: none;
+}
+
+.btn-primary {
+  background: var(--accent);
+  color: var(--bg-primary);
+  box-shadow: 0 4px 20px rgba(0, 255, 136, 0.3);
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 30px rgba(0, 255, 136, 0.4);
+  color: var(--bg-primary);
+}
+
+.btn-secondary {
+  background: transparent;
+  color: var(--text-primary);
+  border: 1px solid var(--border-hover);
+}
+
+.btn-secondary:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+  box-shadow: 0 0 20px var(--accent-glow);
+}
+
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ============================================
+   Design Tokens - Animation & Spacing
+   ============================================ */
+:root {
+  /* Animation Durations */
+  --duration-instant: 100ms;
+  --duration-fast: 200ms;
+  --duration-normal: 300ms;
+  --duration-slow: 500ms;
+  --duration-slower: 800ms;
+
+  /* Animation Easing */
+  --ease-out: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-bounce: cubic-bezier(0.34, 1.56, 0.64, 1);
+
+  /* Spacing Scale */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+  --space-16: 64px;
+
+  /* Border Radius */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 24px;
+  --radius-full: 9999px;
+
+  /* Shadows */
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.1);
+  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.15);
+  --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.2);
+  --shadow-glow: 0 0 20px var(--accent-glow);
+
+  /* Frosted Glass - neutral dark */
+  --glass-bg: rgba(15, 15, 20, 0.8);
+  --glass-border: rgba(255, 255, 255, 0.06);
+  --glass-blur: 16px;
+}
+
+[data-theme="green"] {
+  --glass-bg: rgba(10, 15, 12, 0.8);
+  --glass-border: rgba(0, 255, 136, 0.1);
+}
+
+[data-theme="light"] {
+  /* Soft off-white, not aggressive pure white */
+  --glass-bg: rgba(240, 240, 245, 0.85);
+  --glass-border: rgba(0, 0, 0, 0.08);
+}
+
+/* ============================================
+   Accessibility - Reduced Motion
+   ============================================ */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  .hero-orb,
+  .starry-bg--animated,
+  .starry-bg--cosmic {
+    animation: none !important;
+  }
+}
+
+/* ============================================
+   Animation Utilities
+   ============================================ */
+
+/* FadeInUp - OpenClaw-inspired entrance animation */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Staggered animation delays */
+.animate-in {
+  animation: fadeInUp var(--duration-slow) var(--ease-out) forwards;
+  opacity: 0;
+}
+
+.animate-delay-1 { animation-delay: 0.1s; }
+.animate-delay-2 { animation-delay: 0.2s; }
+.animate-delay-3 { animation-delay: 0.3s; }
+.animate-delay-4 { animation-delay: 0.4s; }
+.animate-delay-5 { animation-delay: 0.5s; }
+.animate-delay-6 { animation-delay: 0.6s; }
+
+/* Hover lift effect */
+.hover-lift {
+  transition: transform var(--duration-normal) var(--ease-out);
+}
+
+.hover-lift:hover {
+  transform: translateY(-4px);
+}
+
+/* ============================================
+   Glass Morphism Utilities
+   ============================================ */
+.glass {
+  background: var(--glass-bg);
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+  border: 1px solid var(--glass-border);
+}
+
+.glass-strong {
+  background: var(--glass-bg);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--glass-border);
+}
+
+/* ============================================
+   Focus Accessibility
+   ============================================ */
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* Screen reader only content */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ============================================
+   Scroll-Triggered Animations
+   ============================================ */
+
+/* Base state - hidden/offset */
+.scroll-animate {
+  opacity: 0;
+  transform: translateY(30px);
+  transition:
+    opacity var(--duration-slow) var(--ease-out),
+    transform var(--duration-slow) var(--ease-out);
+}
+
+/* Visible state - animated in */
+.scroll-animate--visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Variant: Fade only (no movement) */
+.scroll-animate--fade {
+  transform: none;
+}
+
+.scroll-animate--fade.scroll-animate--visible {
+  opacity: 1;
+}
+
+/* Variant: Scale up */
+.scroll-animate--scale {
+  transform: scale(0.95);
+}
+
+.scroll-animate--scale.scroll-animate--visible {
+  transform: scale(1);
+}
+
+/* Variant: Slide from left */
+.scroll-animate--left {
+  transform: translateX(-30px);
+}
+
+.scroll-animate--left.scroll-animate--visible {
+  transform: translateX(0);
+}
+
+/* Variant: Slide from right */
+.scroll-animate--right {
+  transform: translateX(30px);
+}
+
+.scroll-animate--right.scroll-animate--visible {
+  transform: translateX(0);
+}
+
+/* Staggered delays for children */
+.scroll-animate[data-stagger="1"] { transition-delay: 0.1s; }
+.scroll-animate[data-stagger="2"] { transition-delay: 0.2s; }
+.scroll-animate[data-stagger="3"] { transition-delay: 0.3s; }
+.scroll-animate[data-stagger="4"] { transition-delay: 0.4s; }
+.scroll-animate[data-stagger="5"] { transition-delay: 0.5s; }
+.scroll-animate[data-stagger="6"] { transition-delay: 0.6s; }

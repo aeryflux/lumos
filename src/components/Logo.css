@@ -1,0 +1,11 @@
+/* Logo - Themable via CSS filters */
+
+.aeryflux-logo {
+  transition: filter 0.3s ease, transform 0.2s ease;
+  /* Apply theme-specific filter */
+  filter: var(--logo-filter);
+}
+
+.aeryflux-logo:hover {
+  transform: scale(1.05);
+}

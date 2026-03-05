@@ -1,0 +1,51 @@
+/**
+ * LanguageSwitcher Styles
+ * Pattern mirroring ThemeSwitcher
+ */
+
+.language-switcher {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 12px;
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: inherit;
+}
+
+.language-switcher:hover {
+  background: var(--bg-secondary);
+  border-color: var(--border-hover);
+}
+
+.language-switcher:active {
+  transform: scale(0.98);
+}
+
+.language-flag {
+  display: block;
+  border-radius: 2px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+  object-fit: cover;
+}
+
+.language-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  letter-spacing: 0.5px;
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+  .language-switcher {
+    padding: 6px 10px;
+  }
+
+  .language-label {
+    display: none;
+  }
+}

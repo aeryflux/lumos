@@ -1,0 +1,16 @@
+# Railway Configuration for Lumos (Landing Site)
+# https://docs.railway.app/reference/config-as-code
+
+[build]
+builder = "nixpacks"
+buildCommand = "npm ci && npm run build"
+
+[deploy]
+startCommand = "npx serve dist -s -l $PORT"
+healthcheckPath = "/"
+healthcheckTimeout = 30
+restartPolicyType = "on_failure"
+restartPolicyMaxRetries = 3
+
+# Environment variables set in Railway dashboard:
+# - VITE_API_URL (points to Pythagoras)

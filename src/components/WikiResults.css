@@ -1,0 +1,150 @@
+/* WikiResults - List display */
+
+.wiki-results {
+  width: 100%;
+  max-width: 420px;
+  background: rgba(5, 5, 10, 0.9);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 12px;
+  backdrop-filter: blur(12px);
+  overflow: hidden;
+  animation: results-enter 0.2s ease-out;
+}
+
+@keyframes results-enter {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Loading state */
+.wiki-results--loading {
+  padding: 24px;
+}
+
+.wiki-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  color: var(--text-muted);
+  font-size: 13px;
+}
+
+.wiki-loading-icon {
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 1; }
+}
+
+/* Empty state */
+.wiki-results--empty {
+  padding: 20px;
+  text-align: center;
+}
+
+.wiki-results--empty p {
+  margin: 0 0 12px 0;
+  color: var(--text-secondary);
+  font-size: 13px;
+}
+
+/* Header */
+.wiki-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 14px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.wiki-title {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #888888;
+}
+
+.wiki-close-btn {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-size: 16px;
+  cursor: pointer;
+  padding: 2px 6px;
+  border-radius: 4px;
+  transition: color 0.15s ease;
+}
+
+.wiki-close-btn:hover {
+  color: var(--text-primary);
+}
+
+/* List */
+.wiki-list {
+  padding: 4px 0;
+}
+
+/* Item */
+.wiki-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  text-decoration: none;
+  transition: background 0.15s ease;
+}
+
+.wiki-item:hover {
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.wiki-item-icon {
+  color: var(--wiki-color);
+  flex-shrink: 0;
+}
+
+.wiki-item-country {
+  flex: 1;
+  font-size: 13px;
+  color: var(--text-primary);
+}
+
+.wiki-item:hover .wiki-item-country {
+  color: var(--wiki-color);
+}
+
+.wiki-item-scale {
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+/* Atlas link */
+.wiki-atlas-link {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 10px;
+  font-size: 11px;
+  color: var(--text-muted);
+  text-decoration: none;
+  border-top: 1px solid rgba(255, 255, 255, 0.04);
+  transition: color 0.15s ease;
+}
+
+.wiki-atlas-link:hover {
+  color: var(--text-primary);
+}

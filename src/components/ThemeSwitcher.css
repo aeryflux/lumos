@@ -1,0 +1,53 @@
+/* ThemeSwitcher Styles */
+
+.theme-switcher {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.03);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.theme-switcher:hover {
+  border-color: var(--accent);
+  background: rgba(0, 255, 136, 0.1);
+}
+
+.theme-switcher svg {
+  color: var(--text-secondary);
+  transition: color 0.2s ease;
+}
+
+.theme-switcher:hover svg {
+  color: var(--accent);
+}
+
+/* Theme-specific icon colors */
+.theme-switcher--dark svg {
+  color: #b8b8c8;
+}
+
+.theme-switcher--dark:hover svg {
+  color: #ffffff;
+}
+
+.theme-switcher--green svg {
+  color: #00cc6a;
+}
+
+.theme-switcher--green:hover svg {
+  color: #00ff88;
+}
+
+.theme-switcher--light svg {
+  color: #f59e0b;
+}
+
+.theme-switcher--light:hover svg {
+  color: #fbbf24;
+}

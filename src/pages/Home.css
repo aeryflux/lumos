@@ -1,0 +1,302 @@
+/* Home - Globe-centered layout with overlay content */
+
+.home {
+  position: relative;
+  min-height: 100vh;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+/* Globe - Centered background, offset left */
+.home-globe {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  /* Offset globe to the left to balance with content on right */
+  transform: translateX(-15%);
+  transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* When results are shown, globe moves further left */
+.home--has-results .home-globe {
+  transform: translateX(-25%);
+}
+
+/* Globe loader fallback */
+.home-globe-loader {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: globe-loader-fade 0.5s ease-out;
+}
+
+@keyframes globe-loader-fade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* Vignette removed - grid background is global */
+
+/* Content - Overlay, centered right */
+.home-content {
+  position: relative;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: 100vh;
+  padding: 40px;
+  /* Offset content to the right to balance globe */
+  padding-left: 45%;
+}
+
+.home-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  width: 100%;
+  max-width: 400px;
+  /* Entry animation */
+  animation: content-enter 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes content-enter {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Title */
+.home-title {
+  margin: 0;
+  text-align: center;
+  animation: title-enter 0.6s cubic-bezier(0.4, 0, 0.2, 1) 0.2s both;
+}
+
+@keyframes title-enter {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.home-title-text {
+  font-family: 'HemiHead', var(--font-display), sans-serif;
+  font-size: 28px;
+  font-weight: 700;
+  letter-spacing: 3px;
+  color: var(--text-primary);
+  text-transform: uppercase;
+}
+
+/* Results container */
+.home-results {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  animation: results-enter 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Loading state */
+.home-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  padding: 32px;
+  animation: results-enter 0.3s ease-out;
+}
+
+.home-loading-text {
+  font-size: 13px;
+  color: var(--text-muted);
+  letter-spacing: 0.5px;
+}
+
+@keyframes results-enter {
+  from {
+    opacity: 0;
+    transform: translateY(-12px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* Atlas CTA - OpenClaw style */
+.atlas-cta {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  padding: 24px 28px;
+  background: rgba(5, 5, 10, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 16px;
+  backdrop-filter: blur(16px);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.atlas-cta:hover {
+  border-color: rgba(255, 255, 255, 0.1);
+  transform: translateY(-2px);
+}
+
+.atlas-cta-text {
+  margin: 0;
+  font-size: 14px;
+  color: var(--text-muted);
+}
+
+.atlas-cta-query {
+  color: var(--text-primary);
+  font-weight: 500;
+}
+
+.atlas-cta-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 24px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  color: var(--text-primary);
+  font-size: 14px;
+  font-weight: 500;
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+.atlas-cta-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+/* GitHub link */
+.home-github {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  color: var(--text-muted);
+  font-size: 12px;
+  text-decoration: none;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+  animation: github-enter 0.6s cubic-bezier(0.4, 0, 0.2, 1) 0.4s both;
+}
+
+@keyframes github-enter {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.home-github:hover {
+  color: var(--text-secondary);
+}
+
+/* Tablet/small desktop */
+@media (max-width: 1200px) {
+  .home-globe {
+    transform: translateX(-10%);
+  }
+
+  .home--has-results .home-globe {
+    transform: translateX(-20%);
+  }
+
+  .home-content {
+    padding-left: 40%;
+  }
+}
+
+/* Mobile: Stack vertically, globe on top */
+@media (max-width: 768px) {
+  .home {
+    flex-direction: column;
+  }
+
+  .home-globe {
+    position: relative;
+    height: 45vh;
+    min-height: 280px;
+    flex-shrink: 0;
+    transform: none;
+  }
+
+  .home--has-results .home-globe {
+    height: 30vh;
+    min-height: 200px;
+    transform: none;
+  }
+
+  .home-globe::after {
+    background: radial-gradient(
+      ellipse 80% 60% at 50% 50%,
+      transparent 0%,
+      transparent 30%,
+      var(--bg-primary) 70%
+    );
+  }
+
+  .home-content {
+    position: relative;
+    flex: 1;
+    min-height: auto;
+    padding: 24px;
+    padding-left: 24px;
+    margin-top: -60px;
+  }
+
+  .home-inner {
+    max-width: 100%;
+    gap: 16px;
+  }
+
+  .home-title-text {
+    font-size: 22px;
+    letter-spacing: 2px;
+  }
+
+  .atlas-cta {
+    padding: 20px 24px;
+  }
+}
+
+/* Very small screens */
+@media (max-width: 400px) {
+  .home-content {
+    padding: 16px;
+  }
+
+  .home-title-text {
+    font-size: 18px;
+  }
+}

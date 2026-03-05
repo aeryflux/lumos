@@ -1,0 +1,16 @@
+# Disable auto-detection to prevent nixpacks from adding npm ci
+providers = []
+
+[phases.setup]
+nixPkgs = ["nodejs_20"]
+
+[phases.install]
+cmds = ["npm install --legacy-peer-deps"]
+
+[phases.build]
+dependsOn = ["install"]
+cmds = ["npm run build"]
+cacheDirectories = []
+
+[start]
+cmd = "npx serve dist -s -l $PORT"
