@@ -61,8 +61,8 @@
   --mode-wiki: #94a3b8;
   --mode-challenge: #fbbf24;
 
-  /* Logo Filter - Dark theme: bright with subtle green accent */
-  --logo-filter: brightness(1.1) drop-shadow(0 0 8px rgba(0, 255, 136, 0.3));
+  /* Logo Filter - Dark theme: invert to white for visibility */
+  --logo-filter: invert(1);
 
   /* Nav - Dark theme */
   --nav-bg: rgba(5, 5, 8, 0.9);
@@ -189,8 +189,8 @@
   --border: rgba(0, 0, 0, 0.08);
   --border-hover: rgba(0, 0, 0, 0.15);
 
-  /* Logo Filter - Light theme: invert colors */
-  --logo-filter: invert(1);
+  /* Logo Filter - Light theme: keep dark, add subtle shadow */
+  --logo-filter: brightness(1.1) drop-shadow(0 0 8px rgba(0, 0, 0, 0.2));
 
   /* Nav - Light theme (white background with subtle border) */
   --nav-bg: rgba(255, 255, 255, 0.95);
@@ -378,8 +378,8 @@ a:hover {
   }
 
   .hero-orb,
-  .starry-bg--animated,
-  .starry-bg--cosmic {
+  .grid-bg--animated,
+  .grid-bg--cosmic {
     animation: none !important;
   }
 }

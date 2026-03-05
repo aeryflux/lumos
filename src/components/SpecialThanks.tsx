@@ -31,6 +31,11 @@ const THANKS: ThankItem[] = [
     url: 'https://vitejs.dev',
     svg: `<svg viewBox="0 0 64 64" fill="currentColor"><path d="M56 16L32 56 8 16h18l6 16 6-16h18zM32 32l-4-10h8l-4 10z"/></svg>`,
   },
+  {
+    name: 'Hugging Face',
+    url: 'https://huggingface.co',
+    svg: `<svg viewBox="0 0 64 64" fill="currentColor"><circle cx="32" cy="32" r="24" fill="none" stroke="currentColor" stroke-width="3"/><circle cx="24" cy="28" r="3"/><circle cx="40" cy="28" r="3"/><path d="M22 38c0 0 4 6 10 6s10-6 10-6" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg>`,
+  },
 ];
 
 export function SpecialThanks() {

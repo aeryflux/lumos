@@ -1,11 +1,11 @@
 /**
- * StarryBackground CSS
+ * GridBackground CSS
  *
  * CSS-only dot/grid patterns using linear-gradient.
  * Theme-aware using CSS variables.
  */
 
-.starry-bg {
+.grid-bg {
   position: absolute;
   inset: 0;
   pointer-events: none;
@@ -13,62 +13,62 @@
 }
 
 /* Dots pattern - small subtle dots */
-.starry-bg--dots {
+.grid-bg--dots {
   background-image: radial-gradient(
     circle at center,
-    var(--starry-color, var(--accent, #ffffff)) 1px,
+    var(--grid-color, var(--accent, #ffffff)) 1px,
     transparent 1px
   );
-  background-size: var(--starry-size, 20px) var(--starry-size, 20px);
-  opacity: var(--starry-opacity, 0.15);
+  background-size: var(--grid-size, 20px) var(--grid-size, 20px);
+  opacity: var(--grid-opacity, 0.15);
 }
 
 /* Grid pattern - subtle grid lines */
-.starry-bg--grid {
+.grid-bg--grid {
   background-image:
     linear-gradient(
       to right,
-      var(--starry-color, var(--accent, rgba(255, 255, 255, 0.05))) 1px,
+      var(--grid-color, var(--accent, rgba(255, 255, 255, 0.05))) 1px,
       transparent 1px
     ),
     linear-gradient(
       to bottom,
-      var(--starry-color, var(--accent, rgba(255, 255, 255, 0.05))) 1px,
+      var(--grid-color, var(--accent, rgba(255, 255, 255, 0.05))) 1px,
       transparent 1px
     );
-  background-size: var(--starry-size, 40px) var(--starry-size, 40px);
-  opacity: var(--starry-opacity, 0.1);
+  background-size: var(--grid-size, 40px) var(--grid-size, 40px);
+  opacity: var(--grid-opacity, 0.1);
 }
 
 /* Stars pattern - larger, more visible dots like a starfield */
-.starry-bg--stars {
+.grid-bg--stars {
   background-image:
     /* Larger stars */
     radial-gradient(
       circle at center,
-      var(--starry-color, var(--accent, #ffffff)) 1.5px,
+      var(--grid-color, var(--accent, #ffffff)) 1.5px,
       transparent 1.5px
     ),
     /* Smaller stars - offset */
     radial-gradient(
       circle at center,
-      var(--starry-color, var(--accent, #ffffff)) 0.8px,
+      var(--grid-color, var(--accent, #ffffff)) 0.8px,
       transparent 0.8px
     );
   background-size:
-    var(--starry-size, 30px) var(--starry-size, 30px),
-    calc(var(--starry-size, 30px) * 0.7) calc(var(--starry-size, 30px) * 0.7);
+    var(--grid-size, 30px) var(--grid-size, 30px),
+    calc(var(--grid-size, 30px) * 0.7) calc(var(--grid-size, 30px) * 0.7);
   background-position:
     0 0,
-    calc(var(--starry-size, 30px) * 0.35) calc(var(--starry-size, 30px) * 0.35);
-  opacity: var(--starry-opacity, 0.2);
+    calc(var(--grid-size, 30px) * 0.35) calc(var(--grid-size, 30px) * 0.35);
+  opacity: var(--grid-opacity, 0.2);
 }
 
 /* ===========================================
    Cosmic pattern - OpenClaw-inspired starfield
    Uses positioned dots within tiling pattern
    =========================================== */
-.starry-bg--cosmic {
+.grid-bg--cosmic {
   background-image:
     /* Positioned dots like OpenClaw - various sizes and positions */
     radial-gradient(2px 2px at 20px 30px, rgba(255,255,255,0.8), transparent),
@@ -85,7 +85,7 @@
     radial-gradient(1px 1px at 320px 90px, rgba(255,255,255,0.5), transparent);
   background-size: 350px 200px;
   animation: starfield-twinkle 8s ease-in-out infinite alternate;
-  opacity: var(--starry-opacity, 0.5);
+  opacity: var(--grid-opacity, 0.5);
 }
 
 @keyframes starfield-twinkle {
@@ -94,7 +94,7 @@
 }
 
 /* Extra twinkle layer for cosmic stars (optional enhancement) */
-.starry-bg--cosmic.starry-bg--twinkle::before {
+.grid-bg--cosmic.grid-bg--twinkle::before {
   content: '';
   position: absolute;
   inset: 0;
@@ -113,7 +113,7 @@
 }
 
 /* Fade mask - radial gradient to fade edges */
-.starry-bg--fade {
+.grid-bg--fade {
   mask-image: radial-gradient(
     ellipse 80% 60% at 50% 50%,
     black 0%,
@@ -129,7 +129,7 @@
 }
 
 /* Wider fade for full-screen effects */
-.starry-bg--fade-wide {
+.grid-bg--fade-wide {
   mask-image: radial-gradient(
     ellipse 100% 80% at 50% 50%,
     black 0%,
@@ -145,15 +145,15 @@
 }
 
 /* Theme-specific color overrides */
-[data-theme="dark"] .starry-bg {
-  --starry-color: rgba(255, 255, 255, 0.8);
+[data-theme="dark"] .grid-bg {
+  --grid-color: rgba(255, 255, 255, 0.8);
 }
 
-[data-theme="green"] .starry-bg {
-  --starry-color: var(--accent, #00ff88);
+[data-theme="green"] .grid-bg {
+  --grid-color: var(--accent, #00ff88);
 }
 
-[data-theme="green"] .starry-bg--cosmic {
+[data-theme="green"] .grid-bg--cosmic {
   background-image:
     radial-gradient(2px 2px at 20px 30px, rgba(0,255,136,0.8), transparent),
     radial-gradient(2px 2px at 40px 70px, rgba(0,255,136,0.5), transparent),
@@ -170,7 +170,7 @@
   background-size: 350px 200px;
 }
 
-[data-theme="green"] .starry-bg--cosmic.starry-bg--twinkle::before {
+[data-theme="green"] .grid-bg--cosmic.grid-bg--twinkle::before {
   background-image:
     radial-gradient(1px 1px at 70px 50px, rgba(0,255,136,0.9), transparent),
     radial-gradient(1px 1px at 220px 110px, rgba(0,255,136,0.8), transparent),
@@ -178,18 +178,18 @@
   background-size: 350px 200px;
 }
 
-[data-theme="green"] .starry-bg--cosmic.starry-bg--twinkle::after {
+[data-theme="green"] .grid-bg--cosmic.grid-bg--twinkle::after {
   background-image:
     radial-gradient(1px 1px at 100px 80px, rgba(0,255,136,0.7), transparent),
     radial-gradient(1px 1px at 260px 30px, rgba(0,255,136,0.6), transparent);
   background-size: 350px 200px;
 }
 
-[data-theme="light"] .starry-bg {
-  --starry-color: rgba(0, 0, 0, 0.3);
+[data-theme="light"] .grid-bg {
+  --grid-color: rgba(0, 0, 0, 0.3);
 }
 
-[data-theme="light"] .starry-bg--cosmic {
+[data-theme="light"] .grid-bg--cosmic {
   background-image:
     radial-gradient(2px 2px at 20px 30px, rgba(0,0,0,0.4), transparent),
     radial-gradient(2px 2px at 40px 70px, rgba(0,0,0,0.25), transparent),
@@ -206,7 +206,7 @@
   background-size: 350px 200px;
 }
 
-[data-theme="light"] .starry-bg--cosmic.starry-bg--twinkle::before {
+[data-theme="light"] .grid-bg--cosmic.grid-bg--twinkle::before {
   background-image:
     radial-gradient(1px 1px at 70px 50px, rgba(0,0,0,0.45), transparent),
     radial-gradient(1px 1px at 220px 110px, rgba(0,0,0,0.4), transparent),
@@ -214,7 +214,7 @@
   background-size: 350px 200px;
 }
 
-[data-theme="light"] .starry-bg--cosmic.starry-bg--twinkle::after {
+[data-theme="light"] .grid-bg--cosmic.grid-bg--twinkle::after {
   background-image:
     radial-gradient(1px 1px at 100px 80px, rgba(0,0,0,0.35), transparent),
     radial-gradient(1px 1px at 260px 30px, rgba(0,0,0,0.3), transparent);
@@ -222,18 +222,18 @@
 }
 
 /* Animation variant (optional - add class to enable) */
-.starry-bg--animated {
-  animation: starry-drift 60s linear infinite;
+.grid-bg--animated {
+  animation: grid-drift 60s linear infinite;
 }
 
-@keyframes starry-drift {
+@keyframes grid-drift {
   0% {
     background-position: 0 0, 0 0;
   }
   100% {
     background-position:
-      calc(var(--starry-size, 20px) * 3) calc(var(--starry-size, 20px) * 3),
-      calc(var(--starry-size, 20px) * 2) calc(var(--starry-size, 20px) * 2);
+      calc(var(--grid-size, 20px) * 3) calc(var(--grid-size, 20px) * 3),
+      calc(var(--grid-size, 20px) * 2) calc(var(--grid-size, 20px) * 2);
   }
 }
 
@@ -241,7 +241,7 @@
    Effect Layers - for triggered animations
    =========================================== */
 
-.starry-effect-layer {
+.grid-effect-layer {
   position: absolute;
   inset: 0;
   pointer-events: none;
@@ -249,18 +249,18 @@
   transition: opacity 0.3s ease;
 }
 
-.starry-effect-layer--1 {
+.grid-effect-layer--1 {
   background: radial-gradient(
     circle at 50% 50%,
-    var(--starry-effect-color, rgba(0, 255, 136, 0.3)) 0%,
+    var(--grid-effect-color, rgba(0, 255, 136, 0.3)) 0%,
     transparent 50%
   );
 }
 
-.starry-effect-layer--2 {
+.grid-effect-layer--2 {
   background: radial-gradient(
     circle at 50% 50%,
-    var(--starry-effect-color, rgba(139, 92, 246, 0.2)) 0%,
+    var(--grid-effect-color, rgba(139, 92, 246, 0.2)) 0%,
     transparent 70%
   );
 }
@@ -269,11 +269,11 @@
    Effect: Pulse - global brightness pulse
    =========================================== */
 
-.starry-bg--effect-pulse {
+.grid-bg--effect-pulse {
   animation: effect-pulse 0.8s ease-out;
 }
 
-.starry-bg--effect-pulse .starry-effect-layer--1 {
+.grid-bg--effect-pulse .grid-effect-layer--1 {
   opacity: 1;
   animation: pulse-layer 0.8s ease-out;
 }
@@ -309,20 +309,20 @@
    Effect: Ripple - expanding ring
    =========================================== */
 
-.starry-bg--effect-ripple .starry-effect-layer--1 {
+.grid-bg--effect-ripple .grid-effect-layer--1 {
   opacity: 1;
   animation: ripple-expand 1s ease-out;
   background: none;
 }
 
-.starry-bg--effect-ripple .starry-effect-layer--1::before {
+.grid-bg--effect-ripple .grid-effect-layer--1::before {
   content: '';
   position: absolute;
   top: 50%;
   left: 50%;
   width: 100px;
   height: 100px;
-  border: 2px solid var(--starry-effect-color, #00ff88);
+  border: 2px solid var(--grid-effect-color, #00ff88);
   border-radius: 50%;
   transform: translate(-50%, -50%);
   animation: ripple-ring 1s ease-out;
@@ -352,17 +352,17 @@
    Effect: Burst - particle explosion
    =========================================== */
 
-.starry-bg--effect-burst {
+.grid-bg--effect-burst {
   animation: effect-burst 0.6s ease-out;
 }
 
-.starry-bg--effect-burst .starry-effect-layer--1,
-.starry-bg--effect-burst .starry-effect-layer--2 {
+.grid-bg--effect-burst .grid-effect-layer--1,
+.grid-bg--effect-burst .grid-effect-layer--2 {
   opacity: 1;
   animation: burst-scatter 0.8s ease-out;
 }
 
-.starry-bg--effect-burst .starry-effect-layer--2 {
+.grid-bg--effect-burst .grid-effect-layer--2 {
   animation-delay: 0.1s;
 }
 
@@ -400,16 +400,16 @@
    Effect: Shift - horizontal color wave
    =========================================== */
 
-.starry-bg--effect-shift {
+.grid-bg--effect-shift {
   animation: effect-shift 1s ease-in-out;
 }
 
-.starry-bg--effect-shift .starry-effect-layer--1 {
+.grid-bg--effect-shift .grid-effect-layer--1 {
   opacity: 1;
   background: linear-gradient(
     90deg,
     transparent 0%,
-    var(--starry-effect-color, rgba(0, 255, 136, 0.3)) 50%,
+    var(--grid-effect-color, rgba(0, 255, 136, 0.3)) 50%,
     transparent 100%
   );
   animation: shift-wave 1s ease-in-out;
@@ -443,29 +443,29 @@
    Scroll-reactive effects
    =========================================== */
 
-.starry-bg--scroll-reactive {
+.grid-bg--scroll-reactive {
   /* Parallax-like drift based on scroll position */
-  background-position-y: calc(var(--starry-scroll-progress, 0) * 50px);
+  background-position-y: calc(var(--grid-scroll-progress, 0) * 50px);
   transition: background-position-y 0.1s ease-out;
 }
 
-.starry-bg--scroll-reactive .starry-effect-layer--1 {
-  opacity: calc(var(--starry-scroll-progress, 0) * 0.3);
-  transform: translateY(calc(var(--starry-scroll-progress, 0) * -20px));
+.grid-bg--scroll-reactive .grid-effect-layer--1 {
+  opacity: calc(var(--grid-scroll-progress, 0) * 0.3);
+  transform: translateY(calc(var(--grid-scroll-progress, 0) * -20px));
 }
 
 /* Section transition glow effect */
-.starry-bg--scroll-reactive::after {
+.grid-bg--scroll-reactive::after {
   content: '';
   position: absolute;
   left: 0;
   right: 0;
   height: 200px;
-  top: calc(var(--starry-scroll-progress, 0) * 100% - 100px);
+  top: calc(var(--grid-scroll-progress, 0) * 100% - 100px);
   background: linear-gradient(
     180deg,
     transparent 0%,
-    var(--starry-effect-color, rgba(0, 255, 136, 0.1)) 50%,
+    var(--grid-effect-color, rgba(0, 255, 136, 0.1)) 50%,
     transparent 100%
   );
   opacity: 0.5;
@@ -478,13 +478,13 @@
    Simple flash effect on grid lines
    =========================================== */
 
-.starry-bg--effect-laser-scan.starry-bg--grid {
+.grid-bg--effect-laser-scan.grid-bg--grid {
   animation: grid-glow 0.6s ease-out;
 }
 
 @keyframes grid-glow {
   0% {
-    opacity: var(--starry-opacity, 0.15);
+    opacity: var(--grid-opacity, 0.15);
     filter: brightness(1) drop-shadow(0 0 0 transparent);
     background-image:
       linear-gradient(to right, rgba(255, 255, 255, 0.05) 1px, transparent 1px),
@@ -492,13 +492,13 @@
   }
   20% {
     opacity: 0.5;
-    filter: brightness(2) drop-shadow(0 0 8px var(--starry-effect-color, #00ff88));
+    filter: brightness(2) drop-shadow(0 0 8px var(--grid-effect-color, #00ff88));
     background-image:
-      linear-gradient(to right, var(--starry-effect-color, #00ff88) 1px, transparent 1px),
-      linear-gradient(to bottom, var(--starry-effect-color, #00ff88) 1px, transparent 1px);
+      linear-gradient(to right, var(--grid-effect-color, #00ff88) 1px, transparent 1px),
+      linear-gradient(to bottom, var(--grid-effect-color, #00ff88) 1px, transparent 1px);
   }
   100% {
-    opacity: var(--starry-opacity, 0.15);
+    opacity: var(--grid-opacity, 0.15);
     filter: brightness(1) drop-shadow(0 0 0 transparent);
     background-image:
       linear-gradient(to right, rgba(255, 255, 255, 0.05) 1px, transparent 1px),

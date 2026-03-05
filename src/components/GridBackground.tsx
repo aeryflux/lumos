@@ -1,20 +1,20 @@
 /**
- * StarryBackground - Interactive starfield with effect triggers
+ * GridBackground - Interactive grid background with effect triggers
  *
  * Features:
- * - CSS-only dot/grid patterns (dots, grid, stars, cosmic)
- * - Effect triggers: pulse, ripple, burst, shift
+ * - CSS-only patterns (dots, grid, stars, cosmic)
+ * - Effect triggers: pulse, ripple, burst, shift, laser-scan
  * - Scroll-reactive animations
  * - Mode change transitions
  */
 
 import { useEffect, useState, useRef, useCallback } from 'react';
-import './StarryBackground.css';
+import './GridBackground.css';
 
 // Effect types that can be triggered
-export type StarryEffect = 'pulse' | 'ripple' | 'burst' | 'shift' | 'laser-scan' | 'none';
+export type GridEffect = 'pulse' | 'ripple' | 'burst' | 'shift' | 'laser-scan' | 'none';
 
-interface StarryBackgroundProps {
+interface GridBackgroundProps {
   /** Pattern variant */
   variant?: 'dots' | 'grid' | 'stars' | 'cosmic';
   /** Pattern size in pixels (not used for cosmic variant) */
@@ -28,7 +28,7 @@ interface StarryBackgroundProps {
   /** Enable twinkling animation (cosmic variant only) */
   twinkle?: boolean;
   /** Active effect (triggered externally) */
-  effect?: StarryEffect;
+  effect?: GridEffect;
   /** Effect color (for colored effects) */
   effectColor?: string;
   /** Callback when effect animation completes */
@@ -39,7 +39,7 @@ interface StarryBackgroundProps {
   children?: React.ReactNode;
 }
 
-export function StarryBackground({
+export function GridBackground({
   variant = 'dots',
   size = 20,
   opacity = 0.15,
@@ -51,8 +51,8 @@ export function StarryBackground({
   onEffectComplete,
   scrollReactive = false,
   children,
-}: StarryBackgroundProps) {
-  const [activeEffect, setActiveEffect] = useState<StarryEffect>('none');
+}: GridBackgroundProps) {
+  const [activeEffect, setActiveEffect] = useState<GridEffect>('none');
   const [scrollProgress, setScrollProgress] = useState(0);
   const effectTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -97,36 +97,36 @@ export function StarryBackground({
     return () => window.removeEventListener('scroll', handleScroll);
   }, [scrollReactive]);
 
-  const patternClass = `starry-bg starry-bg--${variant}`;
-  const fadeClass = fade === true ? 'starry-bg--fade' : fade === 'wide' ? 'starry-bg--fade-wide' : '';
-  const twinkleClass = twinkle && variant === 'cosmic' ? 'starry-bg--twinkle' : '';
-  const effectClass = activeEffect !== 'none' ? `starry-bg--effect-${activeEffect}` : '';
-  const scrollClass = scrollReactive ? 'starry-bg--scroll-reactive' : '';
+  const patternClass = `grid-bg grid-bg--${variant}`;
+  const fadeClass = fade === true ? 'grid-bg--fade' : fade === 'wide' ? 'grid-bg--fade-wide' : '';
+  const twinkleClass = twinkle && variant === 'cosmic' ? 'grid-bg--twinkle' : '';
+  const effectClass = activeEffect !== 'none' ? `grid-bg--effect-${activeEffect}` : '';
+  const scrollClass = scrollReactive ? 'grid-bg--scroll-reactive' : '';
 
   return (
     <div
       className={`${patternClass} ${fadeClass} ${twinkleClass} ${effectClass} ${scrollClass} ${className}`}
       style={{
-        '--starry-size': `${size}px`,
-        '--starry-opacity': opacity,
-        '--starry-effect-color': effectColor || 'var(--accent, #00ff88)',
-        '--starry-scroll-progress': scrollProgress,
+        '--grid-size': `${size}px`,
+        '--grid-opacity': opacity,
+        '--grid-effect-color': effectColor || 'var(--accent, #00ff88)',
+        '--grid-scroll-progress': scrollProgress,
       } as React.CSSProperties}
     >
       {/* Effect overlay layers */}
-      <div className="starry-effect-layer starry-effect-layer--1" />
-      <div className="starry-effect-layer starry-effect-layer--2" />
+      <div className="grid-effect-layer grid-effect-layer--1" />
+      <div className="grid-effect-layer grid-effect-layer--2" />
       {children}
     </div>
   );
 }
 
 // Hook to trigger effects from anywhere in the app
-export function useStarryEffects() {
-  const [effect, setEffect] = useState<StarryEffect>('none');
+export function useGridEffects() {
+  const [effect, setEffect] = useState<GridEffect>('none');
   const [effectColor, setEffectColor] = useState<string | undefined>();
 
-  const triggerEffect = useCallback((type: StarryEffect, color?: string) => {
+  const triggerEffect = useCallback((type: GridEffect, color?: string) => {
     setEffectColor(color);
     setEffect(type);
   }, []);
@@ -143,4 +143,4 @@ export function useStarryEffects() {
   };
 }
 
-export default StarryBackground;
+export default GridBackground;

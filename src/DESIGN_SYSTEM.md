@@ -154,14 +154,14 @@ import { ScrollAnimate } from '../components/ScrollAnimate';
 - `className`: Additional CSS classes
 - `as`: HTML tag to render. Default `'div'`
 
-### StarryBackground
+### GridBackground
 
-Interactive starfield background with CSS patterns and effects.
+Interactive grid background with CSS patterns and effects.
 
 ```tsx
-import { StarryBackground } from '../components/StarryBackground';
+import { GridBackground } from '../components/GridBackground';
 
-<StarryBackground
+<GridBackground
   variant="cosmic"
   opacity={0.4}
   twinkle
@@ -257,8 +257,8 @@ function MyComponent() {
 src/
 ├── components/
 │   ├── ScrollAnimate.tsx     # Scroll-triggered animations
-│   ├── StarryBackground.tsx  # Interactive starfield
-│   └── StarryBackground.css
+│   ├── GridBackground.tsx    # Interactive grid background
+│   └── GridBackground.css
 ├── hooks/
 │   ├── useScrollAnimation.ts # Scroll animation hook
 │   └── useThemeColors.ts     # Theme colors hook

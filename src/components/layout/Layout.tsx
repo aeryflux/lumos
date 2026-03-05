@@ -2,7 +2,7 @@ import { Outlet, Link, useLocation } from 'react-router-dom';
 import { FileText, Github } from 'lucide-react';
 import { ThemeSwitcher } from '../ThemeSwitcher';
 import { Logo } from '../Logo';
-import { StarryBackground } from '../StarryBackground';
+import { GridBackground } from '../GridBackground';
 import { useEffectsOptional } from '../../contexts/EffectsContext';
 import { useTranslation } from '../../i18n';
 import './Layout.css';
@@ -16,7 +16,7 @@ export function Layout() {
   return (
     <div className="layout">
       {/* Global grid background - connected to effects system */}
-      <StarryBackground
+      <GridBackground
         variant="grid"
         size={50}
         opacity={0.15}

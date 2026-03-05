@@ -7,11 +7,11 @@
  * Usage:
  * - Wrap app with <EffectsProvider>
  * - Use useEffects() hook to trigger effects
- * - StarryBackground consumes this context automatically
+ * - GridBackground consumes this context automatically
  */
 
 import { createContext, useContext, useState, useCallback, type ReactNode } from 'react';
-import type { StarryEffect } from '../components/StarryBackground';
+import type { GridEffect } from '../components/GridBackground';
 
 // Mode colors for effect theming
 export const MODE_COLORS = {
@@ -27,14 +27,14 @@ export type ModeId = keyof typeof MODE_COLORS;
 
 interface EffectsContextValue {
   // Current effect state
-  effect: StarryEffect;
+  effect: GridEffect;
   effectColor: string | undefined;
 
   // Trigger an effect
-  triggerEffect: (type: StarryEffect, color?: string) => void;
+  triggerEffect: (type: GridEffect, color?: string) => void;
 
   // Trigger effect based on mode (uses mode color)
-  triggerModeEffect: (mode: ModeId, effectType?: StarryEffect) => void;
+  triggerModeEffect: (mode: ModeId, effectType?: GridEffect) => void;
 
   // Clear current effect
   clearEffect: () => void;
@@ -51,11 +51,11 @@ interface EffectsProviderProps {
 }
 
 export function EffectsProvider({ children }: EffectsProviderProps) {
-  const [effect, setEffect] = useState<StarryEffect>('none');
+  const [effect, setEffect] = useState<GridEffect>('none');
   const [effectColor, setEffectColor] = useState<string | undefined>();
   const [scrollProgress, setScrollProgress] = useState(0);
 
-  const triggerEffect = useCallback((type: StarryEffect, color?: string) => {
+  const triggerEffect = useCallback((type: GridEffect, color?: string) => {
     setEffectColor(color);
     setEffect(type);
 
@@ -65,7 +65,7 @@ export function EffectsProvider({ children }: EffectsProviderProps) {
     }, 1000);
   }, []);
 
-  const triggerModeEffect = useCallback((mode: ModeId, effectType: StarryEffect = 'pulse') => {
+  const triggerModeEffect = useCallback((mode: ModeId, effectType: GridEffect = 'pulse') => {
     const color = MODE_COLORS[mode] || MODE_COLORS.default;
     triggerEffect(effectType, color);
   }, [triggerEffect]);
