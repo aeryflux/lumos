@@ -171,6 +171,7 @@ export function Home() {
 
   // Globe props - animations disabled by default for minimalism
   const globeProps = useMemo(() => ({
+    modelUrl: '/models/atlas_hex_subdiv_6.glb',
     borderColor: themeColors.globeBorder,
     glowIntensity: 0.6,
     rotationSpeed: 0.0002,
