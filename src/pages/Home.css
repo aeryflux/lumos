@@ -104,8 +104,8 @@
   font-size: 28px;
   font-weight: 700;
   letter-spacing: 3px;
-  color: var(--text-primary);
   text-transform: uppercase;
+  /* Colors set dynamically via inline styles */
 }
 
 /* Results container */
@@ -237,63 +237,113 @@
   }
 }
 
-/* Mobile: Stack vertically, globe on top */
+/* Mobile first: Stack vertically, globe on top - LARGER and CENTERED */
 @media (max-width: 768px) {
   .home {
     flex-direction: column;
+    justify-content: flex-start;
   }
 
   .home-globe {
     position: relative;
-    height: 45vh;
-    min-height: 280px;
+    width: 100%;
+    height: 55vh;
+    min-height: 320px;
+    max-height: 450px;
     flex-shrink: 0;
-    transform: none;
+    transform: scale(1.5) translateY(35px);
+    /* Center the globe horizontally */
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
 
   .home--has-results .home-globe {
-    height: 30vh;
-    min-height: 200px;
-    transform: none;
-  }
-
-  .home-globe::after {
-    background: radial-gradient(
-      ellipse 80% 60% at 50% 50%,
-      transparent 0%,
-      transparent 30%,
-      var(--bg-primary) 70%
-    );
+    height: 35vh;
+    min-height: 220px;
+    max-height: 300px;
+    transform: scale(1.3) translateY(20px);
   }
 
   .home-content {
     position: relative;
     flex: 1;
     min-height: auto;
-    padding: 24px;
-    padding-left: 24px;
-    margin-top: -60px;
+    padding: 16px 20px 24px;
+    padding-left: 20px;
+    margin-top: -40px;
+    z-index: 2;
   }
 
   .home-inner {
     max-width: 100%;
-    gap: 16px;
+    gap: 14px;
+    align-items: center;
   }
 
   .home-title-text {
-    font-size: 22px;
+    font-size: 24px;
     letter-spacing: 2px;
   }
 
   .atlas-cta {
-    padding: 20px 24px;
+    padding: 18px 22px;
+  }
+
+  /* Better animation on mobile */
+  @keyframes content-enter {
+    from {
+      opacity: 0;
+      transform: translateY(16px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
   }
 }
 
-/* Very small screens */
-@media (max-width: 400px) {
+/* Small mobile: Optimize for compact screens */
+@media (max-width: 480px) {
+  .home-globe {
+    height: 50vh;
+    min-height: 300px;
+    max-height: 400px;
+    transform: scale(1.55) translateY(40px);
+  }
+
+  .home--has-results .home-globe {
+    height: 30vh;
+    min-height: 200px;
+    max-height: 260px;
+    transform: scale(1.35) translateY(25px);
+  }
+
   .home-content {
-    padding: 16px;
+    padding: 12px 16px 20px;
+    margin-top: -30px;
+  }
+
+  .home-inner {
+    gap: 12px;
+  }
+
+  .home-title-text {
+    font-size: 20px;
+    letter-spacing: 1.5px;
+  }
+}
+
+/* Very small screens (iPhone SE, etc) */
+@media (max-width: 375px) {
+  .home-globe {
+    height: 48vh;
+    min-height: 280px;
+    transform: scale(1.6) translateY(45px);
+  }
+
+  .home-content {
+    padding: 10px 14px 16px;
   }
 
   .home-title-text {

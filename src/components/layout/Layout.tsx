@@ -5,12 +5,14 @@ import { Logo } from '../Logo';
 import { GridBackground } from '../GridBackground';
 import { useEffectsOptional } from '../../contexts/EffectsContext';
 import { useTranslation } from '../../i18n';
+import { useThemeColors } from '../../hooks/useThemeColors';
 import './Layout.css';
 
 export function Layout() {
   const location = useLocation();
   const { t } = useTranslation();
   const effects = useEffectsOptional();
+  const themeColors = useThemeColors();
   const isHome = location.pathname === '/';
 
   return (
@@ -24,6 +26,7 @@ export function Layout() {
         className="layout-bg"
         effect={effects?.effect}
         effectColor={effects?.effectColor}
+        effectTrigger={effects?.effectTrigger}
       />
 
       {/* Navigation */}
@@ -31,7 +34,10 @@ export function Layout() {
         <div className="nav-container">
           <Link to="/" className="nav-logo">
             <Logo size={36} />
-            <span className="brand-name">AERYFLUX</span>
+            <span className="brand-name">
+              <span style={{ color: themeColors.titleAery }}>AERY</span>
+              <span style={{ color: themeColors.titleFlux }}>FLUX</span>
+            </span>
           </Link>
 
           <div className="nav-actions">

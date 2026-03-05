@@ -14,7 +14,7 @@
     "test:e2e:ui": "playwright test --ui"
   },
   "dependencies": {
-    "@aeryflux/globe": "^0.3.1",
+    "@aeryflux/globe": "^0.4.2",
     "@aeryflux/xenova-bridge": "^0.1.0",
     "@types/three": "^0.169.0",
     "dompurify": "^3.3.1",

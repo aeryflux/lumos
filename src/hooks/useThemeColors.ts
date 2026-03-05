@@ -7,14 +7,20 @@ export interface ThemeColors {
   globeFill: string;
   globeCountry: string;
   globeBorder: string;
+  globeCity: string;
+  titleAery: string;
+  titleFlux: string;
   isLightTheme: boolean;
 }
 
 const DEFAULT_COLORS: ThemeColors = {
   themeId: 'dark',
-  globeFill: '#050510',
-  globeCountry: '#0a1525',
-  globeBorder: '#00ff88',
+  globeFill: '#0a0a0f',
+  globeCountry: '#c0c0c0',
+  globeBorder: '#ffffff',
+  globeCity: '#ffffff',
+  titleAery: '#ffffff',
+  titleFlux: '#888899',
   isLightTheme: false,
 };
 
@@ -33,12 +39,18 @@ export function useThemeColors(): ThemeColors {
       const globeFill = style.getPropertyValue('--globe-fill').trim();
       const globeCountry = style.getPropertyValue('--globe-country').trim();
       const globeBorder = style.getPropertyValue('--globe-border').trim();
+      const globeCity = style.getPropertyValue('--globe-city').trim();
+      const titleAery = style.getPropertyValue('--title-aery').trim();
+      const titleFlux = style.getPropertyValue('--title-flux').trim();
 
       setColors({
         themeId,
         globeFill: globeFill || DEFAULT_COLORS.globeFill,
         globeCountry: globeCountry || DEFAULT_COLORS.globeCountry,
         globeBorder: globeBorder || DEFAULT_COLORS.globeBorder,
+        globeCity: globeCity || DEFAULT_COLORS.globeCity,
+        titleAery: titleAery || DEFAULT_COLORS.titleAery,
+        titleFlux: titleFlux || DEFAULT_COLORS.titleFlux,
         isLightTheme: themeId === 'light',
       });
     };

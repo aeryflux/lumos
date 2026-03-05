@@ -31,6 +31,8 @@ interface GridBackgroundProps {
   effect?: GridEffect;
   /** Effect color (for colored effects) */
   effectColor?: string;
+  /** Effect trigger counter - increments to force animation restart */
+  effectTrigger?: number;
   /** Callback when effect animation completes */
   onEffectComplete?: () => void;
   /** Enable scroll-reactive effects */
@@ -48,6 +50,7 @@ export function GridBackground({
   twinkle = false,
   effect = 'none',
   effectColor,
+  effectTrigger,
   onEffectComplete,
   scrollReactive = false,
   children,
@@ -58,22 +61,24 @@ export function GridBackground({
   const gridRef = useRef<HTMLDivElement>(null);
 
   // Handle external effect triggers
+  // effectTrigger increments each time to force re-trigger even for same effect type
   useEffect(() => {
     if (effect !== 'none') {
-      // Force animation restart by removing and re-adding class
-      if (gridRef.current) {
-        gridRef.current.style.animation = 'none';
-        // Trigger reflow
-        void gridRef.current.offsetHeight;
-        gridRef.current.style.animation = '';
-      }
-
-      setActiveEffect(effect);
-
       // Clear previous timeout
       if (effectTimeoutRef.current) {
         clearTimeout(effectTimeoutRef.current);
       }
+
+      // Force animation restart by briefly removing the effect class
+      // This ensures pseudo-element animations also restart
+      setActiveEffect('none');
+
+      // Use requestAnimationFrame to ensure DOM updates before re-adding effect
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          setActiveEffect(effect);
+        });
+      });
 
       // Auto-clear effect after animation
       effectTimeoutRef.current = setTimeout(() => {
@@ -87,7 +92,7 @@ export function GridBackground({
         clearTimeout(effectTimeoutRef.current);
       }
     };
-  }, [effect, onEffectComplete]);
+  }, [effect, effectTrigger, onEffectComplete]);
 
   // Scroll-reactive behavior
   useEffect(() => {

@@ -76,11 +76,16 @@
   --vignette-mid: rgba(5, 5, 8, 0.5);
   --vignette-edge: rgba(5, 5, 8, 0.95);
 
-  /* Globe colors - Dark theme: dark fill, green accent borders */
-  --globe-fill: #0a0a12;
-  --globe-country: #1a1a28;
-  --globe-border: #00ff88;
+  /* Globe colors - Dark theme: dark fill, light countries, white borders */
+  --globe-fill: #0a0a0f;
+  --globe-country: #c0c0c0;
+  --globe-border: #ffffff;
+  --globe-city: #ffffff;
   --globe-filter: none;
+
+  /* Title colors - Dark theme */
+  --title-aery: #ffffff;
+  --title-flux: #888899;
 
   /* Hero text - Light text on dark background */
   --hero-text: #f0f0f5;
@@ -148,11 +153,16 @@
   --vignette-mid: rgba(5, 5, 8, 0.5);
   --vignette-edge: rgba(5, 5, 8, 0.95);
 
-  /* Globe colors - Green theme: GREEN ocean fill, BLACK countries, green borders */
-  --globe-fill: #00ff88;
-  --globe-country: #0a0a0f;
+  /* Globe colors - Green theme: dark fill, gray countries, green borders */
+  --globe-fill: #0a0a0f;
+  --globe-country: #1a3328;
   --globe-border: #00ff88;
+  --globe-city: #00ff88;
   --globe-filter: none;
+
+  /* Title colors - Green theme */
+  --title-aery: #00ff88;
+  --title-flux: #00d4ff;
 
   /* Hero text - Green theme: WHITE text for contrast */
   --hero-text: #ffffff;
@@ -166,58 +176,64 @@
 
 /* ============================================
    Theme Variables - Light
+   DA stays dark, only globe/UI colors change
    ============================================ */
 [data-theme="light"] {
-  /* Backgrounds - Light */
-  --bg-primary: #ffffff;
-  --bg-secondary: #f5f5f8;
-  --bg-tertiary: #eaeaef;
-  --bg-card: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(248, 248, 252, 0.98) 100%);
+  /* Backgrounds - Keep dark (DA is always black) */
+  --bg-primary: #050508;
+  --bg-secondary: #0a0a10;
+  --bg-tertiary: #12121a;
+  --bg-card: linear-gradient(135deg, rgba(20, 20, 30, 0.8) 0%, rgba(10, 10, 18, 0.9) 100%);
 
-  /* Text - Dark */
-  --text-primary: #1a1a1a;
-  --text-secondary: #555555;
-  --text-muted: #777777;
+  /* Text - Light (on dark background) */
+  --text-primary: #c8c8d0;
+  --text-secondary: #9090a8;
+  --text-muted: #606080;
 
-  /* Accent - Black */
-  --accent: #1a1a1a;
-  --accent-secondary: #333333;
-  --accent-glow: rgba(0, 0, 0, 0.15);
-  --border-glow: rgba(0, 0, 0, 0.08);
+  /* Accent - White/light for light theme globe */
+  --accent: #ffffff;
+  --accent-secondary: #cccccc;
+  --accent-glow: rgba(255, 255, 255, 0.15);
+  --border-glow: rgba(255, 255, 255, 0.08);
 
-  /* Borders - Dark */
-  --border: rgba(0, 0, 0, 0.08);
-  --border-hover: rgba(0, 0, 0, 0.15);
+  /* Borders - Light */
+  --border: rgba(255, 255, 255, 0.06);
+  --border-hover: rgba(255, 255, 255, 0.15);
 
-  /* Logo Filter - Light theme: keep dark, add subtle shadow */
-  --logo-filter: brightness(1.1) drop-shadow(0 0 8px rgba(0, 0, 0, 0.2));
+  /* Logo Filter - Light theme: invert to white */
+  --logo-filter: invert(1);
 
-  /* Nav - Light theme (white background with subtle border) */
-  --nav-bg: rgba(255, 255, 255, 0.95);
-  --nav-border: rgba(0, 0, 0, 0.1);
-  --nav-text: #1a1a1a;
-  --nav-text-secondary: #555555;
-  --nav-hover-bg: rgba(0, 0, 0, 0.05);
-  --nav-active-bg: rgba(0, 0, 0, 0.1);
+  /* Nav - Light theme on dark background */
+  --nav-bg: rgba(5, 5, 8, 0.9);
+  --nav-border: rgba(255, 255, 255, 0.06);
+  --nav-text: #e8e8f0;
+  --nav-text-secondary: #8888a0;
+  --nav-hover-bg: rgba(255, 255, 255, 0.04);
+  --nav-active-bg: rgba(255, 255, 255, 0.08);
 
-  /* Vignette - Light theme (white edges) */
-  --vignette-mid: rgba(255, 255, 255, 0.5);
-  --vignette-edge: rgba(255, 255, 255, 0.95);
+  /* Vignette - Dark edges */
+  --vignette-mid: rgba(5, 5, 8, 0.5);
+  --vignette-edge: rgba(5, 5, 8, 0.95);
 
-  /* Globe colors - Light theme: dark ocean (black), light countries (white), dark borders */
+  /* Globe colors - Light theme: dark ocean, light countries, dark borders */
   --globe-fill: #0a0a0f;
-  --globe-country: #f0f0f5;
-  --globe-border: #1a1a1a;
+  --globe-country: #e0e0e8;
+  --globe-border: #333333;
+  --globe-city: #444444;
 
-  /* Hero text - WHITE text on light theme to contrast with DARK globe fill */
-  --hero-text: #ffffff;
-  --hero-text-secondary: rgba(255, 255, 255, 0.9);
+  /* Title colors - Light theme */
+  --title-aery: #ffffff;
+  --title-flux: #888899;
+
+  /* Hero text - Light text on dark background */
+  --hero-text: #f0f0f5;
+  --hero-text-secondary: #9090a8;
   --hero-text-shadow: 0 2px 30px rgba(0, 0, 0, 0.8);
-  --hero-btn-secondary-text: #ffffff;
-  --hero-btn-secondary-border: rgba(255, 255, 255, 0.4);
+  --hero-btn-secondary-text: #f0f0f5;
+  --hero-btn-secondary-border: rgba(255, 255, 255, 0.15);
   --globe-filter: none;
 
-  color-scheme: light;
+  color-scheme: dark;
 }
 
 * {
@@ -359,9 +375,9 @@ a:hover {
 }
 
 [data-theme="light"] {
-  /* Soft off-white, not aggressive pure white */
-  --glass-bg: rgba(240, 240, 245, 0.85);
-  --glass-border: rgba(0, 0, 0, 0.08);
+  /* Dark glass like other themes */
+  --glass-bg: rgba(15, 15, 20, 0.8);
+  --glass-border: rgba(255, 255, 255, 0.06);
 }
 
 /* ============================================

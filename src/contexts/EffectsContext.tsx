@@ -29,6 +29,8 @@ interface EffectsContextValue {
   // Current effect state
   effect: GridEffect;
   effectColor: string | undefined;
+  // Trigger counter - increments each time an effect is triggered
+  effectTrigger: number;
 
   // Trigger an effect
   triggerEffect: (type: GridEffect, color?: string) => void;
@@ -53,11 +55,14 @@ interface EffectsProviderProps {
 export function EffectsProvider({ children }: EffectsProviderProps) {
   const [effect, setEffect] = useState<GridEffect>('none');
   const [effectColor, setEffectColor] = useState<string | undefined>();
+  const [effectTrigger, setEffectTrigger] = useState(0);
   const [scrollProgress, setScrollProgress] = useState(0);
 
   const triggerEffect = useCallback((type: GridEffect, color?: string) => {
     setEffectColor(color);
     setEffect(type);
+    // Increment trigger counter to force re-detection even for same effect type
+    setEffectTrigger(prev => prev + 1);
 
     // Auto-clear after animation (matches 1.5s CSS animation + buffer)
     setTimeout(() => {
@@ -79,6 +84,7 @@ export function EffectsProvider({ children }: EffectsProviderProps) {
       value={{
         effect,
         effectColor,
+        effectTrigger,
         triggerEffect,
         triggerModeEffect,
         clearEffect,

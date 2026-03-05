@@ -3,6 +3,7 @@ import { Github, ExternalLink } from 'lucide-react';
 import { useThemeColors } from '../hooks/useThemeColors';
 import { useEffects } from '../contexts/EffectsContext';
 import { SmartInput } from '../components/SmartInput';
+import { DemoPreview } from '../components/DemoPreview';
 import { NewsResults } from '../components/NewsResults';
 import { WeatherResults } from '../components/WeatherResults';
 import { WikiResults } from '../components/WikiResults';
@@ -47,12 +48,14 @@ export function Home() {
   const [results, setResults] = useState<SearchResults | null>(null);
   // Auto-demo state: shows preview data on globe without full results panel
   const [demoData, setDemoData] = useState<{ countryData: CountryDataMap; color: string } | null>(null);
+  // Track current demo query for the preview module
+  const [demoInfo, setDemoInfo] = useState<{ query: string; mode: SearchMode; countryCount: number; primaryCountry?: string } | null>(null);
 
-  // Trigger laser scan effect on page load (uses theme accent color)
+  // Trigger laser scan effect on page load
   useEffect(() => {
     // Small delay to ensure DOM is ready
     const timer = setTimeout(() => {
-      triggerEffect('laser-scan'); // No color = uses theme accent
+      triggerEffect('laser-scan', '#00ff88');
     }, 100);
     return () => clearTimeout(timer);
   }, [triggerEffect]);
@@ -65,24 +68,50 @@ export function Home() {
 
       // Extract country data based on mode
       let countryData: CountryDataMap = {};
+      let primaryCountry: string | undefined;
+
       if (searchResult.mode === 'news' && searchResult.newsCountryData) {
-        for (const [country, info] of Object.entries(searchResult.newsCountryData)) {
+        const entries = Object.entries(searchResult.newsCountryData);
+        for (const [country, info] of entries) {
           countryData[country] = { scale: info.scale, color: info.color || highlightColor };
+        }
+        // Find primary country (highest scale)
+        if (entries.length > 0) {
+          const sorted = entries.sort((a, b) => b[1].scale - a[1].scale);
+          primaryCountry = sorted[0][0];
         }
       } else if (searchResult.mode === 'weather' && searchResult.weatherData) {
-        for (const [country, info] of Object.entries(searchResult.weatherData)) {
+        const entries = Object.entries(searchResult.weatherData);
+        for (const [country, info] of entries) {
           countryData[country] = { scale: info.scale, color: info.color || highlightColor };
         }
+        if (entries.length > 0) {
+          const sorted = entries.sort((a, b) => b[1].scale - a[1].scale);
+          primaryCountry = sorted[0][0];
+        }
       } else if (searchResult.mode === 'wiki' && searchResult.wikiData) {
-        for (const [country, info] of Object.entries(searchResult.wikiData)) {
+        const entries = Object.entries(searchResult.wikiData);
+        for (const [country, info] of entries) {
           countryData[country] = { scale: info.scale, color: info.color || highlightColor };
+        }
+        if (entries.length > 0) {
+          const sorted = entries.sort((a, b) => b[1].scale - a[1].scale);
+          primaryCountry = sorted[0][0];
         }
       }
 
-      // Only trigger effect and update if we have data
-      if (Object.keys(countryData).length > 0) {
-        triggerEffect('laser-scan');
+      const countryCount = Object.keys(countryData).length;
+
+      if (countryCount > 0) {
+        // Trigger grid effect AFTER data is ready, synchronized with globe update
+        triggerEffect('laser-scan', '#00ff88');
         setDemoData({ countryData, color: highlightColor });
+        setDemoInfo({
+          query,
+          mode: searchResult.mode,
+          countryCount,
+          primaryCountry,
+        });
       }
     } catch (error) {
       console.error('Demo search error:', error);
@@ -92,10 +121,11 @@ export function Home() {
   const handleQuery = useCallback(async (query: string, mode: SearchMode) => {
     // Clear demo mode when user submits real query
     setDemoData(null);
+    setDemoInfo(null);
     setQueryState('loading');
 
     // Trigger laser scan effect with consistent green color
-    triggerEffect('laser-scan');
+    triggerEffect('laser-scan', '#00ff88');
 
     const searchResult = await executeSearch(query, mode);
 
@@ -195,7 +225,7 @@ export function Home() {
     rotationSpeed: 0.0002,
     bloomStrength: 0.4,
     showCountries: true,
-    showCities: false,
+    showCities: true,
     countryColor: themeColors.globeCountry,
     globeFillColor: themeColors.globeFill,
     isLightTheme: themeColors.isLightTheme,
@@ -288,9 +318,12 @@ export function Home() {
       {/* Content - overlay */}
       <div className="home-content">
         <div className="home-inner">
-          {/* Logo/Title */}
+          {/* Logo/Title - Split colors */}
           <h1 className="home-title">
-            <span className="home-title-text">AeryFlux</span>
+            <span className="home-title-text">
+              <span style={{ color: themeColors.titleAery }}>Aery</span>
+              <span style={{ color: themeColors.titleFlux }}>Flux</span>
+            </span>
           </h1>
 
           {/* Input */}
@@ -302,6 +335,17 @@ export function Home() {
             autoDemo
             onDemoChange={handleDemoChange}
           />
+
+          {/* Demo Preview - shown during auto-demo when idle */}
+          {queryState === 'idle' && demoInfo && (
+            <DemoPreview
+              query={demoInfo.query}
+              mode={demoInfo.mode}
+              isVisible={!inputFocused}
+              countryCount={demoInfo.countryCount}
+              primaryCountry={demoInfo.primaryCountry}
+            />
+          )}
 
           {/* Results */}
           {queryState !== 'idle' && (

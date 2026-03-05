@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { Send, Newspaper, Cloud, BookOpen, Sparkles } from 'lucide-react';
 import type { SearchMode } from '../services/searchService';
 import './SmartInput.css';
@@ -72,6 +72,23 @@ export function SmartInput({
   const suggestions = SUGGESTIONS[selectedMode];
   const currentSuggestion = suggestions[suggestionIndex];
 
+  // Track if demo has been triggered for current suggestion to avoid duplicates
+  const lastDemoRef = useRef<string | null>(null);
+
+  // Stable callback for triggering demo
+  const triggerDemo = useCallback(() => {
+    if (!autoDemo || !onDemoChange || isActive || value) return;
+
+    // Create a unique key for this demo state
+    const demoKey = `${selectedMode}-${suggestionIndex}`;
+
+    // Skip if we already triggered this exact demo
+    if (lastDemoRef.current === demoKey) return;
+    lastDemoRef.current = demoKey;
+
+    onDemoChange(currentSuggestion, selectedMode);
+  }, [autoDemo, onDemoChange, isActive, value, selectedMode, suggestionIndex, currentSuggestion]);
+
   // Typing effect for placeholder
   useEffect(() => {
     if (isActive || value || !autoDemo) {
@@ -96,46 +113,34 @@ export function SmartInput({
     return () => clearInterval(typeInterval);
   }, [currentSuggestion, isActive, value, autoDemo]);
 
-  // Trigger initial demo on mount
+  // Single effect for demo triggers (both mount and suggestion changes)
   useEffect(() => {
-    if (!autoDemo || !onDemoChange || isActive || value) return;
+    if (!autoDemo || isActive || value) return;
 
-    // Small delay to avoid setState during render
+    // Trigger demo after a small delay
     const timeout = setTimeout(() => {
-      onDemoChange(currentSuggestion, selectedMode);
+      triggerDemo();
     }, 100);
 
     return () => clearTimeout(timeout);
-  }, []); // Only run once on mount
+  }, [autoDemo, isActive, value, triggerDemo]);
 
-  // Rotate suggestions when idle (and auto-demo if enabled)
+  // Rotate suggestions when idle
   useEffect(() => {
     if (isActive || value) return;
 
     const interval = setInterval(() => {
-      setSuggestionIndex((prev) => {
-        const nextIndex = (prev + 1) % suggestions.length;
-        return nextIndex;
-      });
+      // Reset the demo key to allow next trigger
+      lastDemoRef.current = null;
+      setSuggestionIndex((prev) => (prev + 1) % suggestions.length);
     }, 8000); // Longer interval for smooth demo experience
 
     return () => clearInterval(interval);
   }, [isActive, value, suggestions.length]);
 
-  // Trigger demo when suggestion changes (separate effect to avoid setState in render)
-  useEffect(() => {
-    if (!autoDemo || !onDemoChange || isActive || value) return;
-
-    // Skip the initial render (handled by mount effect)
-    const timeout = setTimeout(() => {
-      onDemoChange(currentSuggestion, selectedMode);
-    }, 50);
-
-    return () => clearTimeout(timeout);
-  }, [suggestionIndex, autoDemo, onDemoChange, isActive, value, currentSuggestion, selectedMode]);
-
   // Reset suggestion index when mode changes
   useEffect(() => {
+    lastDemoRef.current = null; // Allow new demo trigger
     setSuggestionIndex(0);
   }, [selectedMode]);
 
