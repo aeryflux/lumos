@@ -474,152 +474,34 @@
 }
 
 /* ===========================================
-   Effect: Laser Scan - radial grid pulse
-   Futuristic expanding wave that illuminates the grid
+   Effect: Laser Scan - grid glow
+   Simple flash effect on grid lines
    =========================================== */
 
-.starry-bg--effect-laser-scan {
-  animation: grid-flash 0.8s ease-out;
+.starry-bg--effect-laser-scan.starry-bg--grid {
+  animation: grid-glow 0.6s ease-out;
 }
 
-/* Expanding ring from center */
-.starry-bg--effect-laser-scan::before {
-  content: '';
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 0;
-  height: 0;
-  border-radius: 50%;
-  border: 3px solid var(--starry-effect-color, #00ff88);
-  box-shadow:
-    0 0 20px var(--starry-effect-color, #00ff88),
-    0 0 40px var(--starry-effect-color, rgba(0, 255, 136, 0.6)),
-    inset 0 0 20px var(--starry-effect-color, rgba(0, 255, 136, 0.3));
-  transform: translate(-50%, -50%);
-  animation: laser-ring-expand 0.7s ease-out forwards;
-  z-index: 100;
-  pointer-events: none;
-}
-
-/* Inner glow fill that follows the ring */
-.starry-bg--effect-laser-scan::after {
-  content: '';
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 0;
-  height: 0;
-  border-radius: 50%;
-  background: radial-gradient(
-    circle,
-    var(--starry-effect-color, rgba(0, 255, 136, 0.15)) 0%,
-    var(--starry-effect-color, rgba(0, 255, 136, 0.08)) 40%,
-    transparent 70%
-  );
-  transform: translate(-50%, -50%);
-  animation: laser-glow-expand 0.7s ease-out forwards;
-  z-index: 99;
-  pointer-events: none;
-}
-
-@keyframes laser-ring-expand {
+@keyframes grid-glow {
   0% {
-    width: 0;
-    height: 0;
-    opacity: 1;
-    border-width: 4px;
-  }
-  60% {
-    opacity: 0.8;
-    border-width: 2px;
-  }
-  100% {
-    width: 250vmax;
-    height: 250vmax;
-    opacity: 0;
-    border-width: 1px;
-  }
-}
-
-@keyframes laser-glow-expand {
-  0% {
-    width: 0;
-    height: 0;
-    opacity: 0;
+    opacity: var(--starry-opacity, 0.15);
+    filter: brightness(1) drop-shadow(0 0 0 transparent);
+    background-image:
+      linear-gradient(to right, rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
   }
   20% {
-    opacity: 1;
-  }
-  60% {
-    opacity: 0.6;
-  }
-  100% {
-    width: 200vmax;
-    height: 200vmax;
-    opacity: 0;
-  }
-}
-
-/* Grid lines flash and intensify */
-@keyframes grid-flash {
-  0% {
-    filter: brightness(1);
-  }
-  15% {
-    filter: brightness(2) saturate(1.5);
-  }
-  40% {
-    filter: brightness(1.3);
+    opacity: 0.5;
+    filter: brightness(2) drop-shadow(0 0 8px var(--starry-effect-color, #00ff88));
+    background-image:
+      linear-gradient(to right, var(--starry-effect-color, #00ff88) 1px, transparent 1px),
+      linear-gradient(to bottom, var(--starry-effect-color, #00ff88) 1px, transparent 1px);
   }
   100% {
-    filter: brightness(1);
-  }
-}
-
-/* Grid color shifts to accent during effect */
-.starry-bg--effect-laser-scan.starry-bg--grid {
-  animation: grid-flash 0.8s ease-out, grid-color-wave 0.8s ease-out;
-}
-
-@keyframes grid-color-wave {
-  0% {
+    opacity: var(--starry-opacity, 0.15);
+    filter: brightness(1) drop-shadow(0 0 0 transparent);
     background-image:
       linear-gradient(to right, rgba(255, 255, 255, 0.05) 1px, transparent 1px),
       linear-gradient(to bottom, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
   }
-  15% {
-    background-image:
-      linear-gradient(to right, var(--starry-effect-color, rgba(0, 255, 136, 0.4)) 1px, transparent 1px),
-      linear-gradient(to bottom, var(--starry-effect-color, rgba(0, 255, 136, 0.4)) 1px, transparent 1px);
-  }
-  50% {
-    background-image:
-      linear-gradient(to right, var(--starry-effect-color, rgba(0, 255, 136, 0.2)) 1px, transparent 1px),
-      linear-gradient(to bottom, var(--starry-effect-color, rgba(0, 255, 136, 0.2)) 1px, transparent 1px);
-  }
-  100% {
-    background-image:
-      linear-gradient(to right, rgba(255, 255, 255, 0.05) 1px, transparent 1px),
-      linear-gradient(to bottom, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
-  }
-}
-
-/* Theme-specific: stronger glow on green theme */
-[data-theme="green"] .starry-bg--effect-laser-scan::before {
-  border-color: #00ff88;
-  box-shadow:
-    0 0 30px #00ff88,
-    0 0 60px rgba(0, 255, 136, 0.8),
-    0 0 100px rgba(0, 255, 136, 0.4),
-    inset 0 0 30px rgba(0, 255, 136, 0.4);
-}
-
-[data-theme="green"] .starry-bg--effect-laser-scan::after {
-  background: radial-gradient(
-    circle,
-    rgba(0, 255, 136, 0.2) 0%,
-    rgba(0, 255, 136, 0.1) 40%,
-    transparent 70%
-  );
 }
