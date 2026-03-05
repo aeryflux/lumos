@@ -2,7 +2,7 @@
  * EffectsContext - Global effect trigger system
  *
  * Provides a way to trigger background effects from anywhere in the app.
- * Effects include: pulse, ripple, burst, shift
+ * Effects include: pulse, ripple, burst, shift, laser-scan
  *
  * Usage:
  * - Wrap app with <EffectsProvider>

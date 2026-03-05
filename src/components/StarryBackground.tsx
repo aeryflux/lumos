@@ -12,7 +12,7 @@ import { useEffect, useState, useRef, useCallback } from 'react';
 import './StarryBackground.css';
 
 // Effect types that can be triggered
-export type StarryEffect = 'pulse' | 'ripple' | 'burst' | 'shift' | 'none';
+export type StarryEffect = 'pulse' | 'ripple' | 'burst' | 'shift' | 'laser-scan' | 'none';
 
 interface StarryBackgroundProps {
   /** Pattern variant */

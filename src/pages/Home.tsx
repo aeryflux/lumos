@@ -1,6 +1,7 @@
-import { lazy, Suspense, useState, useCallback, useMemo } from 'react';
+import { lazy, Suspense, useState, useCallback, useMemo, useEffect } from 'react';
 import { Github, ExternalLink } from 'lucide-react';
 import { useThemeColors } from '../hooks/useThemeColors';
+import { useEffects } from '../contexts/EffectsContext';
 import { SmartInput } from '../components/SmartInput';
 import { NewsResults } from '../components/NewsResults';
 import { WeatherResults } from '../components/WeatherResults';
@@ -40,11 +41,21 @@ const MODE_HIGHLIGHT_COLORS: Record<SearchMode, string> = {
 
 export function Home() {
   const themeColors = useThemeColors();
+  const { triggerEffect } = useEffects();
   const [inputFocused, setInputFocused] = useState(false);
   const [queryState, setQueryState] = useState<QueryState>('idle');
   const [results, setResults] = useState<SearchResults | null>(null);
   // Auto-demo state: shows preview data on globe without full results panel
   const [demoData, setDemoData] = useState<{ countryData: CountryDataMap; color: string } | null>(null);
+
+  // Trigger laser scan effect on page load
+  useEffect(() => {
+    // Small delay to ensure DOM is ready
+    const timer = setTimeout(() => {
+      triggerEffect('laser-scan', '#00ff88');
+    }, 100);
+    return () => clearTimeout(timer);
+  }, [triggerEffect]);
 
   // Handle auto-demo: search in background and update globe only
   const handleDemoChange = useCallback(async (query: string, mode: SearchMode) => {
@@ -79,6 +90,10 @@ export function Home() {
     setDemoData(null);
     setQueryState('loading');
 
+    // Trigger laser scan effect with mode color
+    const modeColor = MODE_HIGHLIGHT_COLORS[mode] || '#00ff88';
+    triggerEffect('laser-scan', modeColor);
+
     const searchResult = await executeSearch(query, mode);
 
     setResults({
@@ -93,7 +108,7 @@ export function Home() {
     });
 
     setQueryState('results');
-  }, []);
+  }, [triggerEffect]);
 
   const handleCloseResults = useCallback(() => {
     setQueryState('idle');

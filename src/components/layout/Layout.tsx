@@ -3,23 +3,27 @@ import { FileText, Github } from 'lucide-react';
 import { ThemeSwitcher } from '../ThemeSwitcher';
 import { Logo } from '../Logo';
 import { StarryBackground } from '../StarryBackground';
+import { useEffectsOptional } from '../../contexts/EffectsContext';
 import { useTranslation } from '../../i18n';
 import './Layout.css';
 
 export function Layout() {
   const location = useLocation();
   const { t } = useTranslation();
+  const effects = useEffectsOptional();
   const isHome = location.pathname === '/';
 
   return (
     <div className="layout">
-      {/* Global grid background */}
+      {/* Global grid background - connected to effects system */}
       <StarryBackground
         variant="grid"
         size={50}
         opacity={0.15}
         fade={false}
         className="layout-bg"
+        effect={effects?.effect}
+        effectColor={effects?.effectColor}
       />
 
       {/* Navigation */}
