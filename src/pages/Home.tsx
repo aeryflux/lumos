@@ -232,6 +232,7 @@ export function Home() {
     forceTransparent: true,
     countryData: globeCountryData,
     dataHighlightColor,
+    enableControls: true, // Enable mouse/touch drag rotation
   }), [themeColors, globeCountryData, dataHighlightColor]);
 
   // Render results based on mode

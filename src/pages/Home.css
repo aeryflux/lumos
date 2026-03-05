@@ -17,7 +17,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  pointer-events: none;
+  /* pointer-events enabled for mouse drag rotation */
   /* Offset globe to the left to balance with content on right */
   transform: translateX(-15%);
   transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
