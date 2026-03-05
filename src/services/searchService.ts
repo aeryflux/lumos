@@ -1,16 +1,25 @@
 /**
  * Unified Search Service - Routes queries to appropriate mode services
+ * Uses @aeryflux/xenova-bridge for intent classification and entity extraction
  */
 
-import { fetchNewsArticles, fetchNewsCountryData, isNewsQuery, type NewsArticle, type CountryNewsData } from './newsService';
-import { fetchWikiData, isWikiQuery, type WikiDataMap } from './wikiService';
-import { fetchWeatherData, isWeatherQuery, type WeatherDataMap, type WeatherView } from './weatherService';
+import { IntentEngine, EntityExtractor, type ClassifiedIntent, type ExtractedEntity } from '@aeryflux/xenova-bridge';
+import { fetchNewsArticles, fetchNewsCountryData, type NewsArticle, type CountryNewsData } from './newsService';
+import { fetchWikiData, type WikiDataMap } from './wikiService';
+import { fetchWeatherData, type WeatherDataMap, type WeatherView } from './weatherService';
 
 export type SearchMode = 'auto' | 'news' | 'wiki' | 'weather';
+
+// Xenova Bridge instances (singleton pattern)
+const intentEngine = new IntentEngine({ debug: false });
+const entityExtractor = new EntityExtractor({ debug: false });
 
 export interface SearchResult {
   mode: SearchMode;
   query: string;
+  // Intent classification
+  intent?: ClassifiedIntent;
+  entities?: ExtractedEntity[];
   // News results
   articles?: NewsArticle[];
   newsCountryData?: CountryNewsData;
@@ -21,6 +30,8 @@ export interface SearchResult {
   weatherView?: WeatherView;
   // Fallback to Atlas
   fallbackToAtlas?: boolean;
+  // Detected country for focused queries
+  targetCountry?: string;
 }
 
 export const MODE_COLORS: Record<SearchMode, string> = {
@@ -38,25 +49,68 @@ export const MODE_LABELS: Record<SearchMode, string> = {
 };
 
 /**
- * Detect query mode from text
+ * Map intent category to search mode
  */
-export function detectMode(query: string): SearchMode {
-  if (isNewsQuery(query)) return 'news';
-  if (isWeatherQuery(query)) return 'weather';
-  if (isWikiQuery(query)) return 'wiki';
+function intentToMode(intent: ClassifiedIntent): SearchMode {
+  // Check for mode entity first (explicit "show weather", "news about", etc.)
+  if (intent.category === 'navigation' || intent.category === 'search') {
+    return 'auto'; // Will be determined by entities
+  }
+  if (intent.category === 'info') {
+    return 'wiki';
+  }
   return 'auto';
+}
+
+/**
+ * Detect query mode from text using xenova-bridge
+ */
+export async function detectMode(query: string): Promise<{ mode: SearchMode; intent: ClassifiedIntent; entities: ExtractedEntity[] }> {
+  // Classify intent
+  const intent = await intentEngine.classify(query, {
+    currentMode: 'news',
+    currentTheme: 'dark',
+    language: 'en',
+  });
+
+  // Extract entities
+  const entities = entityExtractor.extract(query);
+
+  // Check for explicit mode entity
+  const modeEntity = entities.find(e => e.type === 'mode');
+  if (modeEntity) {
+    const modeMap: Record<string, SearchMode> = {
+      news: 'news',
+      weather: 'weather',
+      wiki: 'wiki',
+    };
+    const detectedMode = modeMap[modeEntity.normalizedValue] || 'auto';
+    return { mode: detectedMode, intent, entities };
+  }
+
+  // Fallback to intent-based detection
+  const mode = intentToMode(intent);
+  return { mode, intent, entities };
 }
 
 /**
  * Execute search based on mode
  */
 export async function executeSearch(query: string, mode: SearchMode = 'auto'): Promise<SearchResult> {
-  // Auto-detect mode if not specified
-  const effectiveMode = mode === 'auto' ? detectMode(query) : mode;
+  // Auto-detect mode and extract entities
+  const detection = await detectMode(query);
+  const effectiveMode = mode === 'auto' ? detection.mode : mode;
+
+  // Extract target country if present
+  const countryEntity = detection.entities.find(e => e.type === 'country');
+  const targetCountry = countryEntity?.normalizedValue;
 
   const result: SearchResult = {
     mode: effectiveMode,
     query,
+    intent: detection.intent,
+    entities: detection.entities,
+    targetCountry,
   };
 
   try {
