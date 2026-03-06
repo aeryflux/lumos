@@ -64,16 +64,23 @@ function resolveCountryName(code?: string): string | undefined {
   return ISO_TO_COUNTRY[code.toUpperCase()] || code;
 }
 
-// Simple keyword-based mode detection for demo queries
+// Simple keyword-based mode detection for demo queries (EN + FR)
 function detectModeFromQuery(query: string): SearchMode {
   const lower = query.toLowerCase();
-  if (lower.includes('news') || lower.includes('headline') || lower.includes('update')) {
+  // News keywords (EN + FR)
+  if (lower.includes('news') || lower.includes('headline') || lower.includes('update') ||
+      lower.includes('actualité') || lower.includes('info')) {
     return 'news';
   }
-  if (lower.includes('weather') || lower.includes('temperature') || lower.includes('climate') || lower.includes('météo')) {
+  // Weather keywords (EN + FR)
+  if (lower.includes('weather') || lower.includes('temperature') || lower.includes('climate') ||
+      lower.includes('météo') || lower.includes('climat') || lower.includes('température')) {
     return 'weather';
   }
-  if (lower.includes('about') || lower.includes('history') || lower.includes('wiki') || lower.includes('geography') || lower.includes('culture')) {
+  // Wiki keywords (EN + FR)
+  if (lower.includes('about') || lower.includes('history') || lower.includes('wiki') ||
+      lower.includes('geography') || lower.includes('culture') ||
+      lower.includes('à propos') || lower.includes('histoire') || lower.includes('géographie')) {
     return 'wiki';
   }
   return 'auto';
@@ -82,26 +89,39 @@ function detectModeFromQuery(query: string): SearchMode {
 // Check if query is a global/worldwide request (no specific country)
 function isGlobalQuery(query: string): boolean {
   const lower = query.toLowerCase();
-  return lower.includes('world') || lower.includes('global') ||
-         lower.includes('worldwide') || lower.includes('mondial') ||
+  return lower.includes('world') || lower.includes('global') || lower.includes('globale') ||
+         lower.includes('worldwide') || lower.includes('mondial') || lower.includes('mondiales') ||
          lower.includes('international');
 }
 
-// Extract country name from query (simple approach)
+// Extract country name from query (EN + FR country names)
 function extractCountryFromQuery(query: string): string | undefined {
   const lower = query.toLowerCase();
-  // Common country patterns in queries
-  const countries = [
-    'france', 'japan', 'germany', 'italy', 'spain', 'brazil', 'china', 'india',
-    'russia', 'canada', 'australia', 'mexico', 'egypt', 'nigeria', 'kenya',
-    'south africa', 'argentina', 'chile', 'peru', 'colombia', 'turkey',
-    'thailand', 'vietnam', 'indonesia', 'malaysia', 'philippines', 'korea',
-    'united states', 'usa', 'uk', 'united kingdom', 'britain',
-  ];
-  for (const country of countries) {
-    if (lower.includes(country)) {
-      // Capitalize first letter
-      return country.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+  // Map of country patterns to canonical English names
+  const countryMap: Record<string, string> = {
+    // English names
+    'france': 'France', 'japan': 'Japan', 'germany': 'Germany', 'italy': 'Italy',
+    'spain': 'Spain', 'brazil': 'Brazil', 'china': 'China', 'india': 'India',
+    'russia': 'Russia', 'canada': 'Canada', 'australia': 'Australia', 'mexico': 'Mexico',
+    'egypt': 'Egypt', 'nigeria': 'Nigeria', 'kenya': 'Kenya', 'south africa': 'South Africa',
+    'argentina': 'Argentina', 'chile': 'Chile', 'peru': 'Peru', 'colombia': 'Colombia',
+    'turkey': 'Turkey', 'thailand': 'Thailand', 'vietnam': 'Vietnam', 'indonesia': 'Indonesia',
+    'malaysia': 'Malaysia', 'philippines': 'Philippines', 'korea': 'South Korea',
+    'united states': 'United States', 'usa': 'United States', 'uk': 'United Kingdom',
+    'united kingdom': 'United Kingdom', 'britain': 'United Kingdom',
+    // French names → English canonical
+    'japon': 'Japan', 'allemagne': 'Germany', 'italie': 'Italy', 'espagne': 'Spain',
+    'brésil': 'Brazil', 'bresil': 'Brazil', 'chine': 'China', 'inde': 'India',
+    'russie': 'Russia', 'australie': 'Australia', 'mexique': 'Mexico', 'égypte': 'Egypt',
+    'egypte': 'Egypt', 'nigéria': 'Nigeria', 'afrique du sud': 'South Africa',
+    'turquie': 'Turkey', 'thaïlande': 'Thailand', 'thailande': 'Thailand',
+    'indonésie': 'Indonesia', 'malaisie': 'Malaysia', 'corée': 'South Korea', 'coree': 'South Korea',
+    'états-unis': 'United States', 'etats-unis': 'United States', 'royaume-uni': 'United Kingdom',
+    'europe': 'Europe', 'asie': 'Asia', 'asia': 'Asia', 'amériques': 'Americas', 'americas': 'Americas',
+  };
+  for (const [pattern, canonical] of Object.entries(countryMap)) {
+    if (lower.includes(pattern)) {
+      return canonical;
     }
   }
   return undefined;
