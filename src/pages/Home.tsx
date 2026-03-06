@@ -1,4 +1,4 @@
-import { lazy, Suspense, useState, useCallback, useMemo, useEffect } from 'react';
+import { lazy, Suspense, useState, useCallback, useMemo, useEffect, useRef } from 'react';
 import { Github, ExternalLink } from 'lucide-react';
 import { useThemeColors } from '../hooks/useThemeColors';
 import { useEffects } from '../contexts/EffectsContext';
@@ -9,11 +9,13 @@ import { WeatherResults } from '../components/WeatherResults';
 import { WikiResults } from '../components/WikiResults';
 import { HexLoader } from '../components/HexLoader';
 import { SpecialThanks } from '../components/SpecialThanks';
+import { AnimatedSplash } from '../components/AnimatedSplash';
 import { executeSearch, type SearchMode } from '../services/searchService';
 import type { NewsArticle, CountryNewsData } from '../services/newsService';
 import type { WeatherDataMap, WeatherView, WeatherCountryData } from '../services/weatherService';
 import type { WikiDataMap } from '../services/wikiService';
 import type { CountryDataMap } from '@aeryflux/globe/react';
+import { normalizeToGlobe } from '../utils/countryNormalize';
 import './Home.css';
 
 // Lazy load the 3D globe for performance
@@ -127,14 +129,83 @@ function extractCountryFromQuery(query: string): string | undefined {
   return undefined;
 }
 
+// Extract city name from query (major world cities, EN + FR)
+function extractCityFromQuery(query: string): { name: string; country: string } | undefined {
+  const lower = query.toLowerCase();
+  // Map of city patterns to { name, country }
+  const cityMap: Record<string, { name: string; country: string }> = {
+    // Asia
+    'tokyo': { name: 'Tokyo', country: 'Japan' },
+    'osaka': { name: 'Osaka', country: 'Japan' },
+    'shanghai': { name: 'Shanghai', country: 'China' },
+    'beijing': { name: 'Beijing', country: 'China' },
+    'pekin': { name: 'Beijing', country: 'China' },
+    'hong kong': { name: 'Hong Kong', country: 'Hong Kong S.A.R.' },
+    'singapore': { name: 'Singapore', country: 'Singapore' },
+    'seoul': { name: 'Seoul', country: 'South Korea' },
+    'bangkok': { name: 'Bangkok', country: 'Thailand' },
+    'mumbai': { name: 'Mumbai', country: 'India' },
+    'delhi': { name: 'Delhi', country: 'India' },
+    'jakarta': { name: 'Jakarta', country: 'Indonesia' },
+    'manila': { name: 'Manila', country: 'Philippines' },
+    'taipei': { name: 'Taipei', country: 'Taiwan' },
+    // Europe
+    'paris': { name: 'Paris', country: 'France' },
+    'london': { name: 'London', country: 'United Kingdom' },
+    'londres': { name: 'London', country: 'United Kingdom' },
+    'berlin': { name: 'Berlin', country: 'Germany' },
+    'madrid': { name: 'Madrid', country: 'Spain' },
+    'barcelona': { name: 'Barcelona', country: 'Spain' },
+    'barcelone': { name: 'Barcelona', country: 'Spain' },
+    'rome': { name: 'Rome', country: 'Italy' },
+    'amsterdam': { name: 'Amsterdam', country: 'Netherlands' },
+    'moscow': { name: 'Moscow', country: 'Russia' },
+    'moscou': { name: 'Moscow', country: 'Russia' },
+    'istanbul': { name: 'Istanbul', country: 'Turkey' },
+    // Americas
+    'new york': { name: 'New York', country: 'United States of America' },
+    'los angeles': { name: 'Los Angeles', country: 'United States of America' },
+    'chicago': { name: 'Chicago', country: 'United States of America' },
+    'miami': { name: 'Miami', country: 'United States of America' },
+    'san francisco': { name: 'San Francisco', country: 'United States of America' },
+    'toronto': { name: 'Toronto', country: 'Canada' },
+    'mexico city': { name: 'Mexico City', country: 'Mexico' },
+    'sao paulo': { name: 'São Paulo', country: 'Brazil' },
+    'rio de janeiro': { name: 'Rio de Janeiro', country: 'Brazil' },
+    'rio': { name: 'Rio de Janeiro', country: 'Brazil' },
+    'buenos aires': { name: 'Buenos Aires', country: 'Argentina' },
+    'lima': { name: 'Lima', country: 'Peru' },
+    'bogota': { name: 'Bogotá', country: 'Colombia' },
+    // Middle East & Africa
+    'dubai': { name: 'Dubai', country: 'United Arab Emirates' },
+    'dubay': { name: 'Dubai', country: 'United Arab Emirates' },
+    'cairo': { name: 'Cairo', country: 'Egypt' },
+    'le caire': { name: 'Cairo', country: 'Egypt' },
+    'lagos': { name: 'Lagos', country: 'Nigeria' },
+    'tehran': { name: 'Tehran', country: 'Iran' },
+    // Oceania
+    'sydney': { name: 'Sydney', country: 'Australia' },
+    'melbourne': { name: 'Melbourne', country: 'Australia' },
+  };
+  for (const [pattern, data] of Object.entries(cityMap)) {
+    if (lower.includes(pattern)) {
+      return data;
+    }
+  }
+  return undefined;
+}
+
 export function Home() {
   const themeColors = useThemeColors();
   const { triggerEffect } = useEffects();
   const [inputFocused, setInputFocused] = useState(false);
   const [queryState, setQueryState] = useState<QueryState>('idle');
   const [results, setResults] = useState<SearchResults | null>(null);
+  // Splash screen state
+  const [showSplash, setShowSplash] = useState(true);
+  const initialDataLoaded = useRef(false);
   // Auto-demo state: shows preview data on globe without full results panel
-  const [demoData, setDemoData] = useState<{ countryData: CountryDataMap; color: string } | null>(null);
+  const [demoData, setDemoData] = useState<{ countryData: CountryDataMap; cityData?: CountryDataMap; color: string } | null>(null);
   // Track current demo data for the preview module
   const [demoInfo, setDemoInfo] = useState<{
     query: string;
@@ -142,6 +213,7 @@ export function Home() {
     countryCount: number;
     isGlobal: boolean;
     targetCountry?: string;
+    targetCity?: string;
     article?: NewsArticle;
     weatherData?: WeatherCountryData;
     articleCount?: number;
@@ -176,19 +248,23 @@ export function Home() {
       const isGlobal = isGlobalQuery(query);
       // Try to extract country from query directly
       const queryCountry = extractCountryFromQuery(query);
+      // Try to extract city from query
+      const queryCity = extractCityFromQuery(query);
 
       // For API query: use extracted country name, or empty for global
       // "News Japan" → search with "Japan", not "News Japan"
-      const searchQuery = isGlobal ? '' : (queryCountry || query);
+      const searchQuery = isGlobal ? '' : (queryCity?.country || queryCountry || query);
       const searchResult = await executeSearch(searchQuery, effectiveMode !== 'auto' ? effectiveMode : mode);
       const highlightColor = MODE_HIGHLIGHT_COLORS[effectiveMode] || '#00ff88';
 
       // Extract country data based on mode
       let countryData: CountryDataMap = {};
+      let cityData: CountryDataMap = {};
 
       // Use query-extracted country, or resolve from API
-      const rawTargetCountry = queryCountry || searchResult.targetCountry;
+      const rawTargetCountry = queryCity?.country || queryCountry || searchResult.targetCountry;
       const targetCountry = resolveCountryName(rawTargetCountry);
+      const targetCity = queryCity?.name;
 
       // Mode-specific data extraction
       let article: NewsArticle | undefined;
@@ -205,7 +281,9 @@ export function Home() {
         // Build country data for globe
         if (searchResult.newsCountryData) {
           for (const [country, info] of Object.entries(searchResult.newsCountryData)) {
-            countryData[country] = { scale: info.scale, color: info.color || highlightColor };
+            // Normalize country name for globe mesh matching
+            const normalizedCountry = normalizeToGlobe(country);
+            countryData[normalizedCountry] = { scale: info.scale, color: info.color || highlightColor };
           }
         }
         // For global queries, count total articles (we'd need this from API)
@@ -218,7 +296,9 @@ export function Home() {
           const temps: number[] = [];
 
           for (const [country, info] of entries) {
-            countryData[country] = { scale: info.scale, color: info.color || highlightColor };
+            // Normalize country name for globe mesh matching
+            const normalizedCountry = normalizeToGlobe(country);
+            countryData[normalizedCountry] = { scale: info.scale, color: info.color || highlightColor };
             if (info.temperature !== undefined) {
               temps.push(info.temperature);
             }
@@ -248,7 +328,9 @@ export function Home() {
           let totalArticles = 0;
 
           for (const [country, info] of entries) {
-            countryData[country] = { scale: info.scale, color: info.color || highlightColor };
+            // Normalize country name for globe mesh matching
+            const normalizedCountry = normalizeToGlobe(country);
+            countryData[normalizedCountry] = { scale: info.scale, color: info.color || highlightColor };
             if (info.articleCount) totalArticles += info.articleCount;
             // If specific country requested, extract its data
             if (!isGlobal && targetCountry && country.toLowerCase() === targetCountry.toLowerCase()) {
@@ -271,20 +353,36 @@ export function Home() {
 
       const countryCount = Object.keys(countryData).length;
 
-      if (countryCount > 0) {
+      // Add city highlight if a city was detected
+      if (targetCity) {
+        // Normalize city name for globe mesh matching (lowercase, underscores)
+        const normalizedCity = targetCity.toLowerCase().replace(/\s+/g, '_');
+        cityData[normalizedCity] = { scale: 1.0, color: highlightColor };
+      }
+
+      if (countryCount > 0 || Object.keys(cityData).length > 0) {
         triggerEffect('laser-scan', '#00ff88');
-        setDemoData({ countryData, color: highlightColor });
+        setDemoData({
+          countryData,
+          cityData: Object.keys(cityData).length > 0 ? cityData : undefined,
+          color: highlightColor,
+        });
         setDemoInfo({
           query,
           mode: effectiveMode,
           countryCount,
           isGlobal,
           targetCountry: isGlobal ? undefined : resolvedCountryForDisplay,
+          targetCity,
           article,
           weatherData: isGlobal ? undefined : weatherData,
           articleCount: isGlobal ? undefined : articleCount,
           globalStats,
         });
+        // Mark initial data as loaded for splash screen
+        if (!initialDataLoaded.current) {
+          initialDataLoaded.current = true;
+        }
       }
     } catch (error) {
       console.error('Demo search error:', error);
@@ -342,13 +440,14 @@ export function Home() {
     // Get highlight color based on mode
     const highlightColor = MODE_HIGHLIGHT_COLORS[results.mode] || '#00ff88';
 
-    // Convert based on mode
+    // Convert based on mode (with country name normalization)
     switch (results.mode) {
       case 'news':
         if (results.newsCountryData) {
           const data: CountryDataMap = {};
           for (const [country, info] of Object.entries(results.newsCountryData)) {
-            data[country] = {
+            const normalizedCountry = normalizeToGlobe(country);
+            data[normalizedCountry] = {
               scale: info.scale,
               lat: info.lat,
               lon: info.lon,
@@ -363,7 +462,8 @@ export function Home() {
         if (results.weatherData) {
           const data: CountryDataMap = {};
           for (const [country, info] of Object.entries(results.weatherData)) {
-            data[country] = {
+            const normalizedCountry = normalizeToGlobe(country);
+            data[normalizedCountry] = {
               scale: info.scale,
               lat: info.lat,
               lon: info.lon,
@@ -378,7 +478,8 @@ export function Home() {
         if (results.wikiData) {
           const data: CountryDataMap = {};
           for (const [country, info] of Object.entries(results.wikiData)) {
-            data[country] = {
+            const normalizedCountry = normalizeToGlobe(country);
+            data[normalizedCountry] = {
               scale: info.scale,
               lat: info.lat,
               lon: info.lon,
@@ -390,6 +491,16 @@ export function Home() {
         break;
     }
 
+    return undefined;
+  }, [results, queryState, demoData]);
+
+  // Convert city data for globe visualization
+  const globeCityData = useMemo((): CountryDataMap | undefined => {
+    // Use demo city data when idle
+    if (!results || queryState !== 'results') {
+      return demoData?.cityData;
+    }
+    // TODO: Add city data from results when API supports it
     return undefined;
   }, [results, queryState, demoData]);
 
@@ -414,9 +525,10 @@ export function Home() {
     isLightTheme: themeColors.isLightTheme,
     forceTransparent: true,
     countryData: globeCountryData,
+    cityData: globeCityData,
     dataHighlightColor,
     enableControls: true, // Enable mouse/touch drag rotation
-  }), [themeColors, globeCountryData, dataHighlightColor]);
+  }), [themeColors, globeCountryData, globeCityData, dataHighlightColor]);
 
   // Render results based on mode
   const renderResults = () => {
@@ -487,9 +599,19 @@ export function Home() {
   const hasResults = queryState !== 'idle';
 
   return (
-    <section className={`home ${hasResults ? 'home--has-results' : ''}`}>
-      {/* Globe - centered background */}
-      <div className="home-globe">
+    <>
+      {/* Splash screen */}
+      {showSplash && (
+        <AnimatedSplash
+          isReady={initialDataLoaded.current}
+          onComplete={() => setShowSplash(false)}
+          minDuration={1500}
+        />
+      )}
+
+      <section className={`home ${hasResults ? 'home--has-results' : ''}`}>
+        {/* Globe - centered background */}
+        <div className="home-globe">
         <Suspense fallback={
           <div className="home-globe-loader">
             <HexLoader size="lg" />
@@ -546,7 +668,7 @@ export function Home() {
           {/* Footer link */}
           {queryState === 'idle' && (
             <a
-              href="https://github.com/aeryflux/aeryflux"
+              href="https://github.com/aeryflux"
               className="home-github"
               target="_blank"
               rel="noopener noreferrer"
@@ -561,6 +683,7 @@ export function Home() {
       {/* Special Thanks footer */}
       <SpecialThanks />
     </section>
+    </>
   );
 }
 

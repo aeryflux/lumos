@@ -47,7 +47,7 @@ export function Layout() {
               <span className="nav-link-label">{t('nav.docs')}</span>
             </Link>
             <a
-              href="https://github.com/aeryflux/aeryflux"
+              href="https://github.com/aeryflux"
               className="nav-link-minimal"
               target="_blank"
               rel="noopener noreferrer"

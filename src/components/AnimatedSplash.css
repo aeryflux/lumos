@@ -1,0 +1,224 @@
+/* AnimatedSplash - Hexagonal fractal splash screen */
+
+.splash {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: var(--splash-bg, #050508);
+  transition: opacity 0.3s ease-out;
+}
+
+/* Phase: exit - fade out */
+.splash--exit {
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* Hexagon layer - centered container */
+.splash-hex-layer {
+  position: absolute;
+  width: 240px;
+  height: 240px;
+  transform: translate(-50%, -50%);
+  left: 50%;
+  top: calc(50% - 40px);
+}
+
+/* Individual hexagon */
+.splash-hex {
+  position: absolute;
+  left: calc(50% + var(--hex-x) - var(--hex-size) / 2);
+  top: calc(50% + var(--hex-y) - var(--hex-size) / 2);
+  width: var(--hex-size);
+  height: var(--hex-size);
+  opacity: 0;
+  transform: scale(0.3);
+}
+
+/* Enter animation */
+.splash--enter .splash-hex {
+  animation: hex-enter 0.4s ease-out forwards;
+  animation-delay: calc(var(--ring-delay) + var(--hex-delay));
+}
+
+@keyframes hex-enter {
+  0% {
+    opacity: 0;
+    transform: scale(0.3);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Breathing animation */
+.splash--breathing .splash-hex {
+  opacity: 1;
+  transform: scale(1);
+  animation: hex-breathe 2s ease-in-out infinite;
+  animation-delay: calc(var(--ring-delay) + var(--hex-delay));
+}
+
+.splash--breathing .splash-hex--inner {
+  --base-opacity: 0.25;
+}
+
+.splash--breathing .splash-hex--outer {
+  --base-opacity: 0.15;
+}
+
+@keyframes hex-breathe {
+  0%, 100% {
+    opacity: var(--base-opacity, 0.25);
+    transform: scale(1);
+  }
+  50% {
+    opacity: calc(var(--base-opacity, 0.25) * 2);
+    transform: scale(1.15);
+  }
+}
+
+/* Exit animation */
+.splash--exit .splash-hex {
+  animation: hex-exit 0.2s ease-in forwards;
+}
+
+@keyframes hex-exit {
+  to {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+}
+
+/* Hexagon SVG */
+.splash-hex-svg {
+  width: 100%;
+  height: 100%;
+}
+
+.splash-hex-shape {
+  fill: var(--splash-accent, #00ff88);
+  fill-opacity: 0.4;
+  stroke: var(--splash-accent, #00ff88);
+  stroke-width: 2;
+  stroke-opacity: 0.8;
+}
+
+/* Logo */
+.splash-logo {
+  position: absolute;
+  left: 50%;
+  top: calc(50% - 40px);
+  transform: translate(-50%, -50%);
+  width: 64px;
+  height: 64px;
+  opacity: 0;
+}
+
+.splash--enter .splash-logo {
+  animation: logo-enter 0.35s ease-out 0.15s forwards;
+}
+
+.splash--breathing .splash-logo {
+  opacity: 1;
+  transform: translate(-50%, -50%) scale(1);
+}
+
+.splash--exit .splash-logo {
+  animation: logo-exit 0.2s ease-in forwards;
+}
+
+@keyframes logo-enter {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.8);
+  }
+  100% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+
+@keyframes logo-exit {
+  to {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.9);
+  }
+}
+
+.splash-logo-svg {
+  width: 100%;
+  height: 100%;
+}
+
+.splash-logo-bg {
+  fill: var(--splash-accent, #00ff88);
+}
+
+.splash-logo-sphere {
+  fill: var(--splash-bg, #050508);
+}
+
+/* Text */
+.splash-text {
+  position: absolute;
+  left: 50%;
+  top: calc(50% + 60px);
+  transform: translateX(-50%);
+  text-align: center;
+  opacity: 0;
+}
+
+.splash--enter .splash-text {
+  animation: text-enter 0.3s ease-out 0.4s forwards;
+}
+
+.splash--breathing .splash-text {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+.splash--exit .splash-text {
+  animation: text-exit 0.15s ease-in forwards;
+}
+
+@keyframes text-enter {
+  0% {
+    opacity: 0;
+    transform: translateX(-50%) translateY(15px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+}
+
+@keyframes text-exit {
+  to {
+    opacity: 0;
+    transform: translateX(-50%) translateY(-5px);
+  }
+}
+
+.splash-title {
+  display: block;
+  font-family: 'HemiHead', system-ui, sans-serif;
+  font-size: 28px;
+  letter-spacing: 6px;
+  color: var(--splash-text, #ffffff);
+}
+
+.splash-subtitle {
+  display: block;
+  font-family: 'HemiHead', system-ui, sans-serif;
+  font-size: 11px;
+  letter-spacing: 2px;
+  margin-top: 6px;
+  color: var(--splash-text, #ffffff);
+  opacity: 0.5;
+}
