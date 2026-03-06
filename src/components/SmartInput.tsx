@@ -103,22 +103,25 @@ export function SmartInput({
   const suggestions = langSuggestions[selectedMode];
   const currentSuggestion = suggestions[suggestionIndex];
 
-  // Track if demo has been triggered for current suggestion to avoid duplicates
-  const lastDemoRef = useRef<string | null>(null);
+  // Track last triggered demo to avoid rapid duplicates
+  const lastDemoRef = useRef<{ key: string; time: number } | null>(null);
 
   // Stable callback for triggering demo
   const triggerDemo = useCallback(() => {
     if (!autoDemo || !onDemoChange || isActive || value) return;
 
-    // Create a unique key for this demo state
-    const demoKey = `${selectedMode}-${suggestionIndex}`;
+    // Create a unique key including language for this demo state
+    const demoKey = `${language}-${selectedMode}-${suggestionIndex}`;
+    const now = Date.now();
 
-    // Skip if we already triggered this exact demo
-    if (lastDemoRef.current === demoKey) return;
-    lastDemoRef.current = demoKey;
+    // Skip only if same demo was triggered less than 500ms ago (debounce)
+    if (lastDemoRef.current?.key === demoKey && now - lastDemoRef.current.time < 500) {
+      return;
+    }
+    lastDemoRef.current = { key: demoKey, time: now };
 
     onDemoChange(currentSuggestion, selectedMode);
-  }, [autoDemo, onDemoChange, isActive, value, selectedMode, suggestionIndex, currentSuggestion]);
+  }, [autoDemo, onDemoChange, isActive, value, language, selectedMode, suggestionIndex, currentSuggestion]);
 
   // Typing effect for placeholder
   useEffect(() => {
@@ -144,25 +147,11 @@ export function SmartInput({
     return () => clearInterval(typeInterval);
   }, [currentSuggestion, isActive, value, autoDemo]);
 
-  // Single effect for demo triggers (both mount and suggestion changes)
-  useEffect(() => {
-    if (!autoDemo || isActive || value) return;
-
-    // Trigger demo after a small delay
-    const timeout = setTimeout(() => {
-      triggerDemo();
-    }, 100);
-
-    return () => clearTimeout(timeout);
-  }, [autoDemo, isActive, value, triggerDemo]);
-
   // Rotate suggestions when idle
   useEffect(() => {
     if (isActive || value) return;
 
     const interval = setInterval(() => {
-      // Reset the demo key to allow next trigger
-      lastDemoRef.current = null;
       setSuggestionIndex((prev) => (prev + 1) % suggestions.length);
     }, 8000); // Longer interval for smooth demo experience
 
@@ -171,9 +160,20 @@ export function SmartInput({
 
   // Reset suggestion index when mode or language changes
   useEffect(() => {
-    lastDemoRef.current = null; // Allow new demo trigger
     setSuggestionIndex(0);
   }, [selectedMode, language]);
+
+  // Trigger demo whenever suggestion changes (including after rotation)
+  useEffect(() => {
+    if (!autoDemo || isActive || value) return;
+
+    // Small delay to let the typing effect start
+    const timeout = setTimeout(() => {
+      triggerDemo();
+    }, 150);
+
+    return () => clearTimeout(timeout);
+  }, [autoDemo, isActive, value, currentSuggestion, triggerDemo]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
