@@ -356,22 +356,36 @@ export const en = {
 
   // Search / DemoPreview
   search: {
-    placeholder: 'Try "news from Japan" or "weather in Europe"...',
+    placeholder: 'Try "news Japan" or "weather France"...',
     loading: 'Searching...',
     noResults: 'No results found',
     error: 'Search failed. Please try again.',
     resultsFor: 'Results for "{query}"',
     viewAll: 'View all',
-    articles: 'articles',
-    countries: 'countries',
+    articles: '{count} articles',
+    countries: '{count} countries',
     subjects: 'related subjects',
     readMore: 'Read article',
     learnMore: 'Learn more',
     seeOnGlobe: 'See on globe',
     modes: {
+      auto: 'Auto',
       news: 'News',
       weather: 'Weather',
-      wiki: 'Wikipedia',
+      wiki: 'Wiki',
+    },
+    global: {
+      weather: 'World Weather',
+      news: 'World News',
+      wiki: 'World Encyclopedia',
+      avg: 'Avg',
+      min: 'Min',
+      max: 'Max',
+      articles: '{count} recent articles',
+      indexed: '{count} indexed articles',
+    },
+    wiki: {
+      search: 'Search "{query}"',
     },
     weather: {
       temperature: 'Temperature',

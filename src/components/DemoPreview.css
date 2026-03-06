@@ -321,47 +321,208 @@
 /* Mobile adjustments */
 @media (max-width: 768px) {
   .demo-preview {
-    padding: 12px 14px;
-    gap: 10px;
+    padding: 10px 12px;
+    gap: 8px;
     max-width: 100%;
+    border-radius: 10px;
   }
 
   .demo-preview-header {
-    gap: 8px;
+    gap: 6px;
   }
 
   .demo-preview-mode {
-    padding: 3px 8px;
-    font-size: 10px;
+    padding: 3px 6px;
+    font-size: 9px;
+    gap: 4px;
+    border-radius: 12px;
+  }
+
+  .demo-preview-mode svg {
+    width: 10px;
+    height: 10px;
   }
 
   .demo-preview-stat {
-    font-size: 10px;
+    font-size: 9px;
+  }
+
+  .demo-preview-stat svg {
+    width: 10px;
+    height: 10px;
   }
 
   .demo-preview-article {
-    padding: 8px 10px;
+    padding: 6px 8px;
+    gap: 6px;
+    border-radius: 6px;
   }
 
   .demo-preview-article-title {
-    font-size: 12px;
+    font-size: 11px;
+    line-height: 1.3;
+  }
+
+  .demo-preview-article-icon {
+    width: 10px;
+    height: 10px;
+  }
+
+  .demo-preview-country {
+    font-size: 10px;
+    gap: 4px;
+  }
+
+  .demo-preview-weather {
+    gap: 6px;
+    padding: 4px 0;
+  }
+
+  .demo-preview-weather-main {
+    gap: 8px;
   }
 
   .demo-preview-weather-icon {
-    font-size: 28px;
-  }
-
-  .demo-preview-weather-temp {
     font-size: 24px;
   }
 
+  .demo-preview-weather-temp {
+    font-size: 22px;
+  }
+
   .demo-preview-weather-location {
-    font-size: 13px;
+    font-size: 12px;
+    gap: 4px;
+  }
+
+  .demo-preview-weather-condition {
+    font-size: 10px;
   }
 
   .demo-preview-wiki-link {
-    padding: 8px 12px;
+    padding: 6px 10px;
+    font-size: 11px;
+    gap: 6px;
+    border-radius: 6px;
+  }
+
+  .demo-preview-wiki-count {
+    font-size: 10px;
+  }
+
+  .demo-preview-global {
+    gap: 8px;
+    padding: 4px 0;
+  }
+
+  .demo-preview-global-title {
     font-size: 12px;
+    gap: 6px;
+  }
+
+  .demo-preview-global-stats {
+    gap: 12px;
+  }
+
+  .demo-preview-stat-label {
+    font-size: 9px;
+  }
+
+  .demo-preview-stat-value {
+    font-size: 16px;
+  }
+
+  .demo-preview-global-highlight {
+    padding: 6px 10px;
+    font-size: 11px;
+    gap: 6px;
+    border-radius: 6px;
+  }
+
+  .demo-preview-default {
+    padding: 4px;
+  }
+
+  .demo-preview-query-text {
+    font-size: 13px;
+  }
+}
+
+/* Height-based compactness */
+@media (max-height: 700px) and (max-width: 768px) {
+  .demo-preview {
+    padding: 8px 10px;
+    gap: 6px;
+  }
+
+  .demo-preview-article-title {
+    /* Truncate more aggressively */
+    max-width: 200px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .demo-preview-weather {
+    gap: 4px;
+    padding: 2px 0;
+  }
+
+  .demo-preview-weather-icon {
+    font-size: 20px;
+  }
+
+  .demo-preview-weather-temp {
+    font-size: 18px;
+  }
+
+  .demo-preview-global {
+    gap: 6px;
+    padding: 2px 0;
+  }
+
+  .demo-preview-stat-value {
+    font-size: 14px;
+  }
+}
+
+/* Very short screens - ultra compact */
+@media (max-height: 600px) and (max-width: 768px) {
+  .demo-preview {
+    padding: 6px 8px;
+    gap: 4px;
+  }
+
+  .demo-preview-header {
+    gap: 4px;
+  }
+
+  .demo-preview-weather-main {
+    gap: 6px;
+  }
+
+  .demo-preview-weather-icon {
+    font-size: 18px;
+  }
+
+  .demo-preview-weather-temp {
+    font-size: 16px;
+  }
+
+  .demo-preview-weather-location,
+  .demo-preview-weather-condition {
+    display: none;
+  }
+
+  .demo-preview-global-highlight {
+    padding: 4px 8px;
+    font-size: 10px;
+  }
+
+  /* Hide secondary info on very small screens */
+  .demo-preview-country,
+  .demo-preview-wiki-count {
+    display: none;
   }
 }
 

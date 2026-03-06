@@ -155,25 +155,72 @@
 }
 
 /* Mobile */
+@media (max-width: 768px) {
+  /* Hide hint on mobile - no keyboard, saves space */
+  .smart-input-hint {
+    display: none;
+  }
+}
+
 @media (max-width: 640px) {
   .smart-input {
     max-width: 100%;
+    gap: 8px;
   }
 
   .smart-input-modes {
     flex-wrap: wrap;
+    gap: 4px;
   }
 
   .mode-chip {
-    padding: 5px 10px;
-    font-size: 11px;
+    padding: 4px 8px;
+    font-size: 10px;
+    gap: 3px;
+  }
+
+  .mode-chip svg {
+    width: 12px;
+    height: 12px;
   }
 
   .smart-input-container {
     padding: 10px 12px;
+    gap: 8px;
+    border-radius: 10px;
+  }
+
+  .smart-input-icon {
+    width: 16px;
+    height: 16px;
   }
 
   .smart-input-field {
     font-size: 16px; /* Prevent iOS zoom */
+  }
+
+  .smart-input-btn {
+    width: 24px;
+    height: 24px;
+  }
+}
+
+/* Very compact for short screens */
+@media (max-height: 700px) and (max-width: 768px) {
+  .smart-input {
+    gap: 6px;
+  }
+
+  .smart-input-modes {
+    gap: 3px;
+  }
+
+  .mode-chip {
+    padding: 3px 6px;
+    font-size: 9px;
+  }
+
+  .smart-input-container {
+    padding: 8px 10px;
   }
 }

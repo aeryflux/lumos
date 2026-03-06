@@ -356,22 +356,36 @@ export const fr = {
 
   // Search / DemoPreview
   search: {
-    placeholder: 'Essayez "actualités du Japon" ou "météo en Europe"...',
+    placeholder: 'Essayez "news Japon" ou "météo France"...',
     loading: 'Recherche...',
     noResults: 'Aucun résultat trouvé',
     error: 'La recherche a échoué. Veuillez réessayer.',
     resultsFor: 'Résultats pour "{query}"',
     viewAll: 'Voir tout',
-    articles: 'articles',
-    countries: 'pays',
+    articles: '{count} articles',
+    countries: '{count} pays',
     subjects: 'sujets associés',
     readMore: 'Lire l\'article',
     learnMore: 'En savoir plus',
     seeOnGlobe: 'Voir sur le globe',
     modes: {
+      auto: 'Auto',
       news: 'Actualités',
       weather: 'Météo',
-      wiki: 'Wikipédia',
+      wiki: 'Wiki',
+    },
+    global: {
+      weather: 'Météo mondiale',
+      news: 'Actualités mondiales',
+      wiki: 'Encyclopédie mondiale',
+      avg: 'Moy',
+      min: 'Min',
+      max: 'Max',
+      articles: '{count} articles récents',
+      indexed: '{count} articles indexés',
+    },
+    wiki: {
+      search: 'Rechercher "{query}"',
     },
     weather: {
       temperature: 'Température',

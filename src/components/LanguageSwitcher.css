@@ -1,51 +1,35 @@
 /**
  * LanguageSwitcher Styles
- * Pattern mirroring ThemeSwitcher
+ * Minimal style matching ThemeSwitcher
  */
 
 .language-switcher {
   display: flex;
   align-items: center;
-  gap: 6px;
-  padding: 8px 12px;
-  background: var(--bg-tertiary);
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
   border: 1px solid var(--border);
-  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.03);
   cursor: pointer;
   transition: all 0.2s ease;
   font-family: inherit;
 }
 
 .language-switcher:hover {
-  background: var(--bg-secondary);
-  border-color: var(--border-hover);
-}
-
-.language-switcher:active {
-  transform: scale(0.98);
-}
-
-.language-flag {
-  display: block;
-  border-radius: 2px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
-  object-fit: cover;
+  border-color: var(--accent);
+  background: rgba(0, 255, 136, 0.1);
 }
 
 .language-label {
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 600;
   color: var(--text-secondary);
-  letter-spacing: 0.5px;
+  letter-spacing: 0.3px;
+  transition: color 0.2s ease;
 }
 
-/* Responsive */
-@media (max-width: 600px) {
-  .language-switcher {
-    padding: 6px 10px;
-  }
-
-  .language-label {
-    display: none;
-  }
+.language-switcher:hover .language-label {
+  color: var(--accent);
 }

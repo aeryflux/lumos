@@ -11,23 +11,20 @@
 import { useState, useEffect } from 'react';
 import './LanguageSwitcher.css';
 
-export type Language = 'en' | 'fr' | 'es' | 'de';
+export type Language = 'en' | 'fr';
 
 interface LanguageConfig {
-  countryCode: string;
   label: string;
   nativeName: string;
 }
 
 const languageConfigs: Record<Language, LanguageConfig> = {
-  en: { countryCode: 'gb', label: 'EN', nativeName: 'English' },
-  fr: { countryCode: 'fr', label: 'FR', nativeName: 'Français' },
-  es: { countryCode: 'es', label: 'ES', nativeName: 'Español' },
-  de: { countryCode: 'de', label: 'DE', nativeName: 'Deutsch' },
+  en: { label: 'EN', nativeName: 'English' },
+  fr: { label: 'FR', nativeName: 'Français' },
 };
 
 const STORAGE_KEY = 'lumos-language';
-const SUPPORTED_LANGUAGES: Language[] = ['en', 'fr', 'es', 'de'];
+const SUPPORTED_LANGUAGES: Language[] = ['en', 'fr'];
 
 /**
  * Detect browser language from navigator.language
@@ -60,30 +57,19 @@ export function LanguageSwitcher() {
     localStorage.setItem(STORAGE_KEY, language);
   }, [language]);
 
-  const cycleLanguage = () => {
-    const langs: Language[] = ['en', 'fr', 'es', 'de'];
-    const currentIndex = langs.indexOf(language);
-    const nextIndex = (currentIndex + 1) % langs.length;
-    setLanguage(langs[nextIndex]);
+  const toggleLanguage = () => {
+    setLanguage(prev => prev === 'en' ? 'fr' : 'en');
   };
 
   const config = languageConfigs[language];
-  const flagUrl = `https://flagcdn.com/w40/${config.countryCode}.png`;
 
   return (
     <button
       className="language-switcher"
-      onClick={cycleLanguage}
-      title={`${config.nativeName} - Click to change language`}
+      onClick={toggleLanguage}
+      title={`${config.nativeName} - Click to change`}
       aria-label={`Current language: ${config.nativeName}. Click to switch.`}
     >
-      <img
-        src={flagUrl}
-        alt={config.nativeName}
-        className="language-flag"
-        width={20}
-        height={14}
-      />
       <span className="language-label">{config.label}</span>
     </button>
   );

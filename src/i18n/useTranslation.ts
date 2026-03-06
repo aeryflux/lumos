@@ -7,13 +7,11 @@
 import { useState, useEffect, useCallback } from 'react';
 import { en } from './translations/en';
 import { fr } from './translations/fr';
-import { es } from './translations/es';
-import { de } from './translations/de';
 
-export type Language = 'en' | 'fr' | 'es' | 'de';
+export type Language = 'en' | 'fr';
 
-const translations: Record<Language, typeof en> = { en, fr, es, de };
-const SUPPORTED_LANGUAGES: Language[] = ['en', 'fr', 'es', 'de'];
+const translations: Record<Language, typeof en> = { en, fr };
+const SUPPORTED_LANGUAGES: Language[] = ['en', 'fr'];
 
 /**
  * Detect browser language from navigator.language

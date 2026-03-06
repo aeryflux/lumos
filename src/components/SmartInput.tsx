@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { Send, Newspaper, Cloud, BookOpen, Sparkles } from 'lucide-react';
+import { useTranslation } from '../i18n';
 import type { SearchMode } from '../services/searchService';
 import './SmartInput.css';
 
@@ -16,39 +17,67 @@ interface SmartInputProps {
 }
 
 // Mode configuration
-const MODES: { id: SearchMode; label: string; icon: typeof Newspaper; color: string }[] = [
-  { id: 'auto', label: 'Auto', icon: Sparkles, color: '#888888' },
-  { id: 'news', label: 'News', icon: Newspaper, color: '#ef4444' },
-  { id: 'weather', label: 'Weather', icon: Cloud, color: '#3b82f6' },
-  { id: 'wiki', label: 'Wiki', icon: BookOpen, color: '#888888' },
+const MODES: { id: SearchMode; icon: typeof Newspaper; color: string }[] = [
+  { id: 'auto', icon: Sparkles, color: '#888888' },
+  { id: 'news', icon: Newspaper, color: '#ef4444' },
+  { id: 'weather', icon: Cloud, color: '#3b82f6' },
+  { id: 'wiki', icon: BookOpen, color: '#888888' },
 ];
 
-// Rotating suggestions per mode - simple, direct phrases
-const SUGGESTIONS: Record<SearchMode, string[]> = {
-  auto: [
-    'World news',
-    'Global weather',
-    'About France',
-    'News Japan',
-  ],
-  news: [
-    'World news',
-    'Asia news',
-    'Europe updates',
-    'Americas headlines',
-  ],
-  weather: [
-    'Global weather',
-    'Temperature worldwide',
-    'Climate today',
-    'Weather forecast',
-  ],
-  wiki: [
-    'About France',
-    'History Japan',
-    'Geography Brazil',
-    'Culture Egypt',
-  ],
+// Rotating suggestions per mode - localized
+const SUGGESTIONS: Record<'en' | 'fr', Record<SearchMode, string[]>> = {
+  en: {
+    auto: [
+      'World news',
+      'Global weather',
+      'About France',
+      'News Japan',
+    ],
+    news: [
+      'World news',
+      'Asia news',
+      'Europe updates',
+      'Americas headlines',
+    ],
+    weather: [
+      'Global weather',
+      'Temperature worldwide',
+      'Climate today',
+      'Weather Europe',
+    ],
+    wiki: [
+      'About France',
+      'History Japan',
+      'Geography Brazil',
+      'Culture Egypt',
+    ],
+  },
+  fr: {
+    auto: [
+      'Actualités mondiales',
+      'Météo globale',
+      'À propos de la France',
+      'News Japon',
+    ],
+    news: [
+      'Actualités mondiales',
+      'News Asie',
+      'Actualités Europe',
+      'News Amériques',
+    ],
+    weather: [
+      'Météo globale',
+      'Température mondiale',
+      'Climat aujourd\'hui',
+      'Météo Europe',
+    ],
+    wiki: [
+      'À propos de la France',
+      'Histoire Japon',
+      'Géographie Brésil',
+      'Culture Égypte',
+    ],
+  },
 };
 
 export function SmartInput({
@@ -60,6 +89,7 @@ export function SmartInput({
   autoDemo = false,
   onDemoChange,
 }: SmartInputProps) {
+  const { t, language } = useTranslation();
   const [value, setValue] = useState('');
   const [selectedMode, setSelectedMode] = useState<SearchMode>('auto');
   const [suggestionIndex, setSuggestionIndex] = useState(0);
@@ -69,7 +99,8 @@ export function SmartInput({
 
   const currentMode = MODES.find(m => m.id === selectedMode) || MODES[0];
   const ModeIcon = currentMode.icon;
-  const suggestions = SUGGESTIONS[selectedMode];
+  const langSuggestions = SUGGESTIONS[language] || SUGGESTIONS.en;
+  const suggestions = langSuggestions[selectedMode];
   const currentSuggestion = suggestions[suggestionIndex];
 
   // Track if demo has been triggered for current suggestion to avoid duplicates
@@ -138,11 +169,11 @@ export function SmartInput({
     return () => clearInterval(interval);
   }, [isActive, value, suggestions.length]);
 
-  // Reset suggestion index when mode changes
+  // Reset suggestion index when mode or language changes
   useEffect(() => {
     lastDemoRef.current = null; // Allow new demo trigger
     setSuggestionIndex(0);
-  }, [selectedMode]);
+  }, [selectedMode, language]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -173,7 +204,7 @@ export function SmartInput({
               onClick={() => handleModeSelect(mode.id)}
             >
               <Icon size={14} />
-              <span>{mode.label}</span>
+              <span>{t(`search.modes.${mode.id}`)}</span>
             </button>
           );
         })}

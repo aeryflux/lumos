@@ -1,6 +1,7 @@
 import { Outlet, Link, useLocation } from 'react-router-dom';
 import { FileText, Github } from 'lucide-react';
 import { ThemeSwitcher } from '../ThemeSwitcher';
+import { LanguageSwitcher } from '../LanguageSwitcher';
 import { Logo } from '../Logo';
 import { GridBackground } from '../GridBackground';
 import { useEffectsOptional } from '../../contexts/EffectsContext';
@@ -54,6 +55,7 @@ export function Layout() {
               <Github size={16} />
               <span className="nav-link-label">GitHub</span>
             </a>
+            <LanguageSwitcher />
             <ThemeSwitcher />
           </div>
         </div>

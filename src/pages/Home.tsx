@@ -280,7 +280,17 @@ export function Home() {
     // Trigger laser scan effect with consistent green color
     triggerEffect('laser-scan', '#00ff88');
 
-    const searchResult = await executeSearch(query, mode);
+    // Determine effective mode and extract country (same logic as handleDemoChange)
+    let effectiveMode: SearchMode = mode;
+    if (mode === 'auto') {
+      effectiveMode = detectModeFromQuery(query);
+    }
+    const isGlobal = isGlobalQuery(query);
+    const queryCountry = extractCountryFromQuery(query);
+
+    // Use extracted country as search query, not "news spain"
+    const searchQuery = isGlobal ? '' : (queryCountry || query);
+    const searchResult = await executeSearch(searchQuery, effectiveMode !== 'auto' ? effectiveMode : mode);
 
     setResults({
       mode: searchResult.mode,

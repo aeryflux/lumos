@@ -8,7 +8,8 @@
  */
 
 import { useState, useEffect, useRef } from 'react';
-import { Newspaper, Cloud, BookOpen, Globe, ExternalLink, MapPin, Thermometer, TrendingUp } from 'lucide-react';
+import { Newspaper, Cloud, BookOpen, Globe, ExternalLink, MapPin, TrendingUp } from 'lucide-react';
+import { useTranslation } from '../i18n';
 import type { SearchMode } from '../services/searchService';
 import type { NewsArticle } from '../services/newsService';
 import type { WeatherCountryData } from '../services/weatherService';
@@ -41,11 +42,11 @@ interface DemoPreviewProps {
 }
 
 // Mode-specific icons and colors
-const MODE_CONFIG: Record<SearchMode, { icon: typeof Newspaper; color: string; label: string }> = {
-  auto: { icon: Globe, color: '#00ff88', label: 'Explorer' },
-  news: { icon: Newspaper, color: '#ef4444', label: 'Actualités' },
-  weather: { icon: Cloud, color: '#3b82f6', label: 'Météo' },
-  wiki: { icon: BookOpen, color: '#888888', label: 'Encyclopédie' },
+const MODE_CONFIG: Record<SearchMode, { icon: typeof Newspaper; color: string }> = {
+  auto: { icon: Globe, color: '#00ff88' },
+  news: { icon: Newspaper, color: '#ef4444' },
+  weather: { icon: Cloud, color: '#3b82f6' },
+  wiki: { icon: BookOpen, color: '#888888' },
 };
 
 // Weather condition icons
@@ -75,6 +76,7 @@ export function DemoPreview({
   countryCount = 0,
   globalStats,
 }: DemoPreviewProps) {
+  const { t } = useTranslation();
   const [isAnimating, setIsAnimating] = useState(false);
   const [displayData, setDisplayData] = useState({
     query,
@@ -90,6 +92,7 @@ export function DemoPreview({
 
   const modeConfig = MODE_CONFIG[displayData.mode] || MODE_CONFIG.auto;
   const ModeIcon = modeConfig.icon;
+  const modeLabel = t(`search.modes.${displayData.mode}`);
 
   // Handle data changes with animation
   useEffect(() => {
@@ -153,23 +156,23 @@ export function DemoPreview({
         <div className="demo-preview-global">
           <div className="demo-preview-global-title">
             <Globe size={16} />
-            <span>Météo mondiale</span>
+            <span>{t('search.global.weather')}</span>
           </div>
           <div className="demo-preview-global-stats">
             <div className="demo-preview-stat-item">
-              <span className="demo-preview-stat-label">Moyenne</span>
+              <span className="demo-preview-stat-label">{t('search.global.avg')}</span>
               <span className="demo-preview-stat-value">
                 {stats.avgTemp !== undefined ? `${Math.round(stats.avgTemp)}°C` : '--'}
               </span>
             </div>
             <div className="demo-preview-stat-item">
-              <span className="demo-preview-stat-label">Min</span>
+              <span className="demo-preview-stat-label">{t('search.global.min')}</span>
               <span className="demo-preview-stat-value demo-preview-stat-cold">
                 {stats.minTemp !== undefined ? `${Math.round(stats.minTemp)}°C` : '--'}
               </span>
             </div>
             <div className="demo-preview-stat-item">
-              <span className="demo-preview-stat-label">Max</span>
+              <span className="demo-preview-stat-label">{t('search.global.max')}</span>
               <span className="demo-preview-stat-value demo-preview-stat-hot">
                 {stats.maxTemp !== undefined ? `${Math.round(stats.maxTemp)}°C` : '--'}
               </span>
@@ -184,11 +187,11 @@ export function DemoPreview({
         <div className="demo-preview-global">
           <div className="demo-preview-global-title">
             <Newspaper size={16} />
-            <span>Actualités mondiales</span>
+            <span>{t('search.global.news')}</span>
           </div>
           <div className="demo-preview-global-highlight">
             <TrendingUp size={14} />
-            <span>{stats.totalArticles} articles récents</span>
+            <span>{t('search.global.articles', { count: stats.totalArticles })}</span>
           </div>
           {displayData.article && (
             <a
@@ -214,11 +217,11 @@ export function DemoPreview({
         <div className="demo-preview-global">
           <div className="demo-preview-global-title">
             <BookOpen size={16} />
-            <span>Encyclopédie mondiale</span>
+            <span>{t('search.global.wiki')}</span>
           </div>
           <div className="demo-preview-global-highlight">
             <Globe size={14} />
-            <span>{stats.totalArticles.toLocaleString()} articles indexés</span>
+            <span>{t('search.global.indexed', { count: stats.totalArticles.toLocaleString() })}</span>
           </div>
         </div>
       );
@@ -231,7 +234,7 @@ export function DemoPreview({
     if (!displayData.article) {
       return (
         <div className="demo-preview-empty">
-          <span>Recherche d'actualités...</span>
+          <span>{t('search.loading')}</span>
         </div>
       );
     }
@@ -265,7 +268,7 @@ export function DemoPreview({
     if (!displayData.weatherData || !displayData.targetCountry) {
       return (
         <div className="demo-preview-empty">
-          <span>Chargement météo...</span>
+          <span>{t('search.loading')}</span>
         </div>
       );
     }
@@ -311,13 +314,13 @@ export function DemoPreview({
           <span>
             {displayData.targetCountry
               ? `Wikipedia: ${displayData.targetCountry}`
-              : `Rechercher "${displayData.query}"`}
+              : t('search.wiki.search', { query: displayData.query })}
           </span>
           <ExternalLink size={12} />
         </a>
         {displayData.articleCount !== undefined && displayData.articleCount > 0 && (
           <div className="demo-preview-wiki-count">
-            <span>{displayData.articleCount.toLocaleString()} articles</span>
+            <span>{t('search.articles', { count: displayData.articleCount.toLocaleString() })}</span>
           </div>
         )}
       </div>
@@ -332,19 +335,21 @@ export function DemoPreview({
 
   return (
     <div className={`demo-preview ${isAnimating ? 'demo-preview--animating' : ''}`}>
-      {/* Header with mode and country count */}
+      {/* Header with mode and country count - hide mode indicator for 'auto' */}
       <div className="demo-preview-header">
-        <div
-          className="demo-preview-mode"
-          style={{ '--mode-color': modeConfig.color } as React.CSSProperties}
-        >
-          <ModeIcon size={14} />
-          <span>{modeConfig.label}</span>
-        </div>
+        {displayData.mode !== 'auto' && (
+          <div
+            className="demo-preview-mode"
+            style={{ '--mode-color': modeConfig.color } as React.CSSProperties}
+          >
+            <ModeIcon size={14} />
+            <span>{modeLabel}</span>
+          </div>
+        )}
         {countryCount > 0 && (
           <div className="demo-preview-stat">
             <Globe size={12} />
-            <span>{countryCount} pays</span>
+            <span>{t('search.countries', { count: countryCount })}</span>
           </div>
         )}
       </div>
