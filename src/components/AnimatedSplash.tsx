@@ -75,7 +75,7 @@ export function AnimatedSplash({ isReady, onComplete, minDuration = 1200 }: Anim
   if (phase === 'done') return null;
 
   // Get hexagon SVG points
-  const getHexPoints = (size: number) => {
+  const getHexPoints = (_size: number) => {
     return Array.from({ length: 6 }, (_, i) => {
       const angle = (i * 60 - 90) * Math.PI / 180;
       return `${50 + Math.cos(angle) * 45},${50 + Math.sin(angle) * 45}`;
