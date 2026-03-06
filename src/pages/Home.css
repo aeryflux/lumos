@@ -57,6 +57,13 @@
   padding: 40px;
   /* Offset content to the right to balance globe */
   padding-left: 45%;
+  /* Allow clicks to pass through to globe */
+  pointer-events: none;
+}
+
+/* Re-enable pointer events on interactive elements */
+.home-content * {
+  pointer-events: auto;
 }
 
 .home-inner {
