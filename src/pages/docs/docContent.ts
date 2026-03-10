@@ -2,7 +2,6 @@
  * Documentation Content
  *
  * Static documentation content for Lumos.
- * In the future, this could be fetched from Pythagoras API.
  */
 
 export interface DocArticle {
@@ -29,57 +28,49 @@ export const docContent: Record<string, DocCategory> = {
         category: 'Getting Started',
         content: `
           <h2>What is AeryFlux?</h2>
-          <p>AeryFlux is an interactive 3D globe platform that brings together music, news, weather, and knowledge from every corner of the planet. Explore countries, discover new music, stay informed about global events, and complete interactive globe challenges.</p>
+          <p>AeryFlux is an interactive 3D globe platform for exploring global data. Search for news, weather, economy, sports, and wiki information from around the world with a beautiful hexagonal globe visualization.</p>
 
           <h3>Key Features</h3>
           <ul>
-            <li><strong>Interactive 3D Globe</strong> - Explore a beautiful hexagonal globe with smooth animations</li>
-            <li><strong>Multiple Modes</strong> - Switch between Music, News, Weather, Wiki, and Challenge modes</li>
-            <li><strong>Cross-Platform</strong> - Available on Web, iOS, Android, and Desktop</li>
-            <li><strong>Earn Stars</strong> - Complete daily challenges to earn virtual currency</li>
-            <li><strong>Customization</strong> - Personalize your experience with themes and settings</li>
+            <li><strong>Interactive 3D Globe</strong> - 422 countries and 200 cities on a Goldberg polyhedron</li>
+            <li><strong>Multiple Modes</strong> - News, Weather, Economy, Sports, Wiki</li>
+            <li><strong>Real-time Data</strong> - Live updates from global sources</li>
+            <li><strong>Multi-language</strong> - Available in English, French, Spanish, German</li>
           </ul>
 
-          <h3>The AeryFlux Ecosystem</h3>
+          <h3>Open Source</h3>
+          <p>AeryFlux is built with open source technologies:</p>
           <table>
             <thead>
               <tr>
-                <th>App</th>
+                <th>Project</th>
                 <th>Description</th>
-                <th>Platform</th>
+                <th>Link</th>
               </tr>
             </thead>
             <tbody>
               <tr>
-                <td><strong>Atlas</strong></td>
-                <td>Main mobile app with 3D globe</td>
-                <td>Web, iOS, Android</td>
-              </tr>
-              <tr>
                 <td><strong>Lumos</strong></td>
-                <td>Landing page & documentation</td>
-                <td>Web</td>
+                <td>Landing page (this site)</td>
+                <td><a href="https://github.com/aeryflux/lumos" target="_blank">GitHub</a></td>
               </tr>
               <tr>
-                <td><strong>Holocron</strong></td>
-                <td>Admin backoffice & content management</td>
-                <td>Web</td>
+                <td><strong>@aeryflux/globe</strong></td>
+                <td>3D Globe React component</td>
+                <td><a href="https://www.npmjs.com/package/@aeryflux/globe" target="_blank">npm</a></td>
               </tr>
               <tr>
-                <td><strong>Edison</strong></td>
-                <td>Developer hub</td>
-                <td>Web, Mobile</td>
+                <td><strong>Haki</strong></td>
+                <td>Learn-to-code platform</td>
+                <td><a href="https://github.com/aeryflux/haki" target="_blank">GitHub</a></td>
               </tr>
             </tbody>
           </table>
 
           <h3>Getting Help</h3>
-          <p>If you have questions or need help:</p>
           <ul>
-            <li>Check the <a href="/docs/quickstart">Quick Start Guide</a></li>
-            <li>Browse the <a href="/docs">Documentation</a></li>
-            <li>Join our <a href="https://discord.gg/aeryflux" target="_blank">Discord Community</a></li>
-            <li>Report issues on <a href="https://github.com/aeryflux" target="_blank">GitHub</a></li>
+            <li>Check the <a href="/docs/globe">Globe Documentation</a></li>
+            <li>Report issues on <a href="https://github.com/aeryflux/lumos/issues" target="_blank">GitHub</a></li>
           </ul>
         `,
       },
@@ -90,413 +81,508 @@ export const docContent: Record<string, DocCategory> = {
         category: 'Getting Started',
         content: `
           <h2>Quick Start Guide</h2>
-          <p>Get started with AeryFlux in just a few minutes.</p>
+          <p>Try AeryFlux right now on this page!</p>
 
-          <h3>1. Choose Your Platform</h3>
-
-          <div class="doc-callout doc-callout-info">
-            <strong>Web (Recommended for first-time users)</strong><br>
-            Visit <a href="https://atlas.aeryflux.io">atlas.aeryflux.io</a> to try Atlas instantly in your browser.
-          </div>
-
-          <h4>Mobile (iOS & Android)</h4>
+          <h3>Using the Search</h3>
+          <p>The SmartInput at the top of the page lets you explore:</p>
           <ol>
-            <li>Download Atlas from the <a href="/download">App Store or Google Play</a></li>
-            <li>Open the app and create an account (or continue as guest)</li>
-            <li>Start exploring the globe!</li>
+            <li>Click the mode icon to switch between News, Weather, Economy, Sports, or Wiki</li>
+            <li>Type your query (e.g., "weather in Paris" or "news about Tokyo")</li>
+            <li>Watch the globe highlight relevant countries and cities</li>
+            <li>View results in the panel below</li>
           </ol>
 
-          <h4>Desktop (Coming Soon)</h4>
-          <div class="doc-callout doc-callout-info">
-            Desktop application is coming in a future release. Use the Web version for now!
-          </div>
+          <h3>Search Modes</h3>
+          <table>
+            <thead>
+              <tr>
+                <th>Mode</th>
+                <th>Color</th>
+                <th>Example Query</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>News</strong></td>
+                <td style="color: #ef4444;">Red</td>
+                <td>"news france" or "latest world news"</td>
+              </tr>
+              <tr>
+                <td><strong>Weather</strong></td>
+                <td style="color: #3b82f6;">Blue</td>
+                <td>"weather tokyo" or "global weather"</td>
+              </tr>
+              <tr>
+                <td><strong>Economy</strong></td>
+                <td style="color: #10b981;">Green</td>
+                <td>"economy germany" or "market news"</td>
+              </tr>
+              <tr>
+                <td><strong>Sports</strong></td>
+                <td style="color: #f59e0b;">Orange</td>
+                <td>"sports uk" or "football scores"</td>
+              </tr>
+              <tr>
+                <td><strong>Wiki</strong></td>
+                <td style="color: #888888;">Gray</td>
+                <td>"wiki japan" or "about brazil"</td>
+              </tr>
+            </tbody>
+          </table>
 
-          <h3>2. Explore the Globe</h3>
-          <p>Once you're in Atlas:</p>
+          <h3>Globe Interaction</h3>
           <ul>
-            <li><strong>Drag</strong> to rotate the globe</li>
-            <li><strong>Pinch/Scroll</strong> to zoom in and out</li>
-            <li><strong>Tap</strong> on a country to select it</li>
-            <li><strong>Swipe</strong> from the edges to open the drawers</li>
-          </ul>
-
-          <h3>3. Switch Modes</h3>
-          <p>Open the left drawer and select a mode:</p>
-          <ul>
-            <li><strong>Music</strong> - Discover music from selected countries</li>
-            <li><strong>News</strong> - Read headlines from around the world</li>
-            <li><strong>Weather</strong> - View real-time weather data</li>
-            <li><strong>Wiki</strong> - Learn about countries and landmarks</li>
-            <li><strong>Challenge</strong> - Complete interactive globe challenges</li>
-          </ul>
-
-          <h3>4. Earn Stars</h3>
-          <p>Complete daily challenges to earn Stars:</p>
-          <ul>
-            <li>Login daily for bonus Stars</li>
-            <li>Complete interactive challenges</li>
-            <li>Explore new countries</li>
-            <li>Share your discoveries</li>
+            <li><strong>Drag</strong> - Rotate the globe</li>
+            <li><strong>Scroll</strong> - Zoom in/out</li>
+            <li><strong>Hover</strong> - See country highlights</li>
           </ul>
 
           <h3>Next Steps</h3>
           <ul>
-            <li>Learn about <a href="/docs/atlas/navigation">Globe Navigation</a></li>
-            <li>Discover all <a href="/docs/atlas/modes">Exploration Modes</a></li>
-            <li>Check out <a href="/docs/atlas/challenges">Challenges & Stars</a></li>
+            <li>Learn about the <a href="/docs/globe">Globe Component</a></li>
+            <li>Integrate it in your project with <a href="/docs/globe/integration">npm</a></li>
           </ul>
-        `,
-      },
-      {
-        slug: 'installation',
-        title: 'Installation',
-        description: 'Detailed installation instructions for all platforms',
-        category: 'Getting Started',
-        content: `
-          <h2>Installation Guide</h2>
-          <p>Detailed instructions for installing AeryFlux on all supported platforms.</p>
-
-          <h3>System Requirements</h3>
-
-          <h4>Web Browser</h4>
-          <ul>
-            <li>Chrome 90+, Firefox 88+, Safari 14+, or Edge 90+</li>
-            <li>WebGL 2.0 support</li>
-            <li>Minimum 4GB RAM recommended</li>
-          </ul>
-
-          <h4>Mobile</h4>
-          <ul>
-            <li><strong>iOS:</strong> iOS 14.0 or later, iPhone 8 or newer</li>
-            <li><strong>Android:</strong> Android 8.0 or later, 3GB RAM minimum</li>
-          </ul>
-
-          <h4>Desktop (Coming Soon)</h4>
-          <div class="doc-callout doc-callout-info">
-            Desktop application is planned for a future release. Use the Web version for now!
-          </div>
-
-          <h3>Installing Atlas Mobile</h3>
-
-          <h4>iOS</h4>
-          <ol>
-            <li>Open the App Store on your iPhone or iPad</li>
-            <li>Search for "AeryFlux Atlas"</li>
-            <li>Tap "Get" and authenticate with Face ID/Touch ID</li>
-            <li>Wait for the download to complete</li>
-            <li>Open Atlas from your home screen</li>
-          </ol>
-
-          <h4>Android</h4>
-          <ol>
-            <li>Open Google Play Store</li>
-            <li>Search for "AeryFlux Atlas"</li>
-            <li>Tap "Install"</li>
-            <li>Wait for the download to complete</li>
-            <li>Open Atlas from your app drawer</li>
-          </ol>
-
-          <h3>Troubleshooting</h3>
-          <p>Having issues? Check these common solutions:</p>
-          <ul>
-            <li><strong>Globe not loading:</strong> Ensure WebGL is enabled in your browser</li>
-            <li><strong>Slow performance:</strong> Try lowering the graphics quality in Settings</li>
-            <li><strong>App crashes:</strong> Make sure you have the latest version installed</li>
-          </ul>
-          <p>Still stuck? Check our <a href="/docs">documentation</a> or join our <a href="https://discord.gg/aeryflux">Discord</a>.</p>
         `,
       },
     ],
   },
-  'atlas': {
-    title: 'Atlas Mobile',
+  'globe': {
+    title: 'Globe Component',
     articles: [
       {
-        slug: 'atlas/navigation',
-        title: 'Globe Navigation',
-        description: 'Master the 3D globe controls',
-        category: 'Atlas Mobile',
+        slug: 'globe',
+        title: 'Overview',
+        description: 'The @aeryflux/globe npm package',
+        category: 'Globe Component',
         content: `
-          <h2>Globe Navigation</h2>
-          <p>Learn how to navigate the 3D globe in Atlas.</p>
+          <h2>@aeryflux/globe</h2>
+          <p>A React component for rendering interactive 3D globes with country and city data visualization.</p>
 
-          <h3>Basic Controls</h3>
+          <h3>Features</h3>
+          <ul>
+            <li>Goldberg polyhedron (hexagonal) globe geometry</li>
+            <li>422 countries with accurate borders</li>
+            <li>200 major world cities</li>
+            <li>Data-driven highlighting with colors and extrusion</li>
+            <li>Multiple surface themes (dark, green, white)</li>
+            <li>WebGL with automatic fallback</li>
+            <li>React and React Native support</li>
+          </ul>
 
-          <h4>Touch/Mouse Controls</h4>
+          <h3>Installation</h3>
+          <pre><code>npm install @aeryflux/globe three @types/three</code></pre>
+
+          <h3>Basic Usage</h3>
+          <pre><code>import { Globe } from '@aeryflux/globe/react';
+
+function App() {
+  return (
+    &lt;Globe
+      surface="green"
+      modelUrl="/models/atlas_hex_subdiv_7.glb"
+      countryData={{
+        france: { scale: 0.8, color: '#00ff88' },
+        germany: { scale: 0.6, color: '#00d4ff' }
+      }}
+    /&gt;
+  );
+}</code></pre>
+
+          <h3>Globe Models</h3>
+          <p>The package includes pre-built GLB models:</p>
           <table>
             <thead>
               <tr>
-                <th>Action</th>
-                <th>Touch</th>
-                <th>Mouse</th>
+                <th>Model</th>
+                <th>Cells</th>
+                <th>Size</th>
+                <th>Use Case</th>
               </tr>
             </thead>
             <tbody>
               <tr>
-                <td>Rotate globe</td>
-                <td>Drag with one finger</td>
-                <td>Click and drag</td>
+                <td>atlas_hex_subdiv_5.glb</td>
+                <td>2,562</td>
+                <td>2.5 MB</td>
+                <td>Mobile</td>
               </tr>
               <tr>
-                <td>Zoom in/out</td>
-                <td>Pinch with two fingers</td>
-                <td>Scroll wheel</td>
+                <td>atlas_hex_subdiv_6.glb</td>
+                <td>10,242</td>
+                <td>7.5 MB</td>
+                <td>Desktop</td>
               </tr>
               <tr>
-                <td>Select country</td>
-                <td>Tap on country</td>
-                <td>Click on country</td>
-              </tr>
-              <tr>
-                <td>Open left drawer</td>
-                <td>Swipe from left edge</td>
-                <td>Click menu icon</td>
-              </tr>
-              <tr>
-                <td>Open right drawer</td>
-                <td>Swipe from right edge</td>
-                <td>Click settings icon</td>
+                <td>atlas_hex_subdiv_7.glb</td>
+                <td>40,962</td>
+                <td>20 MB</td>
+                <td>High-detail</td>
               </tr>
             </tbody>
           </table>
 
-          <h3>Globe Types</h3>
-          <p>Atlas uses different globe types depending on the mode:</p>
+          <div class="doc-callout doc-callout-info">
+            <strong>Note:</strong> Host GLB files yourself or use a CDN for best performance.
+          </div>
+        `,
+      },
+      {
+        slug: 'globe/props',
+        title: 'Props Reference',
+        description: 'Complete props documentation',
+        category: 'Globe Component',
+        content: `
+          <h2>Globe Props</h2>
+          <p>Complete reference for all Globe component props.</p>
 
-          <h4>Atlas Globe (Hexagonal)</h4>
-          <p>Used in Music, News, Wiki, and Challenge modes. Features:</p>
-          <ul>
-            <li>Goldberg polyhedron with hexagonal cells</li>
-            <li>Grouped country meshes for better performance</li>
-            <li>Glowing green borders between countries</li>
-            <li>Smooth shading for softer visuals</li>
-          </ul>
-
-          <h4>Weather Globe</h4>
-          <p>Used in Weather mode. Features:</p>
-          <ul>
-            <li>Individual hexagonal cells for data visualization</li>
-            <li>Color-coded temperature/weather data per cell</li>
-            <li>162 cells on mobile, 2562 on desktop for detail</li>
-          </ul>
-
-          <h3>Country Selection</h3>
-          <p>When you tap/click on a country:</p>
-          <ol>
-            <li>The country highlights with a glow effect</li>
-            <li>The globe rotates to center the country</li>
-            <li>A card appears with information based on current mode</li>
-            <li>You can tap the card to see more details</li>
-          </ol>
-
-          <h3>Keyboard Shortcuts (Desktop)</h3>
+          <h3>Basic Props</h3>
           <table>
             <thead>
               <tr>
-                <th>Key</th>
-                <th>Action</th>
+                <th>Prop</th>
+                <th>Type</th>
+                <th>Default</th>
+                <th>Description</th>
               </tr>
             </thead>
             <tbody>
-              <tr><td><code>Arrow Keys</code></td><td>Rotate globe</td></tr>
-              <tr><td><code>+</code> / <code>-</code></td><td>Zoom in/out</td></tr>
-              <tr><td><code>R</code></td><td>Reset view</td></tr>
-              <tr><td><code>F</code></td><td>Toggle fullscreen</td></tr>
-              <tr><td><code>1-5</code></td><td>Switch modes</td></tr>
+              <tr>
+                <td><code>modelUrl</code></td>
+                <td>string</td>
+                <td>bundled</td>
+                <td>URL to GLB model file</td>
+              </tr>
+              <tr>
+                <td><code>surface</code></td>
+                <td>'dark' | 'green' | 'white'</td>
+                <td>'dark'</td>
+                <td>Color theme preset</td>
+              </tr>
+              <tr>
+                <td><code>rotationSpeed</code></td>
+                <td>number</td>
+                <td>0.0003</td>
+                <td>Auto-rotation speed</td>
+              </tr>
+              <tr>
+                <td><code>enableControls</code></td>
+                <td>boolean</td>
+                <td>false</td>
+                <td>Enable drag rotation</td>
+              </tr>
             </tbody>
           </table>
+
+          <h3>Data Props</h3>
+          <table>
+            <thead>
+              <tr>
+                <th>Prop</th>
+                <th>Type</th>
+                <th>Description</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>countryData</code></td>
+                <td>Record&lt;string, CountryHighlight&gt;</td>
+                <td>Country highlight data</td>
+              </tr>
+              <tr>
+                <td><code>cityData</code></td>
+                <td>Record&lt;string, CityHighlight&gt;</td>
+                <td>City highlight data</td>
+              </tr>
+              <tr>
+                <td><code>dataHighlightColor</code></td>
+                <td>string</td>
+                <td>Accent color for highlights</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <h3>CountryHighlight Type</h3>
+          <pre><code>interface CountryHighlight {
+  scale: number;      // 0-1 intensity
+  color?: string;     // Custom hex color
+  extrusion?: number; // 0-1 displacement
+}</code></pre>
+
+          <h3>CityHighlight Type</h3>
+          <pre><code>interface CityHighlight {
+  scale: number;      // 0-1 intensity
+  color?: string;     // Custom hex color
+  extrusion?: number; // 0-1 displacement
+}</code></pre>
+
+          <h3>Visual Props</h3>
+          <table>
+            <thead>
+              <tr>
+                <th>Prop</th>
+                <th>Type</th>
+                <th>Default</th>
+                <th>Description</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>bloomStrength</code></td>
+                <td>number</td>
+                <td>1.0</td>
+                <td>Post-processing bloom</td>
+              </tr>
+              <tr>
+                <td><code>glowIntensity</code></td>
+                <td>number</td>
+                <td>1.2</td>
+                <td>Border glow intensity</td>
+              </tr>
+              <tr>
+                <td><code>showCountries</code></td>
+                <td>boolean</td>
+                <td>false</td>
+                <td>Show country fills</td>
+              </tr>
+              <tr>
+                <td><code>showCities</code></td>
+                <td>boolean</td>
+                <td>false</td>
+                <td>Show city markers</td>
+              </tr>
+              <tr>
+                <td><code>borderColor</code></td>
+                <td>string</td>
+                <td>theme</td>
+                <td>Custom border color</td>
+              </tr>
+            </tbody>
+          </table>
+        `,
+      },
+      {
+        slug: 'globe/integration',
+        title: 'Integration Guide',
+        description: 'Integrate the globe in your React project',
+        category: 'Globe Component',
+        content: `
+          <h2>Integration Guide</h2>
+          <p>Step-by-step guide to add the globe to your React project.</p>
+
+          <h3>1. Install Dependencies</h3>
+          <pre><code>npm install @aeryflux/globe three @types/three</code></pre>
+
+          <h3>2. Copy GLB Models</h3>
+          <p>Copy the GLB files to your public folder:</p>
+          <pre><code># From node_modules
+cp node_modules/@aeryflux/globe/models/*.glb public/models/</code></pre>
+
+          <h3>3. Import and Use</h3>
+          <pre><code>import { Globe } from '@aeryflux/globe/react';
+
+function MyGlobe() {
+  const [countryData, setCountryData] = useState({});
+
+  // Fetch data and update state
+  useEffect(() => {
+    fetchWeatherData().then(data => {
+      setCountryData(data);
+    });
+  }, []);
+
+  return (
+    &lt;div style={{ width: '100%', height: '500px' }}&gt;
+      &lt;Globe
+        surface="green"
+        modelUrl="/models/atlas_hex_subdiv_6.glb"
+        countryData={countryData}
+        showCountries
+        enableControls
+      /&gt;
+    &lt;/div&gt;
+  );
+}</code></pre>
+
+          <h3>4. Handle Loading</h3>
+          <pre><code>import { Globe, GlobeFallback } from '@aeryflux/globe/react';
+
+function MyGlobe() {
+  return (
+    &lt;Suspense fallback={&lt;GlobeFallback /&gt;}&gt;
+      &lt;Globe modelUrl="/models/atlas_hex_subdiv_6.glb" /&gt;
+    &lt;/Suspense&gt;
+  );
+}</code></pre>
+
+          <h3>Country Name Matching</h3>
+          <p>The globe uses Natural Earth country names. Common aliases are supported:</p>
+          <ul>
+            <li><code>usa</code>, <code>us</code> → United States of America</li>
+            <li><code>uk</code> → United Kingdom</li>
+            <li><code>uae</code> → United Arab Emirates</li>
+            <li><code>south_korea</code> → South Korea</li>
+          </ul>
+
+          <h3>City Name Matching</h3>
+          <p>Cities use their English names. Common aliases:</p>
+          <ul>
+            <li><code>nyc</code>, <code>new_york</code> → New York</li>
+            <li><code>la</code> → Los Angeles</li>
+            <li><code>kyiv</code> ↔ <code>kiev</code></li>
+            <li><code>sao_paulo</code> ↔ <code>são_paulo</code></li>
+          </ul>
 
           <h3>Performance Tips</h3>
           <ul>
-            <li>Enable "Low Quality Mode" in settings for older devices</li>
-            <li>Close other apps to free up memory</li>
-            <li>The web version performs best in Chrome</li>
+            <li>Use <code>subdiv_5</code> for mobile (2,562 cells)</li>
+            <li>Use <code>subdiv_6</code> for desktop (10,242 cells)</li>
+            <li>Memoize <code>countryData</code> to prevent re-renders</li>
+            <li>Set <code>bloomStrength={0}</code> on low-end devices</li>
           </ul>
         `,
       },
+    ],
+  },
+  'design': {
+    title: 'Design System',
+    articles: [
       {
-        slug: 'atlas/modes',
-        title: 'Exploration Modes',
-        description: 'Discover all the ways to explore the world',
-        category: 'Atlas Mobile',
+        slug: 'design',
+        title: 'Design System',
+        description: 'Colors, typography, and visual guidelines',
+        category: 'Design System',
         content: `
-          <h2>Exploration Modes</h2>
-          <p>Atlas offers five distinct modes for exploring the world.</p>
+          <h2>AeryFlux Design System</h2>
+          <p>Visual guidelines for the AeryFlux ecosystem.</p>
 
-          <h3>News Mode (Default)</h3>
-          <div class="doc-mode-card" style="border-left-color: #ef4444;">
-            <strong>Color:</strong> Red (#ef4444)
-          </div>
-          <p>Stay informed about global events:</p>
-          <ul>
-            <li>Real-time news headlines from selected countries</li>
-            <li>Multiple news sources per country</li>
-            <li>Save articles to read later</li>
-            <li>Share articles with friends</li>
-          </ul>
-
-          <h3>Music Mode</h3>
-          <div class="doc-mode-card" style="border-left-color: #8b5cf6;">
-            <strong>Color:</strong> Purple (#8b5cf6)
-          </div>
-          <p>Discover music from around the world:</p>
-          <ul>
-            <li>Top tracks from each country</li>
-            <li>Explore different genres</li>
-            <li>Preview tracks directly in the app</li>
-            <li>Open in Spotify or Apple Music</li>
-          </ul>
-
-          <h3>Weather Mode</h3>
-          <div class="doc-mode-card" style="border-left-color: #3b82f6;">
-            <strong>Color:</strong> Blue (#3b82f6)
-          </div>
-          <p>View real-time weather data:</p>
-          <ul>
-            <li>Temperature displayed on hexagonal cells</li>
-            <li>Weather conditions and forecasts</li>
-            <li>Color-coded heat map visualization</li>
-            <li>Support for Celsius and Fahrenheit</li>
-          </ul>
-
-          <h3>Wiki Mode</h3>
-          <div class="doc-mode-card" style="border-left-color: #888888;">
-            <strong>Color:</strong> Gray (#888888)
-          </div>
-          <p>Learn about countries and landmarks:</p>
-          <ul>
-            <li>Quick facts about each country</li>
-            <li>Capital cities and major landmarks</li>
-            <li>Population and area statistics</li>
-            <li>Links to Wikipedia for more info</li>
-          </ul>
-
-          <h3>Challenge Mode</h3>
-          <div class="doc-mode-card" style="border-left-color: #f59e0b;">
-            <strong>Color:</strong> Gold (#f59e0b)
-          </div>
-          <p>Complete interactive globe challenges:</p>
-          <ul>
-            <li>Daily challenges with increasing difficulty</li>
-            <li>Find countries, capitals, and flags</li>
-            <li>Earn Stars for correct answers</li>
-            <li>Compete on leaderboards</li>
-          </ul>
-
-          <h3>Switching Modes</h3>
-          <p>To switch modes:</p>
-          <ol>
-            <li>Open the left drawer (swipe from left edge or tap menu icon)</li>
-            <li>Select the desired mode from the list</li>
-            <li>The globe will update with mode-specific visuals</li>
-          </ol>
-
-          <div class="doc-callout doc-callout-info">
-            <strong>Pro Tip:</strong> Long-press on a mode to rearrange the order in the drawer!
-          </div>
-        `,
-      },
-      {
-        slug: 'atlas/challenges',
-        title: 'Challenges & Stars',
-        description: 'Earn rewards by completing challenges',
-        category: 'Atlas Mobile',
-        content: `
-          <h2>Challenges & Stars</h2>
-          <p>Complete challenges to earn Stars and unlock rewards.</p>
-
-          <h3>What are Stars?</h3>
-          <p>Stars are AeryFlux's virtual currency. Use them to:</p>
-          <ul>
-            <li>Unlock premium themes</li>
-            <li>Purchase cosmetic items</li>
-            <li>Skip challenge cooldowns</li>
-            <li>Support the project</li>
-          </ul>
-
-          <h3>Earning Stars</h3>
-
-          <h4>Daily Rewards</h4>
-          <ul>
-            <li><strong>Login Bonus:</strong> +10 Stars daily</li>
-            <li><strong>Streak Bonus:</strong> +5 Stars per consecutive day (max +50)</li>
-          </ul>
-
-          <h4>Challenges</h4>
-          <ul>
-            <li><strong>Easy:</strong> +5 Stars</li>
-            <li><strong>Medium:</strong> +15 Stars</li>
-            <li><strong>Hard:</strong> +30 Stars</li>
-            <li><strong>Expert:</strong> +50 Stars</li>
-          </ul>
-
-          <h4>Exploration</h4>
-          <ul>
-            <li><strong>First visit to country:</strong> +2 Stars</li>
-            <li><strong>Discover all countries in continent:</strong> +25 Stars</li>
-            <li><strong>Visit 100 countries:</strong> +100 Stars</li>
-          </ul>
-
-          <h3>Challenge Types</h3>
-
-          <h4>Country Challenges</h4>
-          <p>Identify countries based on:</p>
-          <ul>
-            <li>Shape outline</li>
-            <li>Position on globe</li>
-            <li>Flag</li>
-            <li>Capital city</li>
-          </ul>
-
-          <h4>Speed Challenges</h4>
-          <p>Find as many countries as possible in:</p>
-          <ul>
-            <li>30 seconds (Easy)</li>
-            <li>60 seconds (Medium)</li>
-            <li>90 seconds (Hard)</li>
-          </ul>
-
-          <h4>Daily Challenge</h4>
-          <p>A new unique challenge every day. Complete it for bonus Stars!</p>
-
-          <h3>Leaderboards</h3>
-          <p>Compete with other explorers:</p>
-          <ul>
-            <li><strong>Daily:</strong> Top scorers of the day</li>
-            <li><strong>Weekly:</strong> Weekly rankings</li>
-            <li><strong>All-Time:</strong> Hall of fame</li>
-            <li><strong>Friends:</strong> Compare with friends</li>
-          </ul>
-
-          <h3>Purchasing Stars</h3>
-          <p>Support development by purchasing Star packs:</p>
+          <h3>Colors</h3>
+          <h4>Brand Colors</h4>
           <table>
             <thead>
               <tr>
-                <th>Pack</th>
-                <th>Stars</th>
-                <th>Price</th>
-                <th>Bonus</th>
+                <th>Name</th>
+                <th>Hex</th>
+                <th>Usage</th>
               </tr>
             </thead>
             <tbody>
               <tr>
-                <td>Starter</td>
-                <td>500</td>
-                <td>$2.99</td>
-                <td>+3 themes</td>
+                <td>Primary Green</td>
+                <td><code>#00ff88</code></td>
+                <td>Accent, highlights, CTAs</td>
               </tr>
               <tr>
-                <td>Support</td>
-                <td>2,000</td>
-                <td>$14.99</td>
-                <td>+10 themes</td>
+                <td>Cyan</td>
+                <td><code>#00d4ff</code></td>
+                <td>Secondary accent, links</td>
               </tr>
               <tr>
-                <td>Sailor</td>
-                <td>10,000</td>
-                <td>$49.99</td>
-                <td>All cosmetics</td>
+                <td>Background</td>
+                <td><code>#050508</code></td>
+                <td>Main background</td>
+              </tr>
+              <tr>
+                <td>Surface</td>
+                <td><code>#0a0a0f</code></td>
+                <td>Cards, panels</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <h4>Mode Colors</h4>
+          <table>
+            <thead>
+              <tr>
+                <th>Mode</th>
+                <th>Color</th>
+                <th>Hex</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>News</td>
+                <td style="color: #ef4444;">Red</td>
+                <td><code>#ef4444</code></td>
+              </tr>
+              <tr>
+                <td>Weather</td>
+                <td style="color: #3b82f6;">Blue</td>
+                <td><code>#3b82f6</code></td>
+              </tr>
+              <tr>
+                <td>Economy</td>
+                <td style="color: #10b981;">Green</td>
+                <td><code>#10b981</code></td>
+              </tr>
+              <tr>
+                <td>Sports</td>
+                <td style="color: #f59e0b;">Orange</td>
+                <td><code>#f59e0b</code></td>
+              </tr>
+              <tr>
+                <td>Wiki</td>
+                <td style="color: #888888;">Gray</td>
+                <td><code>#888888</code></td>
+              </tr>
+            </tbody>
+          </table>
+
+          <h3>Typography</h3>
+          <table>
+            <thead>
+              <tr>
+                <th>Element</th>
+                <th>Font</th>
+                <th>Weight</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Headings</td>
+                <td>HemiHead</td>
+                <td>Bold</td>
+              </tr>
+              <tr>
+                <td>Body</td>
+                <td>Inter</td>
+                <td>Regular</td>
+              </tr>
+              <tr>
+                <td>Code</td>
+                <td>JetBrains Mono</td>
+                <td>Regular</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <h3>Globe Themes</h3>
+          <table>
+            <thead>
+              <tr>
+                <th>Theme</th>
+                <th>Accent</th>
+                <th>Background</th>
+                <th>Use Case</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>dark</td>
+                <td>#ffffff</td>
+                <td>#050508</td>
+                <td>Minimal, neutral</td>
+              </tr>
+              <tr>
+                <td>green</td>
+                <td>#00ff88</td>
+                <td>#050508</td>
+                <td>Default, branded</td>
+              </tr>
+              <tr>
+                <td>white</td>
+                <td>#1a1a1a</td>
+                <td>#ffffff</td>
+                <td>Light mode</td>
               </tr>
             </tbody>
           </table>
