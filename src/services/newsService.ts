@@ -29,6 +29,21 @@ export interface CountryNewsData {
   };
 }
 
+export interface CityNewsData {
+  [cityName: string]: {
+    scale: number;          // Normalized 0-1 for visibility
+    lat: number;
+    lon: number;
+    color?: string;
+    extrusion?: number;     // Normalized 0-1 for extrusion
+  };
+}
+
+export interface NewsGlobeData {
+  countryData: CountryNewsData;
+  cityData: CityNewsData;
+}
+
 export interface NewsTheme {
   id: number;
   name: string;
@@ -57,9 +72,9 @@ export async function fetchNewsArticles(query?: string): Promise<NewsArticle[]> 
 }
 
 /**
- * Fetch country news data for globe visualization
+ * Fetch country and city news data for globe visualization
  */
-export async function fetchNewsCountryData(query?: string): Promise<CountryNewsData> {
+export async function fetchNewsGlobeData(query?: string): Promise<NewsGlobeData> {
   const url = new URL(`${API_BASE}/api/news/data`);
   if (query) url.searchParams.set('query', query);
 
@@ -68,11 +83,22 @@ export async function fetchNewsCountryData(query?: string): Promise<CountryNewsD
     if (!response.ok) throw new Error(`Failed: ${response.status}`);
 
     const data = await response.json();
-    return data || {};
+    return {
+      countryData: data.countryData || {},
+      cityData: data.cityData || {},
+    };
   } catch (error) {
     console.error('News data fetch error:', error);
-    return {};
+    return { countryData: {}, cityData: {} };
   }
+}
+
+/**
+ * Legacy: Fetch country news data only (backwards compatibility)
+ */
+export async function fetchNewsCountryData(query?: string): Promise<CountryNewsData> {
+  const { countryData } = await fetchNewsGlobeData(query);
+  return countryData;
 }
 
 /**

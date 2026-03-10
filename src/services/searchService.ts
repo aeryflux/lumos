@@ -4,11 +4,17 @@
  */
 
 import { IntentEngine, EntityExtractor, type ClassifiedIntent, type ExtractedEntity } from '@aeryflux/xenova-bridge';
-import { fetchNewsArticles, fetchNewsCountryData, type NewsArticle, type CountryNewsData } from './newsService';
+import { fetchNewsArticles, fetchNewsGlobeData, type NewsArticle, type CountryNewsData, type CityNewsData } from './newsService';
 import { fetchWikiData, type WikiDataMap } from './wikiService';
 import { fetchWeatherData, type WeatherDataMap, type WeatherView } from './weatherService';
+import { fetchSportsArticles, fetchSportsCountryData, type SportsArticle, type CountrySportsData } from './sportsService';
+import { fetchEconomyData, fetchEconomyCountryData, type EconomyData, type CountryEconomyData } from './economyService';
 
-export type SearchMode = 'auto' | 'news' | 'wiki' | 'weather';
+export type SearchMode = 'auto' | 'news' | 'wiki' | 'weather' | 'sports' | 'economy';
+
+// Keyword patterns for mode detection
+const SPORTS_KEYWORDS = ['football', 'soccer', 'basketball', 'tennis', 'match', 'score', 'league', 'champion', 'fifa', 'nba', 'nfl', 'sport', 'rugby', 'hockey', 'baseball', 'golf', 'formula', 'f1', 'racing', 'olympics', 'world cup', 'coupe du monde', 'ligue', 'championnat'];
+const ECONOMY_KEYWORDS = ['economy', 'stock', 'market', 'finance', 'gdp', 'inflation', 'bitcoin', 'crypto', 'bourse', 'économie', 'economie', 'currency', 'dollar', 'euro', 'trade', 'investment', 'nasdaq', 'dow jones', 'cac 40', 'ftse', 'nikkei'];
 
 // Xenova Bridge instances (singleton pattern)
 const intentEngine = new IntentEngine({ debug: false });
@@ -23,11 +29,18 @@ export interface SearchResult {
   // News results
   articles?: NewsArticle[];
   newsCountryData?: CountryNewsData;
+  newsCityData?: CityNewsData;
   // Wiki results (for globe visualization)
   wikiData?: WikiDataMap;
   // Weather results
   weatherData?: WeatherDataMap;
   weatherView?: WeatherView;
+  // Sports results
+  sportsArticles?: SportsArticle[];
+  sportsCountryData?: CountrySportsData;
+  // Economy results
+  economyData?: EconomyData;
+  economyCountryData?: CountryEconomyData;
   // Fallback to Atlas
   fallbackToAtlas?: boolean;
   // Detected country for focused queries
@@ -39,6 +52,8 @@ export const MODE_COLORS: Record<SearchMode, string> = {
   news: '#ef4444',
   wiki: '#888888',
   weather: '#3b82f6',
+  sports: '#f59e0b',   // Amber (Challenge color)
+  economy: '#10b981',  // Emerald
 };
 
 export const MODE_LABELS: Record<SearchMode, string> = {
@@ -46,6 +61,8 @@ export const MODE_LABELS: Record<SearchMode, string> = {
   news: 'News',
   wiki: 'Wiki',
   weather: 'Weather',
+  sports: 'Sports',
+  economy: 'Economy',
 };
 
 /**
@@ -63,7 +80,7 @@ function intentToMode(intent: ClassifiedIntent): SearchMode {
 }
 
 /**
- * Detect query mode from text using xenova-bridge
+ * Detect query mode from text using xenova-bridge and keyword patterns
  */
 export async function detectMode(query: string): Promise<{ mode: SearchMode; intent: ClassifiedIntent; entities: ExtractedEntity[] }> {
   // Classify intent
@@ -83,13 +100,32 @@ export async function detectMode(query: string): Promise<{ mode: SearchMode; int
       news: 'news',
       weather: 'weather',
       wiki: 'wiki',
+      sports: 'sports',
+      economy: 'economy',
     };
     const detectedMode = modeMap[modeEntity.normalizedValue] || 'auto';
     return { mode: detectedMode, intent, entities };
   }
 
+  // Check for sports keywords (before falling back to intent)
+  const lowerQuery = query.toLowerCase();
+  if (SPORTS_KEYWORDS.some(kw => lowerQuery.includes(kw))) {
+    return { mode: 'sports', intent, entities };
+  }
+
+  // Check for economy keywords
+  if (ECONOMY_KEYWORDS.some(kw => lowerQuery.includes(kw))) {
+    return { mode: 'economy', intent, entities };
+  }
+
   // Fallback to intent-based detection
   const mode = intentToMode(intent);
+
+  // If still 'auto', fallback to news (instead of Atlas redirect)
+  if (mode === 'auto') {
+    return { mode: 'news', intent, entities };
+  }
+
   return { mode, intent, entities };
 }
 
@@ -116,13 +152,14 @@ export async function executeSearch(query: string, mode: SearchMode = 'auto'): P
   try {
     switch (effectiveMode) {
       case 'news': {
-        // Fetch articles and country data in parallel
-        const [articles, countryData] = await Promise.all([
+        // Fetch articles and globe data (countries + cities) in parallel
+        const [articles, globeData] = await Promise.all([
           fetchNewsArticles(query),
-          fetchNewsCountryData(query),
+          fetchNewsGlobeData(query),
         ]);
         result.articles = articles;
-        result.newsCountryData = countryData;
+        result.newsCountryData = globeData.countryData;
+        result.newsCityData = globeData.cityData;
         break;
       }
 
@@ -139,14 +176,57 @@ export async function executeSearch(query: string, mode: SearchMode = 'auto'): P
         break;
       }
 
-      default:
-        // No specific mode detected, fallback to Atlas
-        result.fallbackToAtlas = true;
+      case 'sports': {
+        // Fetch sports articles and country data in parallel
+        const [articles, countryData] = await Promise.all([
+          fetchSportsArticles(query),
+          fetchSportsCountryData(query),
+        ]);
+        result.sportsArticles = articles;
+        result.sportsCountryData = countryData;
         break;
+      }
+
+      case 'economy': {
+        // Fetch economy data and country data in parallel
+        const [data, countryData] = await Promise.all([
+          fetchEconomyData(query),
+          fetchEconomyCountryData(query),
+        ]);
+        result.economyData = data;
+        result.economyCountryData = countryData;
+        break;
+      }
+
+      default: {
+        // Fallback to news mode instead of Atlas redirect
+        const [articles, globeData] = await Promise.all([
+          fetchNewsArticles(query),
+          fetchNewsGlobeData(query),
+        ]);
+        result.articles = articles;
+        result.newsCountryData = globeData.countryData;
+        result.newsCityData = globeData.cityData;
+        result.mode = 'news';
+        break;
+      }
     }
   } catch (error) {
     console.error('Search error:', error);
-    result.fallbackToAtlas = true;
+    // On error, still try news as fallback instead of Atlas
+    try {
+      const [articles, globeData] = await Promise.all([
+        fetchNewsArticles(query),
+        fetchNewsGlobeData(query),
+      ]);
+      result.articles = articles;
+      result.newsCountryData = globeData.countryData;
+      result.newsCityData = globeData.cityData;
+      result.mode = 'news';
+    } catch {
+      // Last resort: fallback to Atlas
+      result.fallbackToAtlas = true;
+    }
   }
 
   return result;

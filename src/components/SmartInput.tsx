@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { Send, Newspaper, Cloud, BookOpen, Sparkles } from 'lucide-react';
+import { Send, Newspaper, Cloud, BookOpen, Sparkles, Trophy, TrendingUp } from 'lucide-react';
 import { useTranslation } from '../i18n';
 import type { SearchMode } from '../services/searchService';
 import './SmartInput.css';
@@ -22,6 +22,8 @@ const MODES: { id: SearchMode; icon: typeof Newspaper; color: string }[] = [
   { id: 'news', icon: Newspaper, color: '#ef4444' },
   { id: 'weather', icon: Cloud, color: '#3b82f6' },
   { id: 'wiki', icon: BookOpen, color: '#888888' },
+  { id: 'sports', icon: Trophy, color: '#f59e0b' },
+  { id: 'economy', icon: TrendingUp, color: '#10b981' },
 ];
 
 // Rotating suggestions per mode - localized
@@ -51,6 +53,18 @@ const SUGGESTIONS: Record<'en' | 'fr', Record<SearchMode, string[]>> = {
       'Geography Brazil',
       'Culture Egypt',
     ],
+    sports: [
+      'Champions League results',
+      'NBA standings',
+      'World Cup news',
+      'Football Europe',
+    ],
+    economy: [
+      'Global markets today',
+      'Inflation rates',
+      'GDP comparison',
+      'Stock market news',
+    ],
   },
   fr: {
     auto: [
@@ -76,6 +90,18 @@ const SUGGESTIONS: Record<'en' | 'fr', Record<SearchMode, string[]>> = {
       'Histoire Japon',
       'Géographie Brésil',
       'Culture Égypte',
+    ],
+    sports: [
+      'Résultats Ligue des Champions',
+      'Classement NBA',
+      'Actualités Coupe du Monde',
+      'Football Europe',
+    ],
+    economy: [
+      'Marchés mondiaux',
+      'Taux d\'inflation',
+      'Comparaison PIB',
+      'Actualités bourse',
     ],
   },
 };

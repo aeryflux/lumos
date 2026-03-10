@@ -7,13 +7,17 @@ import { DemoPreview } from '../components/DemoPreview';
 import { NewsResults } from '../components/NewsResults';
 import { WeatherResults } from '../components/WeatherResults';
 import { WikiResults } from '../components/WikiResults';
+import { SportsResults } from '../components/SportsResults';
+import { EconomyResults } from '../components/EconomyResults';
 import { HexLoader } from '../components/HexLoader';
 import { SpecialThanks } from '../components/SpecialThanks';
 import { AnimatedSplash } from '../components/AnimatedSplash';
 import { executeSearch, type SearchMode } from '../services/searchService';
-import type { NewsArticle, CountryNewsData } from '../services/newsService';
+import type { NewsArticle, CountryNewsData, CityNewsData } from '../services/newsService';
 import type { WeatherDataMap, WeatherView, WeatherCountryData } from '../services/weatherService';
 import type { WikiDataMap } from '../services/wikiService';
+import type { SportsArticle, CountrySportsData } from '../services/sportsService';
+import type { EconomyData, EconomyIndicator, CountryEconomyData } from '../services/economyService';
 import type { CountryDataMap } from '@aeryflux/globe/react';
 import { normalizeToGlobe } from '../utils/countryNormalize';
 import './Home.css';
@@ -28,9 +32,14 @@ interface SearchResults {
   query: string;
   articles?: NewsArticle[];
   newsCountryData?: CountryNewsData;
+  newsCityData?: CityNewsData;
   weatherData?: WeatherDataMap;
   weatherView?: WeatherView;
   wikiData?: WikiDataMap;
+  sportsArticles?: SportsArticle[];
+  sportsCountryData?: CountrySportsData;
+  economyData?: EconomyData;
+  economyCountryData?: CountryEconomyData;
   fallbackToAtlas?: boolean;
 }
 
@@ -40,6 +49,8 @@ const MODE_HIGHLIGHT_COLORS: Record<SearchMode, string> = {
   news: '#ef4444',
   wiki: '#888888',
   weather: '#3b82f6',
+  sports: '#f59e0b',
+  economy: '#10b981',
 };
 
 // ISO code to country name mapping
@@ -58,6 +69,28 @@ const ISO_TO_COUNTRY: Record<string, string> = {
   AE: 'United Arab Emirates', GB: 'United Kingdom', US: 'United States', VN: 'Vietnam',
 };
 
+// Country to capital city mapping (normalized names for globe mesh matching)
+const COUNTRY_TO_CAPITAL: Record<string, string> = {
+  'France': 'paris', 'Germany': 'berlin', 'Italy': 'rome', 'Spain': 'madrid',
+  'United Kingdom': 'london', 'Netherlands': 'amsterdam', 'Belgium': 'brussels',
+  'Portugal': 'lisbon', 'Poland': 'warsaw', 'Austria': 'vienna',
+  'Switzerland': 'zurich', 'Sweden': 'stockholm', 'Norway': 'oslo',
+  'Denmark': 'copenhagen', 'Finland': 'helsinki', 'Greece': 'athens',
+  'Czech Republic': 'prague', 'Hungary': 'budapest', 'Romania': 'bucharest',
+  'Ireland': 'dublin', 'Russia': 'moscow', 'Ukraine': 'kyiv',
+  'Turkey': 'istanbul', 'Egypt': 'cairo', 'South Africa': 'johannesburg',
+  'Nigeria': 'lagos', 'Kenya': 'nairobi', 'Morocco': 'casablanca',
+  'United States': 'new_york', 'Canada': 'toronto', 'Mexico': 'mexico_city',
+  'Brazil': 'sao_paulo', 'Argentina': 'buenos_aires', 'Colombia': 'bogota',
+  'Chile': 'santiago', 'Peru': 'lima',
+  'China': 'beijing', 'Japan': 'tokyo', 'India': 'delhi',
+  'South Korea': 'seoul', 'Indonesia': 'jakarta', 'Thailand': 'bangkok',
+  'Vietnam': 'hanoi', 'Malaysia': 'kuala_lumpur', 'Philippines': 'manila',
+  'Singapore': 'singapore', 'Australia': 'sydney', 'New Zealand': 'auckland',
+  'United Arab Emirates': 'dubai', 'Saudi Arabia': 'riyadh', 'Israel': 'tel_aviv',
+  'Iran': 'tehran', 'Iraq': 'baghdad', 'Pakistan': 'karachi',
+};
+
 // Resolve country name from ISO code or return as-is
 function resolveCountryName(code?: string): string | undefined {
   if (!code) return undefined;
@@ -69,6 +102,24 @@ function resolveCountryName(code?: string): string | undefined {
 // Simple keyword-based mode detection for demo queries (EN + FR)
 function detectModeFromQuery(query: string): SearchMode {
   const lower = query.toLowerCase();
+  // Sports keywords (EN + FR) - check first for specificity
+  if (lower.includes('football') || lower.includes('soccer') || lower.includes('basketball') ||
+      lower.includes('tennis') || lower.includes('match') || lower.includes('score') ||
+      lower.includes('league') || lower.includes('champion') || lower.includes('fifa') ||
+      lower.includes('nba') || lower.includes('nfl') || lower.includes('sport') ||
+      lower.includes('rugby') || lower.includes('hockey') || lower.includes('olympics') ||
+      lower.includes('world cup') || lower.includes('coupe du monde') || lower.includes('ligue') ||
+      lower.includes('championnat')) {
+    return 'sports';
+  }
+  // Economy keywords (EN + FR)
+  if (lower.includes('economy') || lower.includes('stock') || lower.includes('market') ||
+      lower.includes('finance') || lower.includes('gdp') || lower.includes('inflation') ||
+      lower.includes('bitcoin') || lower.includes('crypto') || lower.includes('bourse') ||
+      lower.includes('économie') || lower.includes('economie') || lower.includes('currency') ||
+      lower.includes('dollar') || lower.includes('euro') || lower.includes('nasdaq')) {
+    return 'economy';
+  }
   // News keywords (EN + FR)
   if (lower.includes('news') || lower.includes('headline') || lower.includes('update') ||
       lower.includes('actualité') || lower.includes('info')) {
@@ -85,7 +136,8 @@ function detectModeFromQuery(query: string): SearchMode {
       lower.includes('à propos') || lower.includes('histoire') || lower.includes('géographie')) {
     return 'wiki';
   }
-  return 'auto';
+  // Fallback to news instead of auto (prevents Atlas redirect)
+  return 'news';
 }
 
 // Check if query is a global/worldwide request (no specific country)
@@ -217,12 +269,16 @@ export function Home() {
     article?: NewsArticle;
     weatherData?: WeatherCountryData;
     articleCount?: number;
+    sportsArticle?: SportsArticle;
+    economyIndicator?: EconomyIndicator;
     // Global stats
     globalStats?: {
       avgTemp?: number;
       minTemp?: number;
       maxTemp?: number;
       totalArticles?: number;
+      totalMatches?: number;
+      marketsTracked?: number;
     };
   } | null>(null);
 
@@ -270,8 +326,10 @@ export function Home() {
       let article: NewsArticle | undefined;
       let weatherData: WeatherCountryData | undefined;
       let articleCount: number | undefined;
+      let sportsArticle: SportsArticle | undefined;
+      let economyIndicator: EconomyIndicator | undefined;
       let resolvedCountryForDisplay = targetCountry;
-      let globalStats: { avgTemp?: number; minTemp?: number; maxTemp?: number; totalArticles?: number } | undefined;
+      let globalStats: { avgTemp?: number; minTemp?: number; maxTemp?: number; totalArticles?: number; totalMatches?: number; marketsTracked?: number } | undefined;
 
       if (effectiveMode === 'news') {
         // Get first article for preview
@@ -284,6 +342,16 @@ export function Home() {
             // Normalize country name for globe mesh matching
             const normalizedCountry = normalizeToGlobe(country);
             countryData[normalizedCountry] = { scale: info.scale, color: info.color || highlightColor };
+          }
+        }
+        // Build city data for globe (from API mentions-based scoring)
+        if (searchResult.newsCityData) {
+          for (const [city, info] of Object.entries(searchResult.newsCityData)) {
+            cityData[city] = {
+              scale: info.scale,
+              color: info.color || highlightColor,
+              extrusion: info.extrusion,
+            };
           }
         }
         // For global queries, count total articles (we'd need this from API)
@@ -306,6 +374,19 @@ export function Home() {
             if (!isGlobal && targetCountry && country.toLowerCase() === targetCountry.toLowerCase()) {
               weatherData = info;
               resolvedCountryForDisplay = country;
+            }
+
+            // Add capital city to cityData for weather mode (extrusion based on temperature)
+            const capital = COUNTRY_TO_CAPITAL[country];
+            if (capital && info.temperature !== undefined) {
+              // Normalize temperature to extrusion (0-1 scale, hotter = more extrusion)
+              // -40°C = 0.0, +40°C = 1.0
+              const tempNormalized = Math.max(0, Math.min(1, (info.temperature + 40) / 80));
+              cityData[capital] = {
+                scale: 1.0,
+                color: info.color || highlightColor,
+                extrusion: tempNormalized * 1.5, // Cities extrude more than countries
+              };
             }
           }
 
@@ -349,6 +430,38 @@ export function Home() {
             resolvedCountryForDisplay = sorted[0][0];
           }
         }
+      } else if (effectiveMode === 'sports') {
+        // Get first sports article for preview
+        if (searchResult.sportsArticles && searchResult.sportsArticles.length > 0) {
+          sportsArticle = searchResult.sportsArticles[0];
+        }
+        // Build country data for globe from sports data
+        if (searchResult.sportsCountryData) {
+          for (const [country, info] of Object.entries(searchResult.sportsCountryData)) {
+            const normalizedCountry = normalizeToGlobe(country);
+            countryData[normalizedCountry] = { scale: info.scale, color: info.color || highlightColor };
+          }
+        }
+        // For global queries, count total matches
+        if (isGlobal && searchResult.sportsArticles) {
+          globalStats = { totalMatches: searchResult.sportsArticles.length };
+        }
+      } else if (effectiveMode === 'economy') {
+        // Get first economy indicator for preview
+        if (searchResult.economyData?.indicators && searchResult.economyData.indicators.length > 0) {
+          economyIndicator = searchResult.economyData.indicators[0];
+        }
+        // Build country data for globe from economy data
+        if (searchResult.economyCountryData) {
+          for (const [country, info] of Object.entries(searchResult.economyCountryData)) {
+            const normalizedCountry = normalizeToGlobe(country);
+            countryData[normalizedCountry] = { scale: info.scale, color: info.color || highlightColor };
+          }
+        }
+        // For global queries, count markets
+        if (isGlobal && searchResult.economyCountryData) {
+          globalStats = { marketsTracked: Object.keys(searchResult.economyCountryData).length };
+        }
       }
 
       const countryCount = Object.keys(countryData).length;
@@ -377,6 +490,8 @@ export function Home() {
           article,
           weatherData: isGlobal ? undefined : weatherData,
           articleCount: isGlobal ? undefined : articleCount,
+          sportsArticle,
+          economyIndicator,
           globalStats,
         });
         // Mark initial data as loaded for splash screen
@@ -398,26 +513,48 @@ export function Home() {
     // Trigger laser scan effect with consistent green color
     triggerEffect('laser-scan', '#00ff88');
 
-    // Determine effective mode and extract country (same logic as handleDemoChange)
+    // Determine effective mode and extract country/city (same logic as handleDemoChange)
     let effectiveMode: SearchMode = mode;
     if (mode === 'auto') {
       effectiveMode = detectModeFromQuery(query);
     }
     const isGlobal = isGlobalQuery(query);
     const queryCountry = extractCountryFromQuery(query);
+    const queryCity = extractCityFromQuery(query);
 
-    // Use extracted country as search query, not "news spain"
-    const searchQuery = isGlobal ? '' : (queryCountry || query);
+    // Use extracted city's country or country name as search query
+    // "news paris" → search with "France", not "news paris"
+    const searchQuery = isGlobal ? '' : (queryCity?.country || queryCountry || query);
     const searchResult = await executeSearch(searchQuery, effectiveMode !== 'auto' ? effectiveMode : mode);
+
+    // When user searches for a specific city, show ONLY that city (not API-returned cities)
+    let mergedCityData = searchResult.newsCityData;
+    if (queryCity && searchResult.mode === 'news') {
+      const normalizedCity = queryCity.name.toLowerCase().replace(/\s+/g, '_');
+      const highlightColor = MODE_HIGHLIGHT_COLORS[searchResult.mode] || '#ef4444';
+      // Only show the searched city, ignore API-returned cities
+      mergedCityData = {
+        [normalizedCity]: {
+          scale: 1.0, // Full intensity for searched city
+          color: highlightColor,
+          extrusion: 0.8, // Strong extrusion for visibility
+        },
+      };
+    }
 
     setResults({
       mode: searchResult.mode,
       query: searchResult.query,
       articles: searchResult.articles,
       newsCountryData: searchResult.newsCountryData,
+      newsCityData: mergedCityData,
       weatherData: searchResult.weatherData,
       weatherView: searchResult.weatherView,
       wikiData: searchResult.wikiData,
+      sportsArticles: searchResult.sportsArticles,
+      sportsCountryData: searchResult.sportsCountryData,
+      economyData: searchResult.economyData,
+      economyCountryData: searchResult.economyCountryData,
       fallbackToAtlas: searchResult.fallbackToAtlas,
     });
 
@@ -489,6 +626,38 @@ export function Home() {
           return data;
         }
         break;
+
+      case 'sports':
+        if (results.sportsCountryData) {
+          const data: CountryDataMap = {};
+          for (const [country, info] of Object.entries(results.sportsCountryData)) {
+            const normalizedCountry = normalizeToGlobe(country);
+            data[normalizedCountry] = {
+              scale: info.scale,
+              lat: info.lat,
+              lon: info.lon,
+              color: info.color || highlightColor,
+            };
+          }
+          return data;
+        }
+        break;
+
+      case 'economy':
+        if (results.economyCountryData) {
+          const data: CountryDataMap = {};
+          for (const [country, info] of Object.entries(results.economyCountryData)) {
+            const normalizedCountry = normalizeToGlobe(country);
+            data[normalizedCountry] = {
+              scale: info.scale,
+              lat: info.lat,
+              lon: info.lon,
+              color: info.color || highlightColor,
+            };
+          }
+          return data;
+        }
+        break;
     }
 
     return undefined;
@@ -500,7 +669,40 @@ export function Home() {
     if (!results || queryState !== 'results') {
       return demoData?.cityData;
     }
-    // TODO: Add city data from results when API supports it
+
+    const highlightColor = MODE_HIGHLIGHT_COLORS[results.mode] || '#00ff88';
+
+    // News mode: use city data from API (mentions-based scoring)
+    if (results.mode === 'news' && results.newsCityData) {
+      const cityData: CountryDataMap = {};
+      for (const [city, info] of Object.entries(results.newsCityData)) {
+        cityData[city] = {
+          scale: info.scale,
+          color: info.color || highlightColor,
+          extrusion: info.extrusion,
+        };
+      }
+      return Object.keys(cityData).length > 0 ? cityData : undefined;
+    }
+
+    // Weather mode: capitals with temperature-based extrusion
+    if (results.mode === 'weather' && results.weatherData) {
+      const cityData: CountryDataMap = {};
+      for (const [country, info] of Object.entries(results.weatherData)) {
+        const capital = COUNTRY_TO_CAPITAL[country];
+        if (capital && info.temperature !== undefined) {
+          // Normalize temperature to extrusion (0-1 scale, hotter = more extrusion)
+          const tempNormalized = Math.max(0, Math.min(1, (info.temperature + 40) / 80));
+          cityData[capital] = {
+            scale: 1.0,
+            color: info.color || highlightColor,
+            extrusion: tempNormalized * 1.5, // Cities extrude more than countries
+          };
+        }
+      }
+      return Object.keys(cityData).length > 0 ? cityData : undefined;
+    }
+
     return undefined;
   }, [results, queryState, demoData]);
 
@@ -512,8 +714,9 @@ export function Home() {
   }, [results, demoData]);
 
   // Globe props - animations disabled by default for minimalism
+  // Using subdiv_7 for best country/city coverage (422 countries, 186 cities)
   const globeProps = useMemo(() => ({
-    modelUrl: '/models/atlas_hex_subdiv_6.glb',
+    modelUrl: '/models/atlas_hex_subdiv_7.glb',
     borderColor: themeColors.globeBorder,
     glowIntensity: 0.6,
     rotationSpeed: 0.0002,
@@ -591,6 +794,23 @@ export function Home() {
             onClose={handleCloseResults}
           />
         );
+      case 'sports':
+        return (
+          <SportsResults
+            articles={results.sportsArticles || []}
+            query={results.query}
+            onClose={handleCloseResults}
+          />
+        );
+      case 'economy':
+        return (
+          <EconomyResults
+            data={results.economyData || { indicators: [] }}
+            countryData={results.economyCountryData}
+            query={results.query}
+            onClose={handleCloseResults}
+          />
+        );
       default:
         return null;
     }
@@ -654,6 +874,8 @@ export function Home() {
               article={demoInfo.article}
               weatherData={demoInfo.weatherData}
               articleCount={demoInfo.articleCount}
+              sportsArticle={demoInfo.sportsArticle}
+              economyIndicator={demoInfo.economyIndicator}
               globalStats={demoInfo.globalStats}
             />
           )}

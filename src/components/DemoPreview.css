@@ -543,3 +543,268 @@
 [data-theme="light"] .demo-preview-wiki-link {
   background: rgba(136, 136, 136, 0.1);
 }
+
+/* News meta info (source, theme, time) */
+.demo-preview-news-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.demo-preview-source {
+  font-size: 10px;
+  color: var(--text-muted);
+}
+
+.demo-preview-theme-badge {
+  font-size: 9px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  padding: 2px 6px;
+  border-radius: 4px;
+  color: white;
+}
+
+.demo-preview-time {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 10px;
+  color: var(--text-muted);
+}
+
+.demo-preview-time svg {
+  opacity: 0.7;
+}
+
+/* Weather details (humidity, wind) */
+.demo-preview-weather-details {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 4px;
+}
+
+.demo-preview-weather-detail {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  color: var(--text-secondary);
+}
+
+.demo-preview-weather-detail svg {
+  color: #3b82f6;
+  opacity: 0.8;
+}
+
+/* Sports content */
+.demo-preview-sports {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.demo-preview-article--sports {
+  background: rgba(245, 158, 11, 0.08);
+  border-color: rgba(245, 158, 11, 0.15);
+}
+
+.demo-preview-article--sports:hover {
+  background: rgba(245, 158, 11, 0.12);
+  border-color: rgba(245, 158, 11, 0.25);
+}
+
+.demo-preview-sports-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.demo-preview-league {
+  font-size: 10px;
+  color: var(--text-secondary);
+}
+
+.demo-preview-sport-badge {
+  font-size: 9px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  padding: 2px 6px;
+  border-radius: 4px;
+  background: rgba(245, 158, 11, 0.15);
+  color: #f59e0b;
+}
+
+.demo-preview-teams {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.demo-preview-team {
+  font-size: 10px;
+  padding: 2px 8px;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--text-secondary);
+}
+
+/* Economy content */
+.demo-preview-economy {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.demo-preview-economy-main {
+  text-align: center;
+  padding: 12px;
+  background: rgba(16, 185, 129, 0.08);
+  border: 1px solid rgba(16, 185, 129, 0.15);
+  border-radius: 8px;
+}
+
+.demo-preview-economy-header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.demo-preview-economy-name {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.demo-preview-economy-trend {
+  flex-shrink: 0;
+}
+
+.demo-preview-economy-trend--up {
+  color: #10b981;
+}
+
+.demo-preview-economy-trend--down {
+  color: #ef4444;
+}
+
+.demo-preview-economy-trend--stable {
+  color: #888888;
+}
+
+.demo-preview-economy-value {
+  font-size: 24px;
+  font-weight: 600;
+  color: var(--text-primary);
+  font-family: var(--font-mono);
+}
+
+.demo-preview-economy-change {
+  font-size: 12px;
+  font-weight: 500;
+  font-family: var(--font-mono);
+  margin-top: 4px;
+}
+
+.demo-preview-economy-change--up {
+  color: #10b981;
+}
+
+.demo-preview-economy-change--down {
+  color: #ef4444;
+}
+
+.demo-preview-economy-change--stable {
+  color: #888888;
+}
+
+/* Mobile adjustments for new elements */
+@media (max-width: 768px) {
+  .demo-preview-news-meta,
+  .demo-preview-sports-meta {
+    gap: 4px;
+  }
+
+  .demo-preview-source,
+  .demo-preview-league {
+    font-size: 9px;
+  }
+
+  .demo-preview-theme-badge,
+  .demo-preview-sport-badge {
+    font-size: 8px;
+    padding: 1px 4px;
+  }
+
+  .demo-preview-time {
+    font-size: 9px;
+    gap: 2px;
+  }
+
+  .demo-preview-weather-details {
+    gap: 8px;
+    margin-top: 2px;
+  }
+
+  .demo-preview-weather-detail {
+    font-size: 10px;
+    gap: 2px;
+  }
+
+  .demo-preview-teams {
+    gap: 4px;
+  }
+
+  .demo-preview-team {
+    font-size: 9px;
+    padding: 1px 6px;
+  }
+
+  .demo-preview-economy-main {
+    padding: 8px;
+  }
+
+  .demo-preview-economy-name {
+    font-size: 10px;
+  }
+
+  .demo-preview-economy-value {
+    font-size: 20px;
+  }
+
+  .demo-preview-economy-change {
+    font-size: 11px;
+  }
+}
+
+/* Very short screens */
+@media (max-height: 600px) and (max-width: 768px) {
+  .demo-preview-news-meta,
+  .demo-preview-sports-meta,
+  .demo-preview-weather-details,
+  .demo-preview-teams {
+    display: none;
+  }
+
+  .demo-preview-economy-main {
+    padding: 6px;
+  }
+
+  .demo-preview-economy-value {
+    font-size: 16px;
+  }
+
+  .demo-preview-economy-change {
+    font-size: 10px;
+    margin-top: 2px;
+  }
+}

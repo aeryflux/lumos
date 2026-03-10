@@ -10,10 +10,11 @@ Modern landing page with 3D globe visualization.
 
 ## Features
 
-- Interactive 3D globe with real-time data visualization
+- Interactive 3D globe with real-time data visualization (422 countries, 200 cities)
 - Minimalist dark theme inspired by OpenClaw
 - SmartInput with Kaspersky-style aura effect
-- Multi-mode search: News, Wiki, Weather
+- Multi-mode search: News, Wiki, Weather, Economy, Sports
+- Internationalization (EN, FR, ES, DE)
 - HexLoader honeycomb animation
 - Responsive design
 
@@ -69,7 +70,9 @@ import { Globe } from '@aeryflux/globe/react';
 
 <Globe
   surface="green"
-  countryData={{ france: { scale: 0.8 } }}
+  modelUrl="/models/atlas_hex_subdiv_7.glb"
+  countryData={{ france: { scale: 0.8, color: '#00ff88' } }}
+  cityData={{ paris: { scale: 1.0, color: '#00d4ff' } }}
 />
 ```
 
@@ -119,6 +122,16 @@ VITE_API_URL=http://localhost:3000
 | Primary Green | `#00ff88` |
 | Cyan | `#00d4ff` |
 | Background | `#050508` |
+
+### Mode Colors
+
+| Mode | Color |
+|------|-------|
+| News | `#ef4444` |
+| Weather | `#3b82f6` |
+| Wiki | `#888888` |
+| Economy | `#10b981` |
+| Sports | `#f59e0b` |
 
 ### Typography
 

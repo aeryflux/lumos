@@ -2,17 +2,21 @@
  * DemoPreview - Real data preview for auto-demo mode
  *
  * Displays actual useful information based on the search results:
- * - News: First article with link, or global article count
- * - Weather: Temperature for country, or global temp range
+ * - News: First article with link, source, theme badge, relative time
+ * - Weather: Temperature, humidity, wind, condition icon
  * - Wiki: Article count with Wikipedia link, or global stats
+ * - Sports: Sports news with league/team info
+ * - Economy: Market indicators with trends
  */
 
 import { useState, useEffect, useRef } from 'react';
-import { Newspaper, Cloud, BookOpen, Globe, ExternalLink, MapPin, TrendingUp } from 'lucide-react';
+import { Newspaper, Cloud, BookOpen, Globe, ExternalLink, MapPin, TrendingUp, TrendingDown, Trophy, DollarSign, Wind, Droplets, Clock } from 'lucide-react';
 import { useTranslation } from '../i18n';
 import type { SearchMode } from '../services/searchService';
 import type { NewsArticle } from '../services/newsService';
 import type { WeatherCountryData } from '../services/weatherService';
+import type { SportsArticle } from '../services/sportsService';
+import type { EconomyIndicator } from '../services/economyService';
 import './DemoPreview.css';
 
 interface GlobalStats {
@@ -20,6 +24,8 @@ interface GlobalStats {
   minTemp?: number;
   maxTemp?: number;
   totalArticles?: number;
+  totalMatches?: number;
+  marketsTracked?: number;
 }
 
 interface DemoPreviewProps {
@@ -39,6 +45,10 @@ interface DemoPreviewProps {
   countryCount?: number;
   /** Global statistics for worldwide queries */
   globalStats?: GlobalStats;
+  /** Sports article for Sports mode */
+  sportsArticle?: SportsArticle;
+  /** Economy indicator for Economy mode */
+  economyIndicator?: EconomyIndicator;
 }
 
 // Mode-specific icons and colors
@@ -47,7 +57,30 @@ const MODE_CONFIG: Record<SearchMode, { icon: typeof Newspaper; color: string }>
   news: { icon: Newspaper, color: '#ef4444' },
   weather: { icon: Cloud, color: '#3b82f6' },
   wiki: { icon: BookOpen, color: '#888888' },
+  sports: { icon: Trophy, color: '#f59e0b' },
+  economy: { icon: DollarSign, color: '#10b981' },
 };
+
+/**
+ * Format date as relative time (e.g., "2h ago")
+ */
+function formatRelativeTime(dateStr: string): string {
+  try {
+    const date = new Date(dateStr);
+    const now = new Date();
+    const diffMs = now.getTime() - date.getTime();
+    const diffMins = Math.floor(diffMs / 60000);
+    const diffHours = Math.floor(diffMs / 3600000);
+    const diffDays = Math.floor(diffMs / 86400000);
+
+    if (diffMins < 60) return `${diffMins}m ago`;
+    if (diffHours < 24) return `${diffHours}h ago`;
+    if (diffDays < 7) return `${diffDays}d ago`;
+    return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+  } catch {
+    return '';
+  }
+}
 
 // Weather condition icons
 const WEATHER_CONDITIONS: Record<string, string> = {
@@ -75,6 +108,8 @@ export function DemoPreview({
   articleCount,
   countryCount = 0,
   globalStats,
+  sportsArticle,
+  economyIndicator,
 }: DemoPreviewProps) {
   const { t } = useTranslation();
   const [isAnimating, setIsAnimating] = useState(false);
@@ -87,6 +122,8 @@ export function DemoPreview({
     weatherData,
     articleCount,
     globalStats,
+    sportsArticle,
+    economyIndicator,
   });
   const prevQueryRef = useRef(query);
 
@@ -109,6 +146,8 @@ export function DemoPreview({
           weatherData,
           articleCount,
           globalStats,
+          sportsArticle,
+          economyIndicator,
         });
         setIsAnimating(false);
       }, 200);
@@ -125,9 +164,11 @@ export function DemoPreview({
         weatherData,
         articleCount,
         globalStats,
+        sportsArticle,
+        economyIndicator,
       });
     }
-  }, [query, mode, isGlobal, targetCountry, article, weatherData, articleCount, globalStats]);
+  }, [query, mode, isGlobal, targetCountry, article, weatherData, articleCount, globalStats, sportsArticle, economyIndicator]);
 
   if (!isVisible) return null;
 
@@ -143,6 +184,10 @@ export function DemoPreview({
         return renderWeatherContent();
       case 'wiki':
         return renderWikiContent();
+      case 'sports':
+        return renderSportsContent();
+      case 'economy':
+        return renderEconomyContent();
       default:
         return renderDefaultContent();
     }
@@ -254,6 +299,25 @@ export function DemoPreview({
           </span>
           <ExternalLink size={12} className="demo-preview-article-icon" />
         </a>
+        <div className="demo-preview-news-meta">
+          {displayData.article.source && (
+            <span className="demo-preview-source">{displayData.article.source}</span>
+          )}
+          {displayData.article.theme && (
+            <span
+              className="demo-preview-theme-badge"
+              style={{ backgroundColor: displayData.article.theme.color }}
+            >
+              {displayData.article.theme.name}
+            </span>
+          )}
+          {displayData.article.date && (
+            <span className="demo-preview-time">
+              <Clock size={10} />
+              {formatRelativeTime(displayData.article.date)}
+            </span>
+          )}
+        </div>
         {displayData.targetCountry && (
           <div className="demo-preview-country">
             <MapPin size={12} />
@@ -273,7 +337,7 @@ export function DemoPreview({
       );
     }
 
-    const { temperature, condition } = displayData.weatherData;
+    const { temperature, condition, humidity, windSpeed } = displayData.weatherData;
     const weatherIcon = condition ? WEATHER_CONDITIONS[condition] || '🌡️' : '🌡️';
 
     return (
@@ -283,6 +347,20 @@ export function DemoPreview({
           <span className="demo-preview-weather-temp">
             {temperature !== undefined ? `${Math.round(temperature)}°C` : '--'}
           </span>
+        </div>
+        <div className="demo-preview-weather-details">
+          {humidity !== undefined && (
+            <span className="demo-preview-weather-detail">
+              <Droplets size={10} />
+              {humidity}%
+            </span>
+          )}
+          {windSpeed !== undefined && (
+            <span className="demo-preview-weather-detail">
+              <Wind size={10} />
+              {windSpeed} km/h
+            </span>
+          )}
         </div>
         <div className="demo-preview-weather-location">
           <MapPin size={12} />
@@ -321,6 +399,100 @@ export function DemoPreview({
         {displayData.articleCount !== undefined && displayData.articleCount > 0 && (
           <div className="demo-preview-wiki-count">
             <span>{t('search.articles', { count: displayData.articleCount.toLocaleString() })}</span>
+          </div>
+        )}
+      </div>
+    );
+  };
+
+  const renderSportsContent = () => {
+    if (!displayData.sportsArticle) {
+      return (
+        <div className="demo-preview-empty">
+          <span>{t('search.loading')}</span>
+        </div>
+      );
+    }
+
+    return (
+      <div className="demo-preview-sports">
+        <a
+          href={displayData.sportsArticle.link}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="demo-preview-article demo-preview-article--sports"
+        >
+          <span className="demo-preview-article-title">
+            {displayData.sportsArticle.title.length > 80
+              ? displayData.sportsArticle.title.slice(0, 80) + '...'
+              : displayData.sportsArticle.title}
+          </span>
+          <ExternalLink size={12} className="demo-preview-article-icon" />
+        </a>
+        <div className="demo-preview-sports-meta">
+          {displayData.sportsArticle.source && (
+            <span className="demo-preview-source">{displayData.sportsArticle.source}</span>
+          )}
+          {displayData.sportsArticle.league && (
+            <span className="demo-preview-league">{displayData.sportsArticle.league}</span>
+          )}
+          {displayData.sportsArticle.sport && (
+            <span className="demo-preview-sport-badge">{displayData.sportsArticle.sport}</span>
+          )}
+          {displayData.sportsArticle.date && (
+            <span className="demo-preview-time">
+              <Clock size={10} />
+              {formatRelativeTime(displayData.sportsArticle.date)}
+            </span>
+          )}
+        </div>
+        {displayData.sportsArticle.teams && displayData.sportsArticle.teams.length > 0 && (
+          <div className="demo-preview-teams">
+            {displayData.sportsArticle.teams.slice(0, 2).map((team, i) => (
+              <span key={i} className="demo-preview-team">{team}</span>
+            ))}
+          </div>
+        )}
+      </div>
+    );
+  };
+
+  const renderEconomyContent = () => {
+    if (!displayData.economyIndicator) {
+      return (
+        <div className="demo-preview-empty">
+          <span>{t('search.loading')}</span>
+        </div>
+      );
+    }
+
+    const indicator = displayData.economyIndicator;
+    const TrendIconComponent = indicator.trend === 'up' ? TrendingUp : indicator.trend === 'down' ? TrendingDown : null;
+
+    return (
+      <div className="demo-preview-economy">
+        <div className="demo-preview-economy-main">
+          <div className="demo-preview-economy-header">
+            <span className="demo-preview-economy-name">{indicator.name}</span>
+            {TrendIconComponent && (
+              <TrendIconComponent
+                size={14}
+                className={`demo-preview-economy-trend demo-preview-economy-trend--${indicator.trend}`}
+              />
+            )}
+          </div>
+          <div className="demo-preview-economy-value">
+            {indicator.value.toLocaleString('en-US', { maximumFractionDigits: 2 })}
+            {indicator.unit}
+          </div>
+          <div className={`demo-preview-economy-change demo-preview-economy-change--${indicator.trend}`}>
+            {indicator.change > 0 ? '+' : ''}{indicator.change.toFixed(2)}%
+          </div>
+        </div>
+        {displayData.targetCountry && (
+          <div className="demo-preview-country">
+            <MapPin size={12} />
+            <span>{displayData.targetCountry}</span>
           </div>
         )}
       </div>
