@@ -1,0 +1,358 @@
+/* EconomyResults - Economic data display */
+
+.economy-results {
+  width: 100%;
+  max-width: 420px;
+  background: rgba(5, 5, 10, 0.9);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 12px;
+  backdrop-filter: blur(12px);
+  overflow: hidden;
+  animation: economy-enter 0.2s ease-out;
+}
+
+@keyframes economy-enter {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Loading state */
+.economy-results--loading {
+  padding: 24px;
+}
+
+.economy-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  color: var(--text-muted);
+  font-size: 13px;
+}
+
+.economy-loading-icon {
+  color: #10b981;
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 1; }
+}
+
+/* Empty state */
+.economy-results--empty {
+  padding: 20px;
+  text-align: center;
+}
+
+.economy-results--empty p {
+  margin: 0 0 12px 0;
+  color: var(--text-secondary);
+  font-size: 13px;
+}
+
+/* Header */
+.economy-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 14px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.economy-title {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #10b981;
+}
+
+.economy-close-btn {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-size: 16px;
+  cursor: pointer;
+  padding: 2px 6px;
+  border-radius: 4px;
+  transition: color 0.15s ease;
+}
+
+.economy-close-btn:hover {
+  color: var(--text-primary);
+}
+
+/* Content */
+.economy-content {
+  max-height: 320px;
+  overflow-y: auto;
+  padding: 12px 14px;
+}
+
+/* Sections */
+.economy-section {
+  margin-bottom: 16px;
+}
+
+.economy-section:last-child {
+  margin-bottom: 0;
+}
+
+.economy-section-title {
+  margin: 0 0 10px 0;
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--text-muted);
+}
+
+/* Trend icons */
+.economy-trend-icon {
+  flex-shrink: 0;
+}
+
+.economy-trend-icon--up {
+  color: #10b981;
+}
+
+.economy-trend-icon--down {
+  color: #ef4444;
+}
+
+.economy-trend-icon--stable {
+  color: #888888;
+}
+
+/* Indicators grid */
+.economy-indicators {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.economy-indicator {
+  padding: 10px;
+  background: rgba(255, 255, 255, 0.02);
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.economy-indicator-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 6px;
+}
+
+.economy-indicator-name {
+  font-size: 10px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.economy-indicator-value {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-primary);
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.economy-indicator-change {
+  font-size: 11px;
+  font-weight: 500;
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.economy-indicator-change--up {
+  color: #10b981;
+}
+
+.economy-indicator-change--down {
+  color: #ef4444;
+}
+
+.economy-indicator-change--stable {
+  color: #888888;
+}
+
+/* Markets list */
+.economy-markets {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.economy-market {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 10px;
+  background: rgba(255, 255, 255, 0.02);
+  border-radius: 6px;
+}
+
+.economy-market-header {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.economy-market-name {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+.economy-market-country {
+  font-size: 10px;
+  color: var(--text-muted);
+}
+
+.economy-market-data {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.economy-market-value {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-primary);
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.economy-market-change {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 10px;
+  font-weight: 500;
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.economy-market-change--up {
+  color: #10b981;
+}
+
+.economy-market-change--down {
+  color: #ef4444;
+}
+
+.economy-market-change--stable {
+  color: #888888;
+}
+
+/* Currencies grid */
+.economy-currencies {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+}
+
+.economy-currency {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 10px;
+  background: rgba(255, 255, 255, 0.02);
+  border-radius: 6px;
+}
+
+.economy-currency-code {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.economy-currency-rate {
+  font-size: 11px;
+  font-family: 'JetBrains Mono', monospace;
+  color: var(--text-secondary);
+}
+
+.economy-currency-change {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  font-size: 9px;
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.economy-currency-change--up {
+  color: #10b981;
+}
+
+.economy-currency-change--down {
+  color: #ef4444;
+}
+
+.economy-currency-change--stable {
+  color: #888888;
+}
+
+/* Countries list */
+.economy-countries {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.economy-country-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 10px;
+  background: rgba(255, 255, 255, 0.02);
+  border-radius: 6px;
+}
+
+.economy-country-name {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+.economy-country-stats {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.economy-country-gdp {
+  font-size: 10px;
+  color: var(--text-secondary);
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.economy-country-growth {
+  font-size: 10px;
+  font-weight: 500;
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.economy-country-growth--up {
+  color: #10b981;
+}
+
+.economy-country-growth--down {
+  color: #ef4444;
+}
+
+.economy-country-growth--stable {
+  color: #888888;
+}
+
+.economy-country-inflation {
+  font-size: 10px;
+  color: var(--text-muted);
+}
