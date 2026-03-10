@@ -369,9 +369,12 @@ export const de = {
     learnMore: 'Mehr erfahren',
     seeOnGlobe: 'Auf dem Globus anzeigen',
     modes: {
+      auto: 'Auto',
       news: 'Nachrichten',
       weather: 'Wetter',
       wiki: 'Wikipedia',
+      sports: 'Sport',
+      economy: 'Wirtschaft',
     },
     weather: {
       temperature: 'Temperatur',
@@ -384,6 +387,8 @@ export const de = {
       news: 'Globale Nachrichtenüberschriften durchsuchen',
       weather: 'Wetter für jedes Land abrufen',
       wiki: 'Wikipedia-Artikel nach Thema erkunden',
+      sports: 'Sportnachrichten und Spielstände abrufen',
+      economy: 'Märkte und Wirtschaftsindikatoren verfolgen',
     },
   },
 
