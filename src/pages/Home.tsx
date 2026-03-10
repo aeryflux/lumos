@@ -1,4 +1,5 @@
 import { lazy, Suspense, useState, useCallback, useMemo, useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Github, ExternalLink } from 'lucide-react';
 import { useThemeColors } from '../hooks/useThemeColors';
 import { useEffects } from '../contexts/EffectsContext';
@@ -247,7 +248,11 @@ function extractCityFromQuery(query: string): { name: string; country: string } 
   return undefined;
 }
 
+// Idle timeout duration: 5 minutes (300000ms)
+const IDLE_TIMEOUT_MS = 5 * 60 * 1000;
+
 export function Home() {
+  const navigate = useNavigate();
   const themeColors = useThemeColors();
   const { triggerEffect } = useEffects();
   const [inputFocused, setInputFocused] = useState(false);
@@ -256,6 +261,8 @@ export function Home() {
   // Splash screen state
   const [showSplash, setShowSplash] = useState(true);
   const initialDataLoaded = useRef(false);
+  // Idle timeout ref
+  const idleTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   // Auto-demo state: shows preview data on globe without full results panel
   const [demoData, setDemoData] = useState<{ countryData: CountryDataMap; cityData?: CountryDataMap; color: string } | null>(null);
   // Track current demo data for the preview module
@@ -290,6 +297,34 @@ export function Home() {
     }, 100);
     return () => clearTimeout(timer);
   }, [triggerEffect]);
+
+  // Idle timeout: redirect to /docs after 5 minutes of inactivity
+  // Prevents continuous API calls if user forgets the page open
+  useEffect(() => {
+    const resetIdleTimer = () => {
+      if (idleTimeoutRef.current) {
+        clearTimeout(idleTimeoutRef.current);
+      }
+      idleTimeoutRef.current = setTimeout(() => {
+        // Redirect to docs page
+        navigate('/docs');
+      }, IDLE_TIMEOUT_MS);
+    };
+
+    // Reset timer on user activity
+    const events = ['mousedown', 'mousemove', 'keydown', 'scroll', 'touchstart'];
+    events.forEach(event => window.addEventListener(event, resetIdleTimer));
+
+    // Start initial timer
+    resetIdleTimer();
+
+    return () => {
+      if (idleTimeoutRef.current) {
+        clearTimeout(idleTimeoutRef.current);
+      }
+      events.forEach(event => window.removeEventListener(event, resetIdleTimer));
+    };
+  }, [navigate]);
 
   // Handle auto-demo: search in background and update globe only
   const handleDemoChange = useCallback(async (query: string, mode: SearchMode) => {
