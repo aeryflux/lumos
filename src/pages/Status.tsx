@@ -6,22 +6,18 @@ import {
   RefreshCw,
   Server,
   Globe,
-  Database,
-  Smartphone,
-  Monitor,
+  Package,
   Zap,
-  Clock,
 } from 'lucide-react';
-import { useTranslation } from '../i18n';
 import './Status.css';
 
 interface ServiceStatus {
   name: string;
-  nameKey: string;
-  descriptionKey: string;
-  status: 'operational' | 'degraded' | 'down' | 'checking' | 'standby';
+  description: string;
+  status: 'operational' | 'degraded' | 'down' | 'checking';
   latency?: number;
   icon: React.ReactNode;
+  url?: string;
 }
 
 interface HealthResponse {
@@ -31,28 +27,38 @@ interface HealthResponse {
   version?: string;
 }
 
-// Use production API URL when deployed, localhost for development
-const isProduction = typeof window !== 'undefined' && !window.location.hostname.includes('localhost');
-const API_BASE = import.meta.env.VITE_API_URL || (isProduction ? 'https://api.aeryflux.com' : 'http://localhost:3000');
-
-// Service endpoints for real-time health checks
-// Note: Lumos not included - if you can see this page, it's working
-const SERVICE_ENDPOINTS = {
-  pythagoras: { url: 'https://api.aeryflux.com', healthPath: '/health' },
-  atlas: { url: 'https://atlas.aeryflux.com', healthPath: '/' },
-  holocron: { url: 'https://holocron.aeryflux.com', healthPath: '/' },
-};
+const API_BASE = import.meta.env.VITE_API_URL ||
+  (import.meta.env.PROD ? 'https://api.aeryflux.com' : 'http://localhost:3000');
 
 export function Status() {
-  const { t } = useTranslation();
-  // Note: Lumos is always 'operational' - if you can see this page, it's working
   const [services, setServices] = useState<ServiceStatus[]>([
-    { name: 'API (Pythagoras)', nameKey: 'status.services.api', descriptionKey: 'status.services.apiDesc', status: 'checking', icon: <Server size={20} /> },
-    { name: 'Database', nameKey: 'status.services.database', descriptionKey: 'status.services.databaseDesc', status: 'checking', icon: <Database size={20} /> },
-    { name: 'Atlas Web', nameKey: 'status.services.web', descriptionKey: 'status.services.webDesc', status: 'checking', icon: <Globe size={20} /> },
-    { name: 'Atlas Mobile', nameKey: 'status.services.mobile', descriptionKey: 'status.services.mobileDesc', status: 'standby', icon: <Smartphone size={20} /> },
-    { name: 'Holocron Backoffice', nameKey: 'status.services.holocron', descriptionKey: 'status.services.holocronDesc', status: 'checking', icon: <Monitor size={20} /> },
-    { name: 'CDN', nameKey: 'status.services.cdn', descriptionKey: 'status.services.cdnDesc', status: 'operational', icon: <Zap size={20} /> },
+    {
+      name: 'Lumos',
+      description: 'Landing page and documentation',
+      status: 'operational', // Always operational if you can see this
+      icon: <Globe size={20} />,
+      url: 'https://aeryflux.com'
+    },
+    {
+      name: 'API',
+      description: 'Backend services (Pythagoras)',
+      status: 'checking',
+      icon: <Server size={20} />,
+      url: 'https://api.aeryflux.com'
+    },
+    {
+      name: '@aeryflux/globe',
+      description: 'npm package',
+      status: 'operational',
+      icon: <Package size={20} />,
+      url: 'https://www.npmjs.com/package/@aeryflux/globe'
+    },
+    {
+      name: 'CDN',
+      description: 'Static assets delivery',
+      status: 'operational',
+      icon: <Zap size={20} />
+    },
   ]);
   const [lastCheck, setLastCheck] = useState<Date | null>(null);
   const [isRefreshing, setIsRefreshing] = useState(false);
@@ -60,101 +66,27 @@ export function Status() {
   const checkServices = async () => {
     setIsRefreshing(true);
 
-    // Try the detailed status endpoint first
+    // Check API health
     try {
-      const response = await fetch(`${API_BASE}/api/status`, {
+      const start = Date.now();
+      const response = await fetch(`${API_BASE}/health`, {
         method: 'GET',
         signal: AbortSignal.timeout(5000)
       });
+      const latency = Date.now() - start;
 
       if (response.ok) {
-        const data = await response.json();
-        // Update all services from API response
-        setServices(prev => prev.map(service => {
-          const apiService = data.services.find((s: { name: string }) => s.name === service.name);
-          if (apiService) {
-            return {
-              ...service,
-              status: apiService.status,
-              latency: apiService.latency,
-            };
-          }
-          return service;
-        }));
+        const data: HealthResponse = await response.json();
+        updateService('API', data.status === 'ok' ? 'operational' : 'degraded', latency);
       } else {
-        // Fallback to basic health check
-        await checkBasicHealth();
+        updateService('API', 'degraded');
       }
     } catch {
-      // Fallback to basic health check on error
-      await checkBasicHealth();
+      updateService('API', 'down');
     }
 
     setLastCheck(new Date());
     setIsRefreshing(false);
-  };
-
-  const checkBasicHealth = async () => {
-    // Check all Railway services in parallel
-    const checks = [
-      // Pythagoras API
-      (async () => {
-        try {
-          const start = Date.now();
-          const response = await fetch(`${SERVICE_ENDPOINTS.pythagoras.url}${SERVICE_ENDPOINTS.pythagoras.healthPath}`, {
-            method: 'GET',
-            signal: AbortSignal.timeout(5000)
-          });
-          const latency = Date.now() - start;
-          if (response.ok) {
-            const data: HealthResponse = await response.json();
-            updateService('API (Pythagoras)', data.status === 'ok' ? 'operational' : 'degraded', latency);
-            updateService('Database', 'operational', latency + 10);
-          } else {
-            updateService('API (Pythagoras)', 'degraded');
-            updateService('Database', 'degraded');
-          }
-        } catch {
-          updateService('API (Pythagoras)', 'down');
-          updateService('Database', 'down');
-        }
-      })(),
-
-      // Atlas Web
-      (async () => {
-        try {
-          const start = Date.now();
-          await fetch(SERVICE_ENDPOINTS.atlas.url, {
-            method: 'HEAD',
-            mode: 'no-cors',
-            signal: AbortSignal.timeout(5000)
-          });
-          const latency = Date.now() - start;
-          // no-cors mode always returns opaque response, so we just check if it didn't throw
-          updateService('Atlas Web', 'operational', latency);
-        } catch {
-          updateService('Atlas Web', 'down');
-        }
-      })(),
-
-      // Holocron Backoffice
-      (async () => {
-        try {
-          const start = Date.now();
-          await fetch(SERVICE_ENDPOINTS.holocron.url, {
-            method: 'HEAD',
-            mode: 'no-cors',
-            signal: AbortSignal.timeout(5000)
-          });
-          const latency = Date.now() - start;
-          updateService('Holocron Backoffice', 'operational', latency);
-        } catch {
-          updateService('Holocron Backoffice', 'down');
-        }
-      })(),
-    ];
-
-    await Promise.all(checks);
   };
 
   const updateService = (name: string, status: ServiceStatus['status'], latency?: number) => {
@@ -175,22 +107,20 @@ export function Status() {
       case 'operational': return <CheckCircle2 className="status-icon operational" />;
       case 'degraded': return <AlertCircle className="status-icon degraded" />;
       case 'down': return <XCircle className="status-icon down" />;
-      case 'standby': return <Clock className="status-icon standby" />;
       default: return <RefreshCw className="status-icon checking" />;
     }
   };
 
   const getStatusText = (status: ServiceStatus['status']) => {
     switch (status) {
-      case 'operational': return t('status.operational');
-      case 'degraded': return t('status.degraded');
-      case 'down': return t('status.down');
-      case 'standby': return t('status.standby');
-      default: return t('status.checking');
+      case 'operational': return 'Operational';
+      case 'degraded': return 'Degraded';
+      case 'down': return 'Down';
+      default: return 'Checking...';
     }
   };
 
-  const overallStatus = services.every(s => s.status === 'operational' || s.status === 'standby') ? 'operational'
+  const overallStatus = services.every(s => s.status === 'operational') ? 'operational'
     : services.some(s => s.status === 'down') ? 'down' : 'degraded';
 
   return (
@@ -198,8 +128,8 @@ export function Status() {
       <div className="status-container">
         {/* Header */}
         <div className="status-header">
-          <h1>{t('status.title')}</h1>
-          <p>{t('status.subtitle')}</p>
+          <h1>System Status</h1>
+          <p>Real-time status of AeryFlux services</p>
         </div>
 
         {/* Overall Status */}
@@ -207,12 +137,12 @@ export function Status() {
           {getStatusIcon(overallStatus)}
           <div className="status-overall-text">
             <h2>
-              {overallStatus === 'operational' && t('status.allOperational')}
-              {overallStatus === 'degraded' && t('status.someIssues')}
-              {overallStatus === 'down' && t('status.down')}
+              {overallStatus === 'operational' && 'All Systems Operational'}
+              {overallStatus === 'degraded' && 'Partial Outage'}
+              {overallStatus === 'down' && 'Major Outage'}
             </h2>
             {lastCheck && (
-              <p>{t('status.lastChecked')}: {lastCheck.toLocaleTimeString()}</p>
+              <p>Last checked: {lastCheck.toLocaleTimeString()}</p>
             )}
           </div>
           <button
@@ -221,20 +151,26 @@ export function Status() {
             disabled={isRefreshing}
           >
             <RefreshCw className={isRefreshing ? 'spinning' : ''} size={18} />
-            {t('status.refresh')}
+            Refresh
           </button>
         </div>
 
         {/* Services Grid */}
         <div className="status-services">
-          <h3>{t('status.services.title')}</h3>
+          <h3>Services</h3>
           <div className="services-grid">
             {services.map((service) => (
               <div key={service.name} className={`service-card service-${service.status}`}>
                 <div className="service-icon">{service.icon}</div>
                 <div className="service-info">
-                  <h4>{t(service.nameKey)}</h4>
-                  <p>{t(service.descriptionKey)}</p>
+                  <h4>
+                    {service.url ? (
+                      <a href={service.url} target="_blank" rel="noopener noreferrer">
+                        {service.name}
+                      </a>
+                    ) : service.name}
+                  </h4>
+                  <p>{service.description}</p>
                 </div>
                 <div className="service-status">
                   {getStatusIcon(service.status)}
@@ -250,22 +186,28 @@ export function Status() {
 
         {/* Incidents */}
         <div className="status-incidents">
-          <h3>{t('status.incidents.title')}</h3>
+          <h3>Recent Incidents</h3>
           <div className="incidents-list">
             <div className="incident-empty">
               <CheckCircle2 size={24} />
-              <p>{t('status.incidents.noIncidents')}</p>
+              <p>No incidents reported</p>
             </div>
           </div>
         </div>
 
-        {/* Subscribe */}
-        <div className="status-subscribe">
-          <h3>{t('status.subscribe.title')}</h3>
-          <p>{t('status.subscribe.desc')}</p>
-          <div className="subscribe-form">
-            <input type="email" placeholder={t('status.subscribe.placeholder')} />
-            <button className="btn btn-primary">{t('status.subscribe.button')}</button>
+        {/* Links */}
+        <div className="status-links">
+          <h3>Resources</h3>
+          <div className="links-grid">
+            <a href="https://github.com/aeryflux" target="_blank" rel="noopener noreferrer" className="status-link">
+              GitHub Organization
+            </a>
+            <a href="https://www.npmjs.com/package/@aeryflux/globe" target="_blank" rel="noopener noreferrer" className="status-link">
+              npm Package
+            </a>
+            <a href="/docs" className="status-link">
+              Documentation
+            </a>
           </div>
         </div>
       </div>

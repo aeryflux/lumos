@@ -307,6 +307,52 @@
   border-color: var(--accent);
 }
 
+/* Links Section */
+.status-links {
+  margin-bottom: 40px;
+}
+
+.status-links h3 {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 20px;
+}
+
+.links-grid {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.status-link {
+  padding: 12px 20px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+.status-link:hover {
+  background: var(--bg-tertiary);
+  border-color: var(--border-hover);
+  color: var(--text-primary);
+}
+
+/* Service info link */
+.service-info h4 a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.service-info h4 a:hover {
+  color: var(--accent);
+}
+
 /* Responsive */
 @media (max-width: 600px) {
   .status-overall {
@@ -327,5 +373,13 @@
 
   .subscribe-form {
     flex-direction: column;
+  }
+
+  .links-grid {
+    flex-direction: column;
+  }
+
+  .status-link {
+    text-align: center;
   }
 }
