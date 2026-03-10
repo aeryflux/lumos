@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>AeryFlux</title>
+    <script>
+      // SPA redirect for GitHub Pages
+      // Stores the path and redirects to index.html
+      // React Router will pick up the original path from sessionStorage
+      sessionStorage.redirect = location.href;
+      location.replace(location.origin);
+    </script>
+  </head>
+  <body></body>
+</html>
