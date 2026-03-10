@@ -32,8 +32,8 @@ export interface CountryNewsData {
 export interface CityNewsData {
   [cityName: string]: {
     scale: number;          // Normalized 0-1 for visibility
-    lat: number;
-    lon: number;
+    lat?: number;           // Optional - Globe matches by name
+    lon?: number;           // Optional - Globe matches by name
     color?: string;
     extrusion?: number;     // Normalized 0-1 for extrusion
   };
