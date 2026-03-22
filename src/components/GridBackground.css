@@ -146,15 +146,19 @@
 }
 
 /* Theme-specific color overrides */
-[data-theme="dark"] .grid-bg {
+/* Support both data-theme (lumos) and data-surface (@aeryflux/design) */
+[data-theme="dark"] .grid-bg,
+[data-surface="dark"] .grid-bg {
   --grid-color: rgba(255, 255, 255, 0.8);
 }
 
-[data-theme="green"] .grid-bg {
+[data-theme="green"] .grid-bg,
+[data-surface="green"] .grid-bg {
   --grid-color: var(--accent, #00ff88);
 }
 
-[data-theme="green"] .grid-bg--cosmic {
+[data-theme="green"] .grid-bg--cosmic,
+[data-surface="green"] .grid-bg--cosmic {
   background-image:
     radial-gradient(2px 2px at 20px 30px, rgba(0,255,136,0.8), transparent),
     radial-gradient(2px 2px at 40px 70px, rgba(0,255,136,0.5), transparent),
@@ -171,7 +175,8 @@
   background-size: 350px 200px;
 }
 
-[data-theme="green"] .grid-bg--cosmic.grid-bg--twinkle::before {
+[data-theme="green"] .grid-bg--cosmic.grid-bg--twinkle::before,
+[data-surface="green"] .grid-bg--cosmic.grid-bg--twinkle::before {
   background-image:
     radial-gradient(1px 1px at 70px 50px, rgba(0,255,136,0.9), transparent),
     radial-gradient(1px 1px at 220px 110px, rgba(0,255,136,0.8), transparent),
@@ -179,18 +184,63 @@
   background-size: 350px 200px;
 }
 
-[data-theme="green"] .grid-bg--cosmic.grid-bg--twinkle::after {
+[data-theme="green"] .grid-bg--cosmic.grid-bg--twinkle::after,
+[data-surface="green"] .grid-bg--cosmic.grid-bg--twinkle::after {
   background-image:
     radial-gradient(1px 1px at 100px 80px, rgba(0,255,136,0.7), transparent),
     radial-gradient(1px 1px at 260px 30px, rgba(0,255,136,0.6), transparent);
   background-size: 350px 200px;
 }
 
-[data-theme="light"] .grid-bg {
+[data-theme="light"] .grid-bg,
+[data-surface="white"] .grid-bg {
   --grid-color: rgba(0, 0, 0, 0.3);
 }
 
-[data-theme="light"] .grid-bg--cosmic {
+/* Grid pattern override for light/white theme */
+[data-theme="light"] .grid-bg--grid,
+[data-surface="white"] .grid-bg--grid {
+  background-image:
+    linear-gradient(
+      to right,
+      rgba(0, 0, 0, 0.15) 1px,
+      transparent 1px
+    ),
+    linear-gradient(
+      to bottom,
+      rgba(0, 0, 0, 0.15) 1px,
+      transparent 1px
+    );
+}
+
+/* Dots pattern override for light/white theme */
+[data-theme="light"] .grid-bg--dots,
+[data-surface="white"] .grid-bg--dots {
+  background-image: radial-gradient(
+    circle at center,
+    rgba(0, 0, 0, 0.3) 1px,
+    transparent 1px
+  );
+}
+
+/* Stars pattern override for light/white theme */
+[data-theme="light"] .grid-bg--stars,
+[data-surface="white"] .grid-bg--stars {
+  background-image:
+    radial-gradient(
+      circle at center,
+      rgba(0, 0, 0, 0.3) 1.5px,
+      transparent 1.5px
+    ),
+    radial-gradient(
+      circle at center,
+      rgba(0, 0, 0, 0.2) 0.8px,
+      transparent 0.8px
+    );
+}
+
+[data-theme="light"] .grid-bg--cosmic,
+[data-surface="white"] .grid-bg--cosmic {
   background-image:
     radial-gradient(2px 2px at 20px 30px, rgba(0,0,0,0.4), transparent),
     radial-gradient(2px 2px at 40px 70px, rgba(0,0,0,0.25), transparent),
@@ -207,7 +257,8 @@
   background-size: 350px 200px;
 }
 
-[data-theme="light"] .grid-bg--cosmic.grid-bg--twinkle::before {
+[data-theme="light"] .grid-bg--cosmic.grid-bg--twinkle::before,
+[data-surface="white"] .grid-bg--cosmic.grid-bg--twinkle::before {
   background-image:
     radial-gradient(1px 1px at 70px 50px, rgba(0,0,0,0.45), transparent),
     radial-gradient(1px 1px at 220px 110px, rgba(0,0,0,0.4), transparent),
@@ -215,7 +266,8 @@
   background-size: 350px 200px;
 }
 
-[data-theme="light"] .grid-bg--cosmic.grid-bg--twinkle::after {
+[data-theme="light"] .grid-bg--cosmic.grid-bg--twinkle::after,
+[data-surface="white"] .grid-bg--cosmic.grid-bg--twinkle::after {
   background-image:
     radial-gradient(1px 1px at 100px 80px, rgba(0,0,0,0.35), transparent),
     radial-gradient(1px 1px at 260px 30px, rgba(0,0,0,0.3), transparent);

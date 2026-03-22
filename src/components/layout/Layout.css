@@ -8,6 +8,7 @@
 }
 
 /* Global background - fixed to viewport */
+/* NOTE: background-image is handled by GridBackground.css with theme support */
 .layout-bg {
   position: fixed !important;
   top: 0 !important;
@@ -15,9 +16,6 @@
   width: 100vw !important;
   height: 100vh !important;
   z-index: 0 !important;
-  background-image:
-    linear-gradient(to right, rgba(255, 255, 255, 0.06) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(255, 255, 255, 0.06) 1px, transparent 1px) !important;
   background-size: 50px 50px !important;
   background-position: center center !important;
   opacity: 1 !important;
