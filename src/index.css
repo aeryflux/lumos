@@ -1,3 +1,6 @@
+/* AeryFlux Design System - Base tokens */
+@import '@aeryflux/design/css';
+
 /* TODO: Uncomment when Tailwind is properly installed
 @tailwind base;
 @tailwind components;

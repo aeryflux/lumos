@@ -1,6 +1,8 @@
 import type { Config } from 'tailwindcss';
+import aeryfluxPreset from '@aeryflux/design/tailwind';
 
 export default {
+  presets: [aeryfluxPreset],
   content: ['./index.html', './src/**/*.{ts,tsx}'],
   theme: {
     extend: {
