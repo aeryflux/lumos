@@ -32,9 +32,12 @@ export function ThemeSwitcher() {
     return (saved as SurfaceId) || 'dark';
   });
 
-  // Apply theme to document
+  // Apply theme to document (data-theme for lumos, data-surface for @aeryflux/design)
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme);
+    // Map lumos theme to surface: light -> white
+    const surface = theme === 'light' ? 'white' : theme;
+    document.documentElement.setAttribute('data-surface', surface);
     localStorage.setItem('lumos-theme', theme);
   }, [theme]);
 
