@@ -749,8 +749,9 @@ export function Home() {
   }, [results, demoData]);
 
   // Globe props - animations disabled by default for minimalism
-  // Using bundled subdiv_7 for best country/city coverage
+  // Using local subdiv_7 model (bundled doesn't work in prod builds)
   const globeProps = useMemo(() => ({
+    modelUrl: '/models/atlas_hex_subdiv_7.glb',
     borderColor: themeColors.globeBorder,
     glowIntensity: 0.6,
     rotationSpeed: 0.0002,
