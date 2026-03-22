@@ -1,10 +1,11 @@
 # Lumos
 
+[![Deploy](https://github.com/aeryflux/lumos/actions/workflows/deploy.yml/badge.svg)](https://github.com/aeryflux/lumos/actions/workflows/deploy.yml)
 ![Version](https://img.shields.io/badge/version-1.0.0-blue.svg)
 ![License](https://img.shields.io/badge/license-MIT-green.svg)
 ![React](https://img.shields.io/badge/React-19-61DAFB.svg)
-![Vite](https://img.shields.io/badge/Vite-5-646CFF.svg)
-![Three.js](https://img.shields.io/badge/Three.js-r169-black.svg)
+
+**Live**: [aeryflux.com](https://aeryflux.com)
 
 Modern landing page with 3D globe visualization.
 
