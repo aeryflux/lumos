@@ -748,10 +748,8 @@ export function Home() {
     return demoData?.color;
   }, [results, demoData]);
 
-  // Globe props - animations disabled by default for minimalism
-  // Using local subdiv_7 model (bundled doesn't work in prod builds)
+  // Globe props - model served from jsDelivr CDN
   const globeProps = useMemo(() => ({
-    modelUrl: '/models/atlas_hex_subdiv_7.glb',
     borderColor: themeColors.globeBorder,
     glowIntensity: 0.6,
     rotationSpeed: 0.0002,
