@@ -749,9 +749,8 @@ export function Home() {
   }, [results, demoData]);
 
   // Globe props - animations disabled by default for minimalism
-  // Using subdiv_7 for best country/city coverage (422 countries, 186 cities)
+  // Using bundled subdiv_7 for best country/city coverage
   const globeProps = useMemo(() => ({
-    modelUrl: '/models/atlas_hex_subdiv_7.glb',
     borderColor: themeColors.globeBorder,
     glowIntensity: 0.6,
     rotationSpeed: 0.0002,
