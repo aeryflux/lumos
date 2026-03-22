@@ -147,14 +147,12 @@
 
 /* Theme-specific color overrides */
 /* Support both data-theme (lumos) and data-surface (@aeryflux/design) */
+/* Dark and Green themes: white/subtle grid so green laser animation is visible */
 [data-theme="dark"] .grid-bg,
-[data-surface="dark"] .grid-bg {
-  --grid-color: rgba(255, 255, 255, 0.8);
-}
-
+[data-surface="dark"] .grid-bg,
 [data-theme="green"] .grid-bg,
 [data-surface="green"] .grid-bg {
-  --grid-color: var(--accent, #00ff88);
+  --grid-color: rgba(255, 255, 255, 0.15);
 }
 
 [data-theme="green"] .grid-bg--cosmic,
