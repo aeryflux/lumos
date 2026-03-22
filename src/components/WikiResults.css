@@ -186,21 +186,3 @@
 .wiki-item:hover .wiki-item-link {
   opacity: 1;
 }
-
-/* Atlas link */
-.wiki-atlas-link {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  padding: 10px;
-  font-size: 11px;
-  color: var(--text-muted);
-  text-decoration: none;
-  border-top: 1px solid rgba(255, 255, 255, 0.04);
-  transition: color 0.15s ease;
-}
-
-.wiki-atlas-link:hover {
-  color: var(--text-primary);
-}

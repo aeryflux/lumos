@@ -86,15 +86,6 @@ export function WikiResults({ data, query, isLoading, onClose }: WikiResultsProp
         })}
       </div>
 
-      <a
-        href={`https://atlas.aeryflux.com?mode=wiki&q=${encodeURIComponent(query)}`}
-        className="wiki-atlas-link"
-        target="_blank"
-        rel="noopener noreferrer"
-      >
-        <span>Explore on globe</span>
-        <ExternalLink size={12} />
-      </a>
     </div>
   );
 }

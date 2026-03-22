@@ -1,4 +1,4 @@
-import { Cloud, Thermometer, Droplets, Wind, ExternalLink, Sun, CloudRain, Snowflake, CloudLightning } from 'lucide-react';
+import { Cloud, Thermometer, Droplets, Wind, Sun, CloudRain, Snowflake, CloudLightning } from 'lucide-react';
 import type { WeatherDataMap, WeatherView } from '../services/weatherService';
 import './WeatherResults.css';
 
@@ -114,15 +114,6 @@ export function WeatherResults({ data, view, query, isLoading, onClose }: Weathe
         })}
       </div>
 
-      <a
-        href={`https://atlas.aeryflux.com?mode=weather&q=${encodeURIComponent(query)}`}
-        className="weather-atlas-link"
-        target="_blank"
-        rel="noopener noreferrer"
-      >
-        <span>View on globe</span>
-        <ExternalLink size={12} />
-      </a>
     </div>
   );
 }

@@ -1,6 +1,6 @@
 import { lazy, Suspense, useState, useCallback, useMemo, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Github, ExternalLink } from 'lucide-react';
+import { Github } from 'lucide-react';
 import { useThemeColors } from '../hooks/useThemeColors';
 import { useEffects } from '../contexts/EffectsContext';
 import { SmartInput } from '../components/SmartInput';
@@ -779,23 +779,16 @@ export function Home() {
 
     if (!results) return null;
 
-    // Fallback to Atlas CTA
+    // Fallback message when no specific results
     if (results.fallbackToAtlas) {
       return (
-        <div className="atlas-cta" onClick={handleCloseResults}>
-          <p className="atlas-cta-text">
-            <span className="atlas-cta-query">{results.query}</span>
+        <div className="home-fallback" onClick={handleCloseResults}>
+          <p className="home-fallback-text">
+            No results for "<span className="home-fallback-query">{results.query}</span>"
           </p>
-          <a
-            href={`https://atlas.aeryflux.com?q=${encodeURIComponent(results.query)}`}
-            className="atlas-cta-btn"
-            target="_blank"
-            rel="noopener noreferrer"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <span>Open in Atlas</span>
-            <ExternalLink size={14} />
-          </a>
+          <button className="home-fallback-btn">
+            Try another search
+          </button>
         </div>
       );
     }

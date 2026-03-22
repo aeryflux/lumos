@@ -151,56 +151,50 @@
   }
 }
 
-/* Atlas CTA - OpenClaw style */
-.atlas-cta {
+/* Fallback message */
+.home-fallback {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 14px;
-  padding: 24px 28px;
+  gap: 12px;
+  padding: 20px 24px;
   background: rgba(5, 5, 10, 0.85);
   border: 1px solid rgba(255, 255, 255, 0.06);
-  border-radius: 16px;
+  border-radius: 12px;
   backdrop-filter: blur(16px);
   cursor: pointer;
   transition: all 0.2s ease;
 }
 
-.atlas-cta:hover {
+.home-fallback:hover {
   border-color: rgba(255, 255, 255, 0.1);
-  transform: translateY(-2px);
 }
 
-.atlas-cta-text {
+.home-fallback-text {
   margin: 0;
   font-size: 14px;
   color: var(--text-muted);
 }
 
-.atlas-cta-query {
+.home-fallback-query {
   color: var(--text-primary);
   font-weight: 500;
 }
 
-.atlas-cta-btn {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 12px 24px;
+.home-fallback-btn {
+  padding: 10px 20px;
   background: rgba(255, 255, 255, 0.05);
   border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 10px;
-  color: var(--text-primary);
-  font-size: 14px;
-  font-weight: 500;
-  text-decoration: none;
+  border-radius: 8px;
+  color: var(--text-secondary);
+  font-size: 13px;
+  cursor: pointer;
   transition: all 0.2s ease;
 }
 
-.atlas-cta-btn:hover {
+.home-fallback-btn:hover {
   background: rgba(255, 255, 255, 0.1);
-  border-color: var(--accent);
-  color: var(--accent);
+  color: var(--text-primary);
 }
 
 /* GitHub link */
@@ -296,8 +290,8 @@
     display: none;
   }
 
-  .atlas-cta {
-    padding: 18px 22px;
+  .home-fallback {
+    padding: 16px 20px;
   }
 
   /* Better animation on mobile */
