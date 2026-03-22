@@ -61,7 +61,7 @@ export function NewsResults({ articles, query, isLoading, onClose }: NewsResults
       </div>
 
       <div className="news-list">
-        {articles.slice(0, 5).map((article, index) => (
+        {articles.map((article, index) => (
           <a
             key={index}
             href={article.link}
@@ -99,11 +99,6 @@ export function NewsResults({ articles, query, isLoading, onClose }: NewsResults
         ))}
       </div>
 
-      {articles.length > 5 && (
-        <div className="news-more">
-          <span>+{articles.length - 5} more articles</span>
-        </div>
-      )}
     </div>
   );
 }

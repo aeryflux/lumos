@@ -321,82 +321,82 @@
 /* Mobile adjustments */
 @media (max-width: 768px) {
   .demo-preview {
-    padding: 10px 12px;
-    gap: 8px;
+    padding: 8px 10px;
+    gap: 6px;
     max-width: 100%;
-    border-radius: 10px;
+    border-radius: 8px;
   }
 
   .demo-preview-header {
-    gap: 6px;
+    gap: 4px;
   }
 
   .demo-preview-mode {
-    padding: 3px 6px;
-    font-size: 9px;
-    gap: 4px;
-    border-radius: 12px;
+    padding: 2px 5px;
+    font-size: 8px;
+    gap: 3px;
+    border-radius: 10px;
   }
 
   .demo-preview-mode svg {
-    width: 10px;
-    height: 10px;
+    width: 8px;
+    height: 8px;
   }
 
   .demo-preview-stat {
-    font-size: 9px;
+    font-size: 8px;
   }
 
   .demo-preview-stat svg {
-    width: 10px;
-    height: 10px;
+    width: 8px;
+    height: 8px;
   }
 
   .demo-preview-article {
-    padding: 6px 8px;
-    gap: 6px;
-    border-radius: 6px;
+    padding: 5px 6px;
+    gap: 4px;
+    border-radius: 5px;
   }
 
   .demo-preview-article-title {
-    font-size: 11px;
-    line-height: 1.3;
+    font-size: 10px;
+    line-height: 1.25;
   }
 
   .demo-preview-article-icon {
-    width: 10px;
-    height: 10px;
+    width: 8px;
+    height: 8px;
   }
 
   .demo-preview-country {
-    font-size: 10px;
-    gap: 4px;
+    font-size: 9px;
+    gap: 3px;
   }
 
   .demo-preview-weather {
-    gap: 6px;
-    padding: 4px 0;
+    gap: 4px;
+    padding: 2px 0;
   }
 
   .demo-preview-weather-main {
-    gap: 8px;
+    gap: 6px;
   }
 
   .demo-preview-weather-icon {
-    font-size: 24px;
+    font-size: 20px;
   }
 
   .demo-preview-weather-temp {
-    font-size: 22px;
+    font-size: 18px;
   }
 
   .demo-preview-weather-location {
-    font-size: 12px;
-    gap: 4px;
+    font-size: 10px;
+    gap: 3px;
   }
 
   .demo-preview-weather-condition {
-    font-size: 10px;
+    font-size: 9px;
   }
 
   .demo-preview-wiki-link {
