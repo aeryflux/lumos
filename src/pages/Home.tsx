@@ -418,16 +418,18 @@ export function Home() {
               resolvedCountryForDisplay = country;
             }
 
-            // Add capital city to cityData for weather mode (extrusion based on temperature)
+            // Add capital city to cityData for weather mode
+            // Extrusion and scale reflect real temperature data
             const capital = COUNTRY_TO_CAPITAL[country];
             if (capital && info.temperature !== undefined) {
-              // Normalize temperature to extrusion (0-1 scale, hotter = more extrusion)
-              // -40°C = 0.0, +40°C = 1.0
+              // Normalize: -40°C = 0.0, +40°C = 1.0
               const tempNormalized = Math.max(0, Math.min(1, (info.temperature + 40) / 80));
+              // Scale: colder cities smaller (0.6), hotter cities larger (1.4)
+              const cityScale = 0.6 + tempNormalized * 0.8;
               cityData[capital] = {
-                scale: 1.0,
+                scale: cityScale,
                 color: info.color || highlightColor,
-                extrusion: tempNormalized * 1.5, // Cities extrude more than countries
+                extrusion: tempNormalized * 1.5,
               };
             }
           }
