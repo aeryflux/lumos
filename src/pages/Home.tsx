@@ -296,15 +296,6 @@ export function Home() {
     };
   } | null>(null);
 
-  // Trigger laser scan effect on page load
-  useEffect(() => {
-    // Small delay to ensure DOM is ready
-    const timer = setTimeout(() => {
-      triggerEffect('laser-scan', '#00ff88');
-    }, 100);
-    return () => clearTimeout(timer);
-  }, [triggerEffect]);
-
   // Idle timeout: redirect to /docs after 5 minutes of inactivity
   // Prevents continuous API calls if user forgets the page open
   useEffect(() => {
@@ -518,7 +509,6 @@ export function Home() {
       }
 
       if (countryCount > 0 || Object.keys(cityData).length > 0) {
-        triggerEffect('laser-scan', '#00ff88');
         setDemoData({
           countryData,
           cityData: Object.keys(cityData).length > 0 ? cityData : undefined,
