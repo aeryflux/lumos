@@ -90,6 +90,13 @@ const COUNTRY_TO_CAPITAL: Record<string, string> = {
   'Singapore': 'singapore', 'Australia': 'sydney', 'New Zealand': 'auckland',
   'United Arab Emirates': 'dubai', 'Saudi Arabia': 'riyadh', 'Israel': 'tel_aviv',
   'Iran': 'tehran', 'Iraq': 'baghdad', 'Pakistan': 'karachi',
+  'Portugal': 'lisbon', 'Sweden': 'stockholm', 'Bulgaria': 'sofia',
+  'Lithuania': 'vilnius', 'Serbia': 'belgrade', 'Slovenia': 'ljubljana',
+  'Qatar': 'doha', 'Azerbaijan': 'baku', 'Panama': 'panama_city',
+  'Paraguay': 'asuncion', 'Haiti': 'port-au-prince', 'Afghanistan': 'kabul',
+  'Tajikistan': 'dushanbe', 'Tunisia': 'tunis', 'Uganda': 'kampala',
+  'Zambia': 'lusaka', 'Namibia': 'windhoek', 'Niger': 'niamey',
+  'Malawi': 'lilongwe', 'Mauritania': 'nouakchott',
 };
 
 // Resolve country name from ISO code or return as-is
