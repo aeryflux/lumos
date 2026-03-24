@@ -8,6 +8,7 @@ import { DocArticle } from './pages/docs/DocArticle'
 import { Blog } from './pages/Blog'
 import { BlogPost } from './pages/blog/BlogPost'
 import { DownloadPage } from './pages/Download'
+import { NotFound } from './pages/NotFound'
 
 const API_URL = import.meta.env.PROD
   ? 'https://api.aeryflux.com/api'
@@ -51,6 +52,7 @@ function App() {
         <Route path="blog" element={<Blog />} />
         <Route path="blog/:id" element={<BlogPost />} />
         <Route path="download" element={<DownloadPage />} />
+        <Route path="*" element={<NotFound />} />
       </Route>
     </Routes>
   )

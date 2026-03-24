@@ -151,17 +151,11 @@
   }
 }
 
-.splash-logo-svg {
-  width: 100%;
-  height: 100%;
-}
-
-.splash-logo-bg {
-  fill: var(--splash-accent, #00ff88);
-}
-
-.splash-logo-sphere {
-  fill: var(--splash-bg, #050508);
+.splash-logo-img {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  object-fit: cover;
 }
 
 /* Text */
