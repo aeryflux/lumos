@@ -1,5 +1,8 @@
 /**
- * Logo - AeryFlux brand logo from aery-assets (bg_false variant)
+ * Logo - Themable AeryFlux Logo using CSS filters
+ *
+ * Uses the original PNG with CSS filters for theme adaptation.
+ * The logo is black/white so we can use filters to colorize it.
  */
 
 import './Logo.css';
@@ -12,7 +15,7 @@ interface LogoProps {
 export function Logo({ size = 32, className = '' }: LogoProps) {
   return (
     <img
-      src={`${import.meta.env.BASE_URL}aeryflux_logo.png`}
+      src={`${import.meta.env.BASE_URL}aeryflux.png`}
       alt="AeryFlux"
       width={size}
       height={size}
