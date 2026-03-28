@@ -248,8 +248,7 @@
 
 html {
   scroll-behavior: smooth;
-  /* Solid base background for semi-transparent layers to blend against */
-  background: #030306;
+  background: #06060e;
 }
 
 body {
