@@ -1,85 +1,87 @@
 .home {
-  position: relative;
-  min-height: 100vh;
   display: flex;
-  align-items: center;
-  justify-content: center;
+  flex-direction: row;
+  min-height: 100vh;
 }
 
-.home-globe {
-  position: fixed;
-  inset: 0;
-  z-index: 0;
+/* Globe — left side */
+.globe-section {
+  flex: 1;
+  min-width: 0;
 }
 
-.home-globe-loading {
+.globe-loading {
   width: 100%;
   height: 100%;
   background: #06060e;
 }
 
-.home-content {
-  position: relative;
-  z-index: 1;
+/* Content — right side */
+.content-section {
+  width: 320px;
+  display: flex;
+  flex-direction: column;
+  padding: 24px;
+}
+
+.content-body {
+  flex: 1;
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
   gap: 16px;
-  padding: 32px 24px;
-  max-width: 400px;
-  width: 90%;
-  background: rgba(6, 6, 14, 0.75);
-  border-radius: 20px;
-  backdrop-filter: blur(8px);
 }
 
-.home-title {
-  font-size: 32px;
+.content-body h1 {
+  font-size: 28px;
   font-family: 'HemiHead', sans-serif;
   letter-spacing: 4px;
   color: #ffffff;
   margin: 0;
 }
 
-.home-tagline {
-  font-size: 12px;
+.content-body p {
+  font-size: 11px;
   letter-spacing: 2px;
-  color: rgba(255, 255, 255, 0.35);
+  color: rgba(255, 255, 255, 0.3);
   margin: 0;
 }
 
-.home-links {
+.links {
   display: flex;
-  gap: 12px;
+  gap: 10px;
   margin-top: 8px;
 }
 
-.home-cta {
-  padding: 10px 24px;
-  border-radius: 20px;
-  background: rgba(255, 255, 255, 0.08);
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  color: #ffffff;
-  font-size: 13px;
+.links a {
+  padding: 8px 20px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.6);
   font-family: 'HemiHead', sans-serif;
-  letter-spacing: 1px;
+  font-size: 11px;
   text-decoration: none;
-  transition: background 0.2s;
+  transition: all 0.2s;
 }
 
-.home-cta:hover {
-  background: rgba(255, 255, 255, 0.15);
-}
-
-.home-link {
-  padding: 10px 24px;
-  border-radius: 20px;
-  color: rgba(255, 255, 255, 0.5);
-  font-size: 13px;
-  text-decoration: none;
-  transition: color 0.2s;
-}
-
-.home-link:hover {
+.links a:hover {
+  background: rgba(255, 255, 255, 0.12);
   color: #ffffff;
+}
+
+/* Mobile: stack vertically */
+@media (max-width: 768px) {
+  .home {
+    flex-direction: column;
+  }
+  .globe-section {
+    flex: 1;
+    min-height: 300px;
+  }
+  .content-section {
+    width: 100%;
+    padding: 16px;
+  }
 }

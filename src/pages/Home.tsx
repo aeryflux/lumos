@@ -7,11 +7,14 @@ const Globe = lazy(() => import('@aeryflux/globe/react').then(m => ({ default: m
 export function Home() {
   return (
     <div className="home">
-      {/* Globe — fullscreen background */}
-      <div className="home-globe">
-        <Suspense fallback={<div className="home-globe-loading" />}>
+      {/* Globe — left side */}
+      <div className="globe-section">
+        <Suspense fallback={<div className="globe-loading" />}>
           <Globe
             surface="dark"
+            showCountries={true}
+            showBorders={true}
+            showGlobeFill={true}
             rotationSpeed={0.0003}
             glowIntensity={1.2}
             style={{ width: '100%', height: '100%' }}
@@ -19,20 +22,19 @@ export function Home() {
         </Suspense>
       </div>
 
-      {/* Content overlay */}
-      <div className="home-content">
-        <h1 className="home-title">aeryflux</h1>
-        <p className="home-tagline">explore the world</p>
+      {/* Content — right side */}
+      <div className="content-section">
+        <div className="content-body">
+          <h1>aeryflux</h1>
+          <p>explore the world</p>
 
-        {/* Demo preview — interactive showcase */}
-        <DemoPreview />
+          <DemoPreview />
 
-        <div className="home-links">
-          <a href="https://atlas.aeryflux.com" className="home-cta">Atlas</a>
-          <a href="https://haki.aeryflux.com" className="home-cta">Haki</a>
-          <a href="https://github.com/aeryflux" className="home-link" target="_blank" rel="noopener noreferrer">
-            GitHub
-          </a>
+          <div className="links">
+            <a href="https://atlas.aeryflux.com">Atlas</a>
+            <a href="https://haki.aeryflux.com">Haki</a>
+            <a href="https://github.com/aeryflux" target="_blank" rel="noopener noreferrer">GitHub</a>
+          </div>
         </div>
       </div>
     </div>
