@@ -28,9 +28,8 @@ export function Home() {
         <DemoPreview />
 
         <div className="home-links">
-          <a href="https://atlas.aeryflux.com" className="home-cta">
-            Atlas
-          </a>
+          <a href="https://atlas.aeryflux.com" className="home-cta">Atlas</a>
+          <a href="https://haki.aeryflux.com" className="home-cta">Haki</a>
           <a href="https://github.com/aeryflux" className="home-link" target="_blank" rel="noopener noreferrer">
             GitHub
           </a>
