@@ -17,6 +17,8 @@ export function Home() {
             showGlobeFill={true}
             rotationSpeed={0.0003}
             glowIntensity={1.2}
+            introAnimation={true}
+            introDuration={2.5}
             style={{ width: '100%', height: '100%' }}
           />
         </Suspense>

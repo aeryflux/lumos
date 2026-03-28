@@ -1,13 +1,18 @@
 .home {
-  display: flex;
-  flex-direction: row;
-  min-height: 100vh;
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  background: #06060e;
 }
 
-/* Globe — left side */
 .globe-section {
-  flex: 1;
-  min-width: 0;
+  position: absolute;
+  top: 0;
+  left: -35vw;
+  width: 135vw;
+  height: 100%;
+  z-index: 0;
 }
 
 .globe-loading {
@@ -16,21 +21,25 @@
   background: #06060e;
 }
 
-/* Content — right side */
 .content-section {
-  width: 320px;
+  position: absolute;
+  top: 0;
+  right: 5%;
+  width: 40%;
+  height: 100%;
   display: flex;
-  flex-direction: column;
-  padding: 24px;
+  align-items: center;
+  justify-content: center;
+  z-index: 1;
+  pointer-events: none;
 }
 
 .content-body {
-  flex: 1;
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
   gap: 16px;
+  pointer-events: auto;
 }
 
 .content-body h1 {
@@ -71,17 +80,11 @@
   color: #ffffff;
 }
 
-/* Mobile: stack vertically */
 @media (max-width: 768px) {
-  .home {
-    flex-direction: column;
-  }
-  .globe-section {
-    flex: 1;
-    min-height: 300px;
-  }
   .content-section {
     width: 100%;
-    padding: 16px;
+    bottom: 0;
+    top: auto;
+    height: 50%;
   }
 }

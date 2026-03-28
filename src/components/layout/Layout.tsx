@@ -24,12 +24,6 @@ export function Layout() {
       <main className="main">
         <Outlet />
       </main>
-
-      <footer className="footer">
-        <div className="footer-container">
-          <p className="footer-copyright">aeryflux &copy; {new Date().getFullYear()}</p>
-        </div>
-      </footer>
     </div>
   );
 }
