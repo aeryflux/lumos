@@ -15,7 +15,7 @@
   },
   "dependencies": {
     "@aeryflux/design": "^0.3.0",
-    "@aeryflux/globe": "^0.6.5",
+    "@aeryflux/globe": "^0.7.0",
     "@types/three": "^0.169.0",
     "lucide-react": "^0.556.0",
     "react": "^19.1.0",

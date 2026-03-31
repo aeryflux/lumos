@@ -22,10 +22,13 @@ jobs:
           rm -f package-lock.json
           npm install
 
+      - name: Typecheck
+        run: npx tsc -b
+
       - name: Test
         run: npm test
 
       - name: Build
-        run: npx vite build
+        run: npm run build
         env:
           VITE_API_URL: https://api.aeryflux.com
