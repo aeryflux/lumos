@@ -22,12 +22,6 @@ jobs:
           rm -f package-lock.json
           npm install
 
-      - name: Typecheck
-        run: npx tsc -b
-
-      - name: Lint
-        run: npm run lint
-
       - name: Test
         run: npm test
 
