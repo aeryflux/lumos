@@ -27,7 +27,11 @@ export function Home() {
       <div className="content-section">
         <div className="content-body">
           <h1>aeryflux</h1>
-          <p>explore the world</p>
+          <div className="taglines">
+            <p>explore the world</p>
+            <span className="tagline-separator">/</span>
+            <p>learn to code</p>
+          </div>
 
           <div className="links">
             <a href="https://atlas.aeryflux.com">Atlas</a>
