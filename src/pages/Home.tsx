@@ -1,5 +1,4 @@
 import { lazy, Suspense } from 'react';
-import { DemoPreview } from '../components/DemoPreview';
 import './Home.css';
 
 const Globe = lazy(() => import('@aeryflux/globe/react').then(m => ({ default: m.Globe })));
@@ -29,8 +28,6 @@ export function Home() {
         <div className="content-body">
           <h1>aeryflux</h1>
           <p>explore the world</p>
-
-          <DemoPreview />
 
           <div className="links">
             <a href="https://atlas.aeryflux.com">Atlas</a>
