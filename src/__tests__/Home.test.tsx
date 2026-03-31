@@ -26,9 +26,10 @@ describe('Home', () => {
     expect(screen.getByText('aeryflux')).toBeInTheDocument();
   });
 
-  it('renders subtitle', () => {
+  it('renders taglines', () => {
     renderHome();
     expect(screen.getByText('explore the world')).toBeInTheDocument();
+    expect(screen.getByText('learn to code')).toBeInTheDocument();
   });
 
   it('renders product links', () => {
