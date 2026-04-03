@@ -75,9 +75,26 @@ async function fetchCountryNews(country: string): Promise<NewsItem[]> {
   } catch { return []; }
 }
 
+// Map common non-English country names to English for Wikipedia
+const COUNTRY_EN: Record<string, string> = {
+  'corée': 'South Korea', 'coree': 'South Korea', 'corée du sud': 'South Korea',
+  'japon': 'Japan', 'allemagne': 'Germany', 'brésil': 'Brazil', 'bresil': 'Brazil',
+  'espagne': 'Spain', 'italie': 'Italy', 'chine': 'China', 'inde': 'India',
+  'russie': 'Russia', 'australie': 'Australia', 'mexique': 'Mexico',
+  'états-unis': 'United States', 'etats-unis': 'United States', 'royaume-uni': 'United Kingdom',
+  'turquie': 'Turkey', 'égypte': 'Egypt', 'egypte': 'Egypt',
+  'afrique du sud': 'South Africa', 'thaïlande': 'Thailand', 'thailande': 'Thailand',
+  'corea del sur': 'South Korea', 'japón': 'Japan', 'alemania': 'Germany',
+  'francia': 'France', 'brasil': 'Brazil', 'españa': 'Spain', 'italia': 'Italy',
+  'estados unidos': 'United States', 'reino unido': 'United Kingdom',
+  'südkorea': 'South Korea', 'frankreich': 'France', 'brasilien': 'Brazil',
+  'spanien': 'Spain', 'italien': 'Italy', 'vereinigte staaten': 'United States',
+};
+
 async function fetchWikiSnippet(country: string): Promise<WikiSnippet | null> {
+  const englishName = COUNTRY_EN[country.toLowerCase()] || country;
   try {
-    const res = await fetch(`https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(country)}`);
+    const res = await fetch(`https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(englishName)}`);
     if (!res.ok) return null;
     const data = await res.json();
     return {
