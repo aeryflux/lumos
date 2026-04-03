@@ -124,7 +124,7 @@ export const SearchBar = forwardRef<SearchBarHandle, SearchBarProps>(function Se
   const inputRef = useRef<HTMLInputElement>(null);
   const debounceRef = useRef<ReturnType<typeof setTimeout>>();
 
-  const search = useCallback(async (input: string) => {
+  const search = useCallback(async (input: string, isShowcase = false) => {
     if (!input.trim()) {
       setResult(null);
       setWiki(null);
@@ -151,16 +151,21 @@ export const SearchBar = forwardRef<SearchBarHandle, SearchBarProps>(function Se
 
       setNews([]);
       setWiki(null);
-      // Use entity name if found, otherwise use raw input (for globe clicks with unrecognized countries)
       const searchName = countryEntities.length > 0 ? countryEntities[0].value : input.trim();
       if (searchName) {
-        fetchCountryNews(searchName).then(items => {
-          if (items.length > 0) {
-            setNews(items);
-          } else {
-            fetchWikiSnippet(searchName).then(setWiki);
-          }
-        });
+        if (isShowcase) {
+          // Showcase: always wiki for cleaner first impression
+          fetchWikiSnippet(searchName).then(setWiki);
+        } else {
+          // Manual: news first, wiki fallback
+          fetchCountryNews(searchName).then(items => {
+            if (items.length > 0) {
+              setNews(items);
+            } else {
+              fetchWikiSnippet(searchName).then(setWiki);
+            }
+          });
+        }
       }
     } catch {
       setResult(null);
@@ -253,7 +258,7 @@ export const SearchBar = forwardRef<SearchBarHandle, SearchBarProps>(function Se
     if (userActive || focused || query) return;
     const key = SHOWCASE_SEQUENCE[showcaseIndex];
     if (!key.startsWith('__global_') && typedPlaceholder === t(key)) {
-      search(typedPlaceholder);
+      search(typedPlaceholder, true);
     }
   }, [typedPlaceholder, showcaseIndex, userActive, focused, query, search, t]);
 
