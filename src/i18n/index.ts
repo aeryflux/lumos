@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, useCallback, useMemo, useEffect } from 'react';
-import { translations, LANG_FLAGS, type Lang } from './translations';
+import { translations, LANG_COUNTRY, type Lang } from './translations';
 
 interface I18nContextValue {
   lang: Lang;
@@ -43,7 +43,7 @@ export function useI18nProvider() {
     });
   }, []);
 
-  const flag = LANG_FLAGS[lang];
+  const flag = LANG_COUNTRY[lang];
 
   useEffect(() => {
     document.documentElement.lang = lang;

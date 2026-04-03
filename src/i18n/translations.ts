@@ -1,10 +1,11 @@
 export type Lang = 'en' | 'fr' | 'es' | 'de';
 
-export const LANG_FLAGS: Record<Lang, string> = {
-  en: '🇬🇧',
-  fr: '🇫🇷',
-  es: '🇪🇸',
-  de: '🇩🇪',
+/** ISO 3166-1 alpha-2 country codes for flag-icons CSS */
+export const LANG_COUNTRY: Record<Lang, string> = {
+  en: 'gb',
+  fr: 'fr',
+  es: 'es',
+  de: 'de',
 };
 
 export const translations: Record<Lang, Record<string, string>> = {

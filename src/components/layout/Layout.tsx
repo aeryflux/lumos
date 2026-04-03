@@ -15,7 +15,7 @@ export function Layout() {
           </Link>
           <div className="nav-actions">
             <button className="lang-toggle" onClick={nextLang} aria-label="Change language">
-              {flag}
+              <span className={`fi fi-${flag} fis`} />
             </button>
             <a href="https://atlas.aeryflux.com" className="nav-link-minimal">Atlas</a>
             <a href="https://haki.aeryflux.com" className="nav-link-minimal">Haki</a>
