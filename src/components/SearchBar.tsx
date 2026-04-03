@@ -146,7 +146,8 @@ export const SearchBar = forwardRef<SearchBarHandle, SearchBarProps>(function Se
       const countryEntities = (data.entities || []).filter((e: Entity) => e.type === 'country');
       const countries: Record<string, CountryHighlight> = {};
       for (const entity of countryEntities) {
-        countries[entity.value] = { scale: 1, color: '#00ff88', extrusion: 0.4 };
+        const name = toEnglish(entity.value);
+        countries[name] = { scale: 1, color: '#00ff88', extrusion: 0.4 };
       }
       onCountryHighlight?.(countries);
 
