@@ -14,7 +14,7 @@
     "test:e2e:ui": "playwright test --ui"
   },
   "dependencies": {
-    "@aeryflux/design": "^0.3.0",
+    "@aeryflux/design": "^0.4.0",
     "@aeryflux/globe": "^0.7.4",
     "@types/three": "^0.169.0",
     "lucide-react": "^0.556.0",
