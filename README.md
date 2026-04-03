@@ -141,11 +141,9 @@ VITE_API_URL=http://localhost:3000
 
 ## Contributing
 
-1. Fork the repository
-2. Create feature branch (`git checkout -b feat/amazing-feature`)
-3. Commit changes (`git commit -m 'feat: add amazing feature'`)
-4. Push to branch (`git push origin feat/amazing-feature`)
-5. Open Pull Request
+See [CONTRIBUTING.md](CONTRIBUTING.md) for development setup and guidelines.
+
+See [CHANGELOG.md](CHANGELOG.md) for version history.
 
 ## Related Projects
 
