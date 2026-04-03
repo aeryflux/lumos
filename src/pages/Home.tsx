@@ -1,10 +1,12 @@
 import { lazy, Suspense, useState, useCallback, useRef } from 'react';
 import { SearchBar, type SearchBarHandle } from '../components/SearchBar';
+import { useI18n } from '../i18n';
 import './Home.css';
 
 const Globe = lazy(() => import('@aeryflux/globe/react').then(m => ({ default: m.Globe })));
 
 export function Home() {
+  const { t } = useI18n();
   const [countryData, setCountryData] = useState<Record<string, { scale: number; color?: string; extrusion?: number }>>({});
   const searchRef = useRef<SearchBarHandle>(null);
 
@@ -13,9 +15,7 @@ export function Home() {
   }, []);
 
   const handleCountryClick = useCallback((name: string) => {
-    // Highlight clicked country on globe
     setCountryData({ [name]: { scale: 1, color: '#00ff88', extrusion: 0.4 } });
-    // Fill search bar
     searchRef.current?.setQuery(name);
   }, []);
 
@@ -45,9 +45,9 @@ export function Home() {
         <div className="content-body">
           <h1>aeryflux</h1>
           <div className="taglines">
-            <p>explore the world</p>
+            <p>{t('tagline.explore')}</p>
             <span className="tagline-separator">/</span>
-            <p>learn to code</p>
+            <p>{t('tagline.learn')}</p>
           </div>
 
           <SearchBar ref={searchRef} onCountryHighlight={handleCountryHighlight} />
@@ -55,7 +55,7 @@ export function Home() {
           <div className="links">
             <a href="https://atlas.aeryflux.com">Atlas</a>
             <a href="https://haki.aeryflux.com">Haki</a>
-            <a href="https://github.com/aeryflux" target="_blank" rel="noopener noreferrer">GitHub</a>
+            <a href="https://github.com/aeryflux" target="_blank" rel="noopener noreferrer">{t('nav.github')}</a>
           </div>
         </div>
       </div>

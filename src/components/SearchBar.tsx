@@ -1,42 +1,30 @@
 import { useState, useRef, useCallback, useEffect, forwardRef, useImperativeHandle } from 'react';
+import { useI18n } from '../i18n';
 import './SearchBar.css';
 
 const API_BASE = import.meta.env.DEV ? 'http://localhost:3000' : 'https://api.aeryflux.com';
 
-const SHOWCASE_QUERIES = [
-  'Where is Japan?',
+// Showcase sequence: translated keys or special modes
+const SHOWCASE_SEQUENCE = [
+  'showcase.1',
   '__global_weather__',
-  'Tell me about Brazil',
+  'showcase.2',
   '__global_news__',
-  'What about South Korea?',
+  'showcase.3',
   '__global_music__',
-  'Show me Germany',
+  'showcase.4',
   '__global_weather__',
-  'Where is Australia?',
+  'showcase.5',
 ];
 
 const TYPING_SPEED = 45;
 const SHOWCASE_INTERVAL = 7000;
 
-interface Entity {
-  type: string;
-  value: string;
-  normalizedValue: string;
-}
-
-interface SearchResult {
-  intent?: { category: string };
-  entities?: Entity[];
-  feedback?: string;
-  suggestions?: string[];
-  actions?: Array<{ type: string; payload?: Record<string, unknown> }>;
-}
-
-interface CountryHighlight {
-  scale: number;
-  color?: string;
-  extrusion?: number;
-}
+interface Entity { type: string; value: string; normalizedValue: string }
+interface SearchResult { intent?: { category: string }; entities?: Entity[] }
+interface CountryHighlight { scale: number; color?: string; extrusion?: number }
+interface WikiSnippet { title: string; extract: string; url: string }
+interface NewsItem { title: string; link: string; source?: string; color?: string }
 
 interface SearchBarProps {
   onCountryHighlight?: (countries: Record<string, CountryHighlight>) => void;
@@ -44,26 +32,6 @@ interface SearchBarProps {
 
 export interface SearchBarHandle {
   setQuery: (q: string) => void;
-}
-
-interface WikiSnippet {
-  title: string;
-  extract: string;
-  url: string;
-}
-
-interface NewsItem {
-  title: string;
-  link: string;
-  source?: string;
-  color?: string;
-}
-
-interface MusicTrack {
-  title: string;
-  artist: string;
-  genre?: string;
-  previewUrl?: string;
 }
 
 async function fetchGlobalWeather(): Promise<Record<string, CountryHighlight> | null> {
@@ -76,9 +44,7 @@ async function fetchGlobalWeather(): Promise<Record<string, CountryHighlight> | 
       highlights[country] = { scale: info.scale, color: info.color, extrusion: info.scale * 0.3 };
     }
     return highlights;
-  } catch {
-    return null;
-  }
+  } catch { return null; }
 }
 
 async function fetchGlobalNews(): Promise<NewsItem[]> {
@@ -92,32 +58,12 @@ async function fetchGlobalNews(): Promise<NewsItem[]> {
       source: a.source as string,
       color: a.color as string || (a.theme as Record<string, string>)?.color,
     }));
-  } catch {
-    return [];
-  }
-}
-
-async function fetchMusicTracks(): Promise<MusicTrack[]> {
-  try {
-    const res = await fetch(`${API_BASE}/api/music/tracks`);
-    if (!res.ok) return [];
-    const { tracks } = await res.json();
-    return (tracks || []).slice(0, 3).map((t: Record<string, unknown>) => ({
-      title: t.title as string,
-      artist: t.artist as string,
-      genre: t.genre as string,
-      previewUrl: t.previewUrl as string,
-    }));
-  } catch {
-    return [];
-  }
+  } catch { return []; }
 }
 
 async function fetchWikiSnippet(country: string): Promise<WikiSnippet | null> {
   try {
-    const res = await fetch(
-      `https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(country)}`
-    );
+    const res = await fetch(`https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(country)}`);
     if (!res.ok) return null;
     const data = await res.json();
     return {
@@ -125,12 +71,11 @@ async function fetchWikiSnippet(country: string): Promise<WikiSnippet | null> {
       extract: data.extract?.slice(0, 120) + (data.extract?.length > 120 ? '...' : ''),
       url: data.content_urls?.desktop?.page || `https://en.wikipedia.org/wiki/${country}`,
     };
-  } catch {
-    return null;
-  }
+  } catch { return null; }
 }
 
 export const SearchBar = forwardRef<SearchBarHandle, SearchBarProps>(function SearchBar({ onCountryHighlight }, ref) {
+  const { t, lang } = useI18n();
   const [query, setQuery] = useState('');
   const [result, setResult] = useState<SearchResult | null>(null);
   const [loading, setLoading] = useState(false);
@@ -140,7 +85,7 @@ export const SearchBar = forwardRef<SearchBarHandle, SearchBarProps>(function Se
   const [typedPlaceholder, setTypedPlaceholder] = useState('');
   const [wiki, setWiki] = useState<WikiSnippet | null>(null);
   const [news, setNews] = useState<NewsItem[]>([]);
-  const [music, setMusic] = useState<MusicTrack[]>([]);
+  const [showMusic, setShowMusic] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const debounceRef = useRef<ReturnType<typeof setTimeout>>();
 
@@ -157,7 +102,7 @@ export const SearchBar = forwardRef<SearchBarHandle, SearchBarProps>(function Se
       const res = await fetch(`${API_BASE}/intent/process`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ input, context: { currentMode: null, language: 'en', currentTheme: 'dark' } }),
+        body: JSON.stringify({ input, context: { currentMode: null, language: lang, currentTheme: 'dark' } }),
       });
       const data = await res.json();
       setResult(data);
@@ -169,7 +114,6 @@ export const SearchBar = forwardRef<SearchBarHandle, SearchBarProps>(function Se
       }
       onCountryHighlight?.(countries);
 
-      // Fetch wiki snippet for first country
       if (countryEntities.length > 0) {
         fetchWikiSnippet(countryEntities[0].value).then(setWiki);
       } else {
@@ -180,7 +124,7 @@ export const SearchBar = forwardRef<SearchBarHandle, SearchBarProps>(function Se
     } finally {
       setLoading(false);
     }
-  }, [onCountryHighlight]);
+  }, [onCountryHighlight, lang]);
 
   useImperativeHandle(ref, () => ({
     setQuery: (q: string) => {
@@ -190,60 +134,62 @@ export const SearchBar = forwardRef<SearchBarHandle, SearchBarProps>(function Se
     },
   }));
 
-  // Showcase: typing effect + global weather
+  // Reset showcase when language changes
+  useEffect(() => {
+    if (!userActive) setShowcaseIndex(0);
+  }, [lang, userActive]);
+
+  // Showcase: typing effect + special modes
   useEffect(() => {
     if (userActive || focused || query) {
       setTypedPlaceholder('');
       return;
     }
 
-    const target = SHOWCASE_QUERIES[showcaseIndex];
+    const key = SHOWCASE_SEQUENCE[showcaseIndex];
 
     // Special showcase modes
-    if (target.startsWith('__global_')) {
+    if (key.startsWith('__global_')) {
       setWiki(null);
       setResult(null);
       setNews([]);
-      setMusic([]);
-
+      setShowMusic(false);
       setLoading(true);
-      if (target === '__global_weather__') {
-        setTypedPlaceholder('Global weather');
+
+      if (key === '__global_weather__') {
+        setTypedPlaceholder(t('search.showcase.weather'));
         fetchGlobalWeather().then(data => {
           setLoading(false);
           if (data) onCountryHighlight?.(data);
         });
-      } else if (target === '__global_news__') {
-        setTypedPlaceholder('World news');
+      } else if (key === '__global_news__') {
+        setTypedPlaceholder(t('search.showcase.news'));
         fetchGlobalNews().then(items => {
           setLoading(false);
           setNews(items);
-          // Highlight random countries for news visual
           const newsHighlights: Record<string, CountryHighlight> = {};
-          const newsCountries = ['United States', 'China', 'France', 'United Kingdom', 'Russia', 'Japan', 'Germany', 'Brazil', 'India', 'Australia'];
-          for (const c of newsCountries) {
+          for (const c of ['United States', 'China', 'France', 'United Kingdom', 'Russia', 'Japan', 'Germany', 'Brazil', 'India', 'Australia']) {
             newsHighlights[c] = { scale: 0.7, color: '#ef4444', extrusion: 0.2 };
           }
           onCountryHighlight?.(newsHighlights);
         });
-      } else if (target === '__global_music__') {
-        setTypedPlaceholder('Discover music');
+      } else if (key === '__global_music__') {
+        setTypedPlaceholder(t('search.showcase.music'));
+        setLoading(false);
+        setShowMusic(true);
         onCountryHighlight?.({});
-        fetchMusicTracks().then(items => {
-          setLoading(false);
-          setMusic(items);
-        });
       }
       return;
     }
 
-    // Reset previous showcase data
+    // Regular query — reset + type
     setWiki(null);
     setResult(null);
     setNews([]);
-    setMusic([]);
+    setShowMusic(false);
     onCountryHighlight?.({});
 
+    const target = t(key);
     let charIndex = 0;
     setTypedPlaceholder('');
 
@@ -257,26 +203,23 @@ export const SearchBar = forwardRef<SearchBarHandle, SearchBarProps>(function Se
     }, TYPING_SPEED);
 
     return () => clearInterval(typeTimer);
-  }, [showcaseIndex, userActive, focused, query, onCountryHighlight]);
+  }, [showcaseIndex, userActive, focused, query, onCountryHighlight, t]);
 
-  // Showcase: trigger search when typing finishes (non-weather)
+  // Showcase: trigger search when typing finishes
   useEffect(() => {
     if (userActive || focused || query) return;
-
-    const target = SHOWCASE_QUERIES[showcaseIndex];
-    if (target !== '__global_weather__' && typedPlaceholder === target) {
-      search(target);
+    const key = SHOWCASE_SEQUENCE[showcaseIndex];
+    if (!key.startsWith('__global_') && typedPlaceholder === t(key)) {
+      search(typedPlaceholder);
     }
-  }, [typedPlaceholder, showcaseIndex, userActive, focused, query, search]);
+  }, [typedPlaceholder, showcaseIndex, userActive, focused, query, search, t]);
 
-  // Showcase: rotate queries
+  // Showcase: rotate
   useEffect(() => {
     if (userActive || focused || query) return;
-
     const interval = setInterval(() => {
-      setShowcaseIndex(prev => (prev + 1) % SHOWCASE_QUERIES.length);
+      setShowcaseIndex(prev => (prev + 1) % SHOWCASE_SEQUENCE.length);
     }, SHOWCASE_INTERVAL);
-
     return () => clearInterval(interval);
   }, [userActive, focused, query]);
 
@@ -295,41 +238,16 @@ export const SearchBar = forwardRef<SearchBarHandle, SearchBarProps>(function Se
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter') {
-      clearTimeout(debounceRef.current);
-      search(query);
-    }
-    if (e.key === 'Escape') {
-      setQuery('');
-      setResult(null);
-      setUserActive(false);
-      onCountryHighlight?.({});
-      inputRef.current?.blur();
-    }
+    if (e.key === 'Enter') { clearTimeout(debounceRef.current); search(query); }
+    if (e.key === 'Escape') { setQuery(''); setResult(null); setUserActive(false); onCountryHighlight?.({}); inputRef.current?.blur(); }
   };
 
-  const handleFocus = () => {
-    setFocused(true);
-    setUserActive(true);
-  };
-
-  const handleBlur = () => {
-    setTimeout(() => {
-      setFocused(false);
-      if (!query) setUserActive(false);
-    }, 150);
-  };
-
-  const clear = () => {
-    setQuery('');
-    setResult(null);
-    setUserActive(false);
-    onCountryHighlight?.({});
-    inputRef.current?.focus();
-  };
+  const handleFocus = () => { setFocused(true); setUserActive(true); };
+  const handleBlur = () => { setTimeout(() => { setFocused(false); if (!query) setUserActive(false); }, 150); };
+  const clear = () => { setQuery(''); setResult(null); setUserActive(false); onCountryHighlight?.({}); inputRef.current?.focus(); };
 
   const countries = (result?.entities || []).filter(e => e.type === 'country');
-  const hasResults = countries.length > 0 || wiki || news.length > 0 || music.length > 0;
+  const hasResults = countries.length > 0 || wiki || news.length > 0 || showMusic;
   const showResults = hasResults && (focused || !userActive);
 
   return (
@@ -347,7 +265,7 @@ export const SearchBar = forwardRef<SearchBarHandle, SearchBarProps>(function Se
           onKeyDown={handleKeyDown}
           onFocus={handleFocus}
           onBlur={handleBlur}
-          placeholder={!userActive && typedPlaceholder ? typedPlaceholder : 'Search a country...'}
+          placeholder={!userActive && typedPlaceholder ? typedPlaceholder : t('search.placeholder')}
           className="search-input"
           spellCheck={false}
           autoComplete="off"
@@ -391,15 +309,12 @@ export const SearchBar = forwardRef<SearchBarHandle, SearchBarProps>(function Se
               ))}
             </div>
           )}
-          {music.length > 0 && (
-            <div className="search-music-list">
-              {music.map((track, i) => (
-                <div key={i} className="search-music-track">
-                  <span className="search-music-title">{track.title}</span>
-                  <span className="search-music-artist">{track.artist}</span>
-                  {track.genre && <span className="search-music-genre">{track.genre}</span>}
-                </div>
-              ))}
+          {showMusic && (
+            <div className="search-music-cta">
+              <span className="search-music-label">{t('search.showcase.music')}</span>
+              <a href="https://atlas.aeryflux.com" className="search-music-btn">
+                {t('music.try')} →
+              </a>
             </div>
           )}
         </div>

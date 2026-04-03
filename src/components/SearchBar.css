@@ -232,42 +232,36 @@
   letter-spacing: 0.3px;
 }
 
-/* Music tracks */
-.search-music-list {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.search-music-track {
+/* Music CTA */
+.search-music-cta {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 6px 0;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 4px 0;
 }
 
-.search-music-title {
-  font-size: 11px;
-  color: var(--color-text-primary);
-  flex: 1;
-  min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.search-music-artist {
-  font-size: 10px;
+.search-music-label {
+  font-size: 12px;
   color: var(--color-text-secondary);
 }
 
-.search-music-genre {
-  font-size: 9px;
+.search-music-btn {
+  font-size: 11px;
+  font-family: var(--font-display);
+  letter-spacing: 0.5px;
   color: var(--color-primary);
-  padding: 1px 6px;
-  border-radius: 8px;
-  background: rgba(0, 255, 136, 0.1);
-  flex-shrink: 0;
+  text-decoration: none;
+  padding: 4px 12px;
+  border-radius: 10px;
+  background: rgba(0, 255, 136, 0.08);
+  border: 1px solid rgba(0, 255, 136, 0.15);
+  transition: all var(--duration-fast);
+}
+
+.search-music-btn:hover {
+  background: rgba(0, 255, 136, 0.15);
+  color: var(--color-text-primary);
 }
 
 /* Mobile */

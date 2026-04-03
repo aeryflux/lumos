@@ -1,17 +1,30 @@
 import { Outlet, Link } from 'react-router-dom';
 import { Github } from 'lucide-react';
+import { useI18n, LANGS } from '../../i18n';
 import './Layout.css';
 
 export function Layout() {
+  const { lang, setLang } = useI18n();
+
   return (
     <div className="layout">
-      {/* Minimal nav */}
       <nav className="nav">
         <div className="nav-container">
           <Link to="/" className="nav-logo">
             <span className="brand-name">aeryflux</span>
           </Link>
           <div className="nav-actions">
+            <div className="lang-switcher">
+              {LANGS.map(l => (
+                <button
+                  key={l.id}
+                  className={`lang-btn ${lang === l.id ? 'active' : ''}`}
+                  onClick={() => setLang(l.id)}
+                >
+                  {l.label}
+                </button>
+              ))}
+            </div>
             <a href="https://atlas.aeryflux.com" className="nav-link-minimal">Atlas</a>
             <a href="https://haki.aeryflux.com" className="nav-link-minimal">Haki</a>
             <a href="https://github.com/aeryflux" className="nav-link-minimal" target="_blank" rel="noopener noreferrer">
