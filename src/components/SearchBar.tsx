@@ -123,6 +123,7 @@ export const SearchBar = forwardRef<SearchBarHandle, SearchBarProps>(function Se
   const [showMusic, setShowMusic] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const debounceRef = useRef<ReturnType<typeof setTimeout>>();
+  const userActiveRef = useRef(false);
 
   const search = useCallback(async (input: string, isShowcase = false) => {
     if (!input.trim()) {
@@ -154,14 +155,14 @@ export const SearchBar = forwardRef<SearchBarHandle, SearchBarProps>(function Se
       const searchName = countryEntities.length > 0 ? countryEntities[0].value : input.trim();
       if (searchName) {
         if (isShowcase) {
-          // Showcase: always wiki for cleaner first impression
-          fetchWikiSnippet(searchName).then(setWiki);
+          fetchWikiSnippet(searchName).then(w => {
+            if (!userActiveRef.current) setWiki(w);
+          });
         } else {
-          // Manual: news first, wiki fallback
           fetchCountryNews(searchName).then(items => {
-            if (items.length > 0) {
+            if (userActiveRef.current && items.length > 0) {
               setNews(items);
-            } else {
+            } else if (userActiveRef.current) {
               fetchWikiSnippet(searchName).then(setWiki);
             }
           });
@@ -177,7 +178,7 @@ export const SearchBar = forwardRef<SearchBarHandle, SearchBarProps>(function Se
   useImperativeHandle(ref, () => ({
     setQuery: (q: string) => {
       setQuery(q);
-      setUserActive(true);
+      setActive(true);
       search(q);
     },
   }));
@@ -208,12 +209,13 @@ export const SearchBar = forwardRef<SearchBarHandle, SearchBarProps>(function Se
         setTypedPlaceholder(t('search.showcase.weather'));
         fetchGlobalWeather().then(data => {
           setLoading(false);
-          if (data) onCountryHighlight?.(data);
+          if (data && !userActiveRef.current) onCountryHighlight?.(data);
         });
       } else if (key === '__global_news__') {
         setTypedPlaceholder(t('search.showcase.news'));
         fetchGlobalNews().then(items => {
           setLoading(false);
+          if (userActiveRef.current) return;
           setNews(items);
           const newsHighlights: Record<string, CountryHighlight> = {};
           for (const c of ['United States', 'China', 'France', 'United Kingdom', 'Russia', 'Japan', 'Germany', 'Brazil', 'India', 'Australia']) {
@@ -274,25 +276,26 @@ export const SearchBar = forwardRef<SearchBarHandle, SearchBarProps>(function Se
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setQuery(value);
-    setUserActive(true);
+    setActive(true);
     clearTimeout(debounceRef.current);
     if (value) {
       debounceRef.current = setTimeout(() => search(value), 400);
     } else {
       setResult(null);
       onCountryHighlight?.({});
-      setUserActive(false);
+      setActive(false);
     }
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter') { clearTimeout(debounceRef.current); search(query); }
-    if (e.key === 'Escape') { setQuery(''); setResult(null); setUserActive(false); onCountryHighlight?.({}); inputRef.current?.blur(); }
+    if (e.key === 'Escape') { setQuery(''); setResult(null); setActive(false); onCountryHighlight?.({}); inputRef.current?.blur(); }
   };
 
-  const handleFocus = () => { setFocused(true); setUserActive(true); };
-  const handleBlur = () => { setTimeout(() => { setFocused(false); if (!query) setUserActive(false); }, 150); };
-  const clear = () => { setQuery(''); setResult(null); setUserActive(false); onCountryHighlight?.({}); inputRef.current?.focus(); };
+  const setActive = (v: boolean) => { setUserActive(v); userActiveRef.current = v; };
+  const handleFocus = () => { setFocused(true); setActive(true); };
+  const handleBlur = () => { setTimeout(() => { setFocused(false); if (!query) setActive(false); }, 150); };
+  const clear = () => { setQuery(''); setResult(null); setActive(false); onCountryHighlight?.({}); inputRef.current?.focus(); };
 
   const countries = (result?.entities || []).filter(e => e.type === 'country');
   const hasResults = countries.length > 0 || wiki || news.length > 0 || showMusic;
