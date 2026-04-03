@@ -1,5 +1,12 @@
 export type Lang = 'en' | 'fr' | 'es' | 'de';
 
+export const LANG_FLAGS: Record<Lang, string> = {
+  en: '🇬🇧',
+  fr: '🇫🇷',
+  es: '🇪🇸',
+  de: '🇩🇪',
+};
+
 export const translations: Record<Lang, Record<string, string>> = {
   en: {
     // Home

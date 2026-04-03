@@ -1,11 +1,15 @@
 import { createContext, useContext, useState, useCallback, useMemo, useEffect } from 'react';
-import { translations, type Lang } from './translations';
+import { translations, LANG_FLAGS, type Lang } from './translations';
 
 interface I18nContextValue {
   lang: Lang;
+  flag: string;
   setLang: (lang: Lang) => void;
+  nextLang: () => void;
   t: (key: string, params?: Record<string, string>) => string;
 }
+
+const LANG_ORDER: Lang[] = ['en', 'fr', 'es', 'de'];
 
 export const I18nContext = createContext<I18nContextValue>(null!);
 
@@ -30,6 +34,17 @@ export function useI18nProvider() {
     document.documentElement.lang = l;
   }, []);
 
+  const nextLang = useCallback(() => {
+    setLangState(prev => {
+      const idx = LANG_ORDER.indexOf(prev);
+      const next = LANG_ORDER[(idx + 1) % LANG_ORDER.length];
+      document.documentElement.lang = next;
+      return next;
+    });
+  }, []);
+
+  const flag = LANG_FLAGS[lang];
+
   useEffect(() => {
     document.documentElement.lang = lang;
   }, [lang]);
@@ -44,7 +59,7 @@ export function useI18nProvider() {
     return str;
   }, [lang]);
 
-  return useMemo(() => ({ lang, setLang, t }), [lang, setLang, t]);
+  return useMemo(() => ({ lang, flag, setLang, nextLang, t }), [lang, flag, setLang, nextLang, t]);
 }
 
 export function useI18n() {
