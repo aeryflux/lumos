@@ -3,7 +3,7 @@
   width: 100vw;
   height: 100dvh;
   overflow: hidden;
-  background: #06060e;
+  background: var(--color-bg-deep);
 }
 
 .globe-section {
@@ -18,7 +18,7 @@
 .globe-loading {
   width: 100%;
   height: 100%;
-  background: #06060e;
+  background: var(--color-bg-deep);
 }
 
 .content-section {
@@ -46,7 +46,7 @@
   font-size: 28px;
   font-family: 'HemiHead', sans-serif;
   letter-spacing: 4px;
-  color: #ffffff;
+  color: var(--color-text-primary);
   margin: 0;
 }
 
@@ -59,14 +59,14 @@
 .taglines p {
   font-size: 11px;
   letter-spacing: 2px;
-  color: rgba(255, 255, 255, 0.3);
+  color: var(--color-text-muted);
   margin: 0;
   text-transform: uppercase;
 }
 
 .tagline-separator {
   font-size: 11px;
-  color: rgba(255, 255, 255, 0.15);
+  color: var(--border-subtle);
 }
 
 .links {
@@ -79,7 +79,7 @@
   padding: 8px 20px;
   border-radius: 16px;
   background: rgba(255, 255, 255, 0.06);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid var(--border-subtle);
   color: rgba(255, 255, 255, 0.6);
   font-family: 'HemiHead', sans-serif;
   font-size: 11px;
@@ -89,7 +89,7 @@
 
 .links a:hover {
   background: rgba(255, 255, 255, 0.12);
-  color: #ffffff;
+  color: var(--color-text-primary);
 }
 
 /* Mobile: full overlay, content at bottom */

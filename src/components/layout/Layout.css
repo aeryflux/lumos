@@ -38,7 +38,7 @@
   align-items: center;
   gap: 8px;
   text-decoration: none;
-  color: var(--text-primary);
+  color: var(--color-text-primary);
 }
 
 .nav-logo .brand-name {
@@ -58,7 +58,7 @@
   align-items: center;
   gap: 6px;
   padding: 8px 12px;
-  color: var(--text-secondary);
+  color: var(--color-text-secondary);
   text-decoration: none;
   font-family: 'HemiHead', sans-serif;
   font-size: 12px;
@@ -68,7 +68,7 @@
 }
 
 .nav-link-minimal:hover {
-  color: var(--text-primary);
+  color: var(--color-text-primary);
 }
 
 /* Responsive */
