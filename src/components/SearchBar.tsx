@@ -61,9 +61,13 @@ async function fetchGlobalNews(): Promise<NewsItem[]> {
   } catch { return []; }
 }
 
+function toEnglish(name: string): string {
+  return COUNTRY_EN[name.toLowerCase()] || name;
+}
+
 async function fetchCountryNews(country: string): Promise<NewsItem[]> {
   try {
-    const res = await fetch(`${API_BASE}/api/news/articles?query=${encodeURIComponent(country)}`);
+    const res = await fetch(`${API_BASE}/api/news/articles?query=${encodeURIComponent(toEnglish(country))}`);
     if (!res.ok) return [];
     const data = await res.json();
     return (Array.isArray(data) ? data : []).slice(0, 3).map((a: Record<string, unknown>) => ({
