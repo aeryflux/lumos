@@ -30,8 +30,8 @@ export function Home() {
             showGlobeFill={true}
             enableControls={true}
             rotationSpeed={0.0005}
-            bloomStrength={0}
-            glowIntensity={0.6}
+            bloomStrength={0.15}
+            glowIntensity={0.8}
             introAnimation={true}
             introDuration={2.5}
             countryData={countryData}
