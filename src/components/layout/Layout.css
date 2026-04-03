@@ -84,6 +84,8 @@
 
 .lang-toggle .fi {
   font-size: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 3px;
 }
 
 .lang-toggle:hover {
