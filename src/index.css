@@ -1,6 +1,5 @@
 /* AeryFlux Design System */
 @import '@aeryflux/design/css';
-@import '@aeryflux/design/surfaces.css';
 
 /* Inter - Primary UI font (Google Fonts) */
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
