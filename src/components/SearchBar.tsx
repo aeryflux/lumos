@@ -269,7 +269,7 @@ export const SearchBar = forwardRef<SearchBarHandle, SearchBarProps>(function Se
 
   const countries = (result?.entities || []).filter(e => e.type === 'country');
   const hasResults = countries.length > 0 || wiki || news.length > 0 || showMusic;
-  const showResults = hasResults && (focused || !userActive);
+  const showResults = hasResults;
 
   return (
     <div className={`search-bar ${focused ? 'focused' : ''} ${!userActive && typedPlaceholder ? 'showcasing' : ''}`}>
