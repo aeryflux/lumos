@@ -122,7 +122,7 @@ export const SearchBar = forwardRef<SearchBarHandle, SearchBarProps>(function Se
   const [news, setNews] = useState<NewsItem[]>([]);
   const [showMusic, setShowMusic] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
-  const debounceRef = useRef<ReturnType<typeof setTimeout>>();
+  const debounceRef = useRef<ReturnType<typeof setTimeout>>(undefined);
   const userActiveRef = useRef(false);
 
   const search = useCallback(async (input: string, isShowcase = false) => {
