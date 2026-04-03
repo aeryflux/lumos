@@ -61,6 +61,20 @@ async function fetchGlobalNews(): Promise<NewsItem[]> {
   } catch { return []; }
 }
 
+async function fetchCountryNews(country: string): Promise<NewsItem[]> {
+  try {
+    const res = await fetch(`${API_BASE}/api/news/articles?query=${encodeURIComponent(country)}`);
+    if (!res.ok) return [];
+    const data = await res.json();
+    return (Array.isArray(data) ? data : []).slice(0, 3).map((a: Record<string, unknown>) => ({
+      title: (a.title as string)?.slice(0, 80) + ((a.title as string)?.length > 80 ? '...' : ''),
+      link: a.link as string,
+      source: a.source as string,
+      color: a.color as string || (a.theme as Record<string, string>)?.color,
+    }));
+  } catch { return []; }
+}
+
 async function fetchWikiSnippet(country: string): Promise<WikiSnippet | null> {
   try {
     const res = await fetch(`https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(country)}`);
@@ -114,10 +128,17 @@ export const SearchBar = forwardRef<SearchBarHandle, SearchBarProps>(function Se
       }
       onCountryHighlight?.(countries);
 
+      setNews([]);
+      setWiki(null);
       if (countryEntities.length > 0) {
-        fetchWikiSnippet(countryEntities[0].value).then(setWiki);
-      } else {
-        setWiki(null);
+        const name = countryEntities[0].value;
+        fetchCountryNews(name).then(items => {
+          if (items.length > 0) {
+            setNews(items);
+          } else {
+            fetchWikiSnippet(name).then(setWiki);
+          }
+        });
       }
     } catch {
       setResult(null);
