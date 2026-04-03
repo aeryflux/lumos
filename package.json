@@ -17,6 +17,7 @@
     "@aeryflux/design": "^0.4.0",
     "@aeryflux/globe": "^0.7.4",
     "@types/three": "^0.169.0",
+    "flag-icons": "^7.5.0",
     "lucide-react": "^0.556.0",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",

@@ -71,6 +71,27 @@
   color: var(--color-text-primary);
 }
 
+/* Language toggle */
+.lang-toggle {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  transition: transform var(--duration-fast);
+  display: flex;
+  align-items: center;
+}
+
+.lang-toggle .fi {
+  font-size: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 3px;
+}
+
+.lang-toggle:hover {
+  transform: scale(1.1);
+}
+
 /* Responsive */
 
 @media (max-width: 768px) {
