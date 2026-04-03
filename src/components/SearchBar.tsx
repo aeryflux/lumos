@@ -130,13 +130,14 @@ export const SearchBar = forwardRef<SearchBarHandle, SearchBarProps>(function Se
 
       setNews([]);
       setWiki(null);
-      if (countryEntities.length > 0) {
-        const name = countryEntities[0].value;
-        fetchCountryNews(name).then(items => {
+      // Use entity name if found, otherwise use raw input (for globe clicks with unrecognized countries)
+      const searchName = countryEntities.length > 0 ? countryEntities[0].value : input.trim();
+      if (searchName) {
+        fetchCountryNews(searchName).then(items => {
           if (items.length > 0) {
             setNews(items);
           } else {
-            fetchWikiSnippet(name).then(setWiki);
+            fetchWikiSnippet(searchName).then(setWiki);
           }
         });
       }
