@@ -16,7 +16,7 @@
   "dependencies": {
     "@aeryflux/design": "^0.4.0",
     "@aeryflux/xenova-bridge": "^0.2.1",
-    "@aeryflux/globe": "^0.7.4",
+    "@aeryflux/globe": "^0.8.2",
     "@types/three": "^0.169.0",
     "flag-icons": "^7.5.0",
     "lucide-react": "^0.556.0",
