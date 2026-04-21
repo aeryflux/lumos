@@ -1,10 +1,11 @@
 import { Outlet, Link } from 'react-router-dom';
 import { Github } from 'lucide-react';
-import { useI18n } from '../../i18n';
+import { useI18n, LANGS } from '../../i18n';
+import { LANG_COUNTRY } from '../../i18n/translations';
 import './Layout.css';
 
 export function Layout() {
-  const { flag, nextLang } = useI18n();
+  const { lang, setLang } = useI18n();
 
   return (
     <div className="layout">
@@ -14,9 +15,19 @@ export function Layout() {
             <span className="brand-name">aeryflux</span>
           </Link>
           <div className="nav-actions">
-            <button className="lang-toggle" onClick={nextLang} aria-label="Change language">
-              <span className={`fi fi-${flag}`} />
-            </button>
+            <div className="lang-flags">
+              {LANGS.map(l => (
+                <button
+                  key={l.id}
+                  className={`lang-flag-btn${lang === l.id ? ' active' : ''}`}
+                  onClick={() => setLang(l.id)}
+                  aria-label={l.label}
+                  title={l.label}
+                >
+                  <span className={`fi fi-${LANG_COUNTRY[l.id]}`} />
+                </button>
+              ))}
+            </div>
             <a href="https://atlas.aeryflux.com" className="nav-link-minimal">Atlas</a>
             <a href="https://haki.aeryflux.com" className="nav-link-minimal">Haki</a>
             <a href="https://github.com/aeryflux" className="nav-link-minimal" target="_blank" rel="noopener noreferrer">
