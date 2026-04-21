@@ -45,9 +45,9 @@ export function Home() {
         <div className="content-body">
           <h1>aeryflux</h1>
           <div className="taglines">
-            <p>{t('tagline.explore')}</p>
+            <a href="https://aeryflux.com" className="tagline-link">{t('tagline.explore')}</a>
             <span className="tagline-separator">/</span>
-            <p>{t('tagline.learn')}</p>
+            <a href="https://haki.aeryflux.com" className="tagline-link">{t('tagline.learn')}</a>
           </div>
 
           <SearchBar ref={searchRef} onCountryHighlight={handleCountryHighlight} />

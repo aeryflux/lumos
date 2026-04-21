@@ -56,12 +56,17 @@
   gap: 8px;
 }
 
-.taglines p {
+.tagline-link {
   font-size: 11px;
   letter-spacing: 2px;
   color: var(--color-text-muted);
-  margin: 0;
   text-transform: uppercase;
+  text-decoration: none;
+  transition: color 0.15s ease;
+}
+
+.tagline-link:hover {
+  color: var(--color-text-primary);
 }
 
 .tagline-separator {
