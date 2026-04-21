@@ -84,7 +84,9 @@ export function Home() {
           </a>
           <a href="https://threejs.org" target="_blank" rel="noopener noreferrer" className="home-footer-icon" title="Three.js">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-              <path fill="white" d="M12 2 2 18h20L12 2zm0 4 7 12H5l7-12z"/>
+              {/* Isometric cube wireframe — the actual Three.js logo */}
+              <path stroke="white" strokeWidth="1.5" strokeLinejoin="round" d="M12 2L21 7v10L12 22 3 17V7L12 2z"/>
+              <path stroke="white" strokeWidth="1.5" strokeLinecap="round" d="M12 2L12 12M21 7L12 12M3 7L12 12"/>
             </svg>
           </a>
           <a href="https://www.typescriptlang.org" target="_blank" rel="noopener noreferrer" className="home-footer-icon" title="TypeScript">
