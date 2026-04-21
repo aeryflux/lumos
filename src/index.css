@@ -14,10 +14,9 @@
   font-display: swap;
 }
 
-/* Lumos-specific: fullscreen app, no scroll */
 body {
   width: 100vw;
-  height: 100dvh;
-  overflow: hidden;
   background: transparent;
+  /* overflow/height managed per-page: Home locks scroll itself,
+     other pages (Docs…) use normal document scroll */
 }
