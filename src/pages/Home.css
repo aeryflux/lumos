@@ -82,6 +82,51 @@
 }
 
 /* ============================================================
+   FOOTER — desktop only
+   ============================================================ */
+
+.home-footer {
+  position: absolute;
+  bottom: 20px;
+  left: 0;
+  right: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  z-index: 2;
+  pointer-events: none;
+}
+
+.home-footer-label {
+  font-size: 10px;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+  opacity: 0.5;
+}
+
+.home-footer-icons {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.home-footer-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0.4;
+  pointer-events: auto;
+  transition: opacity 0.15s ease, transform 0.15s ease;
+}
+
+.home-footer-icon:hover {
+  opacity: 1;
+  transform: translateY(-2px);
+}
+
+/* ============================================================
    MOBILE — globe full-screen, content overlay at bottom
    (same model as desktop: globe is absolute, content overlays)
    ============================================================ */
@@ -93,6 +138,10 @@
     overflow: hidden;
     height: 100dvh;
     padding-top: 0;
+  }
+
+  .home-footer {
+    display: none;
   }
 
   /* Globe fills 100% of the screen — never 0×0 at init */
