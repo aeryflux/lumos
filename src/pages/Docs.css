@@ -3,7 +3,7 @@
   padding-top: 72px; /* clear fixed nav */
   padding-bottom: 60px;
   background: var(--color-bg-deep);
-  overflow-y: auto;
+  /* scrolls via document — Layout no longer clips overflow */
 }
 
 .docs-container {

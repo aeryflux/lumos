@@ -2,9 +2,9 @@
 
 .layout {
   width: 100vw;
-  height: 100dvh;
-  overflow: hidden;
   position: relative;
+  /* No height/overflow here — each page manages its own scroll.
+     Home has height:100dvh + overflow:hidden itself. */
 }
 
 .main {
