@@ -1,4 +1,5 @@
 import { lazy, Suspense, useState, useCallback, useRef } from 'react';
+import { Link } from 'react-router-dom';
 import { SearchBar, type SearchBarHandle } from '../components/SearchBar';
 import type { GlobeHandle } from '@aeryflux/globe/react';
 import { useI18n } from '../i18n';
@@ -74,6 +75,13 @@ export function Home() {
       </div>
 
       <footer className="home-footer">
+        <nav className="home-footer-legal">
+          <Link to="/docs"    className="home-footer-legal-link">Docs</Link>
+          <Link to="/cgu"     className="home-footer-legal-link">CGU</Link>
+          <Link to="/cgv"     className="home-footer-legal-link">CGV</Link>
+          <Link to="/contact" className="home-footer-legal-link">Contact</Link>
+        </nav>
+        <div className="home-footer-made">
         <span className="home-footer-label">Made with</span>
         <div className="home-footer-icons">
           <a href="https://www.blender.org" target="_blank" rel="noopener noreferrer" className="home-footer-icon" title="Blender">
@@ -104,6 +112,7 @@ export function Home() {
               <path d="M7.5 8c.4-1.2 1.5-2 2.5-1.5M16.5 8c-.4-1.2-1.5-2-2.5-1.5" stroke="#1a1a1a" strokeWidth="1.2" fill="none" strokeLinecap="round"/>
             </svg>
           </a>
+        </div>
         </div>
       </footer>
     </div>

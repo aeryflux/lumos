@@ -88,14 +88,44 @@
 .home-footer {
   position: absolute;
   bottom: 20px;
-  left: 0;
-  right: 0;
+  left: 32px;
+  right: 32px;
   display: flex;
   align-items: center;
-  justify-content: center;
-  gap: 10px;
+  justify-content: space-between;
+  gap: 16px;
   z-index: 2;
   pointer-events: none;
+}
+
+/* Legal links — left side */
+.home-footer-legal {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  pointer-events: auto;
+}
+
+.home-footer-legal-link {
+  font-size: 10px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+  text-decoration: none;
+  opacity: 0.45;
+  transition: opacity 0.15s ease;
+}
+
+.home-footer-legal-link:hover {
+  opacity: 1;
+}
+
+/* Made with — right side */
+.home-footer-made {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  pointer-events: auto;
 }
 
 .home-footer-label {
@@ -117,7 +147,6 @@
   align-items: center;
   justify-content: center;
   opacity: 0.4;
-  pointer-events: auto;
   transition: opacity 0.15s ease, transform 0.15s ease;
 }
 
