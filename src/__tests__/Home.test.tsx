@@ -38,7 +38,7 @@ describe('Home', () => {
     const hrefs = links.map(l => l.getAttribute('href'));
     expect(hrefs).toContain('https://atlas.aeryflux.com');
     expect(hrefs).toContain('https://haki.aeryflux.com');
-    expect(hrefs).toContain('https://github.com/aeryflux');
+    // GitHub link lives in Layout header, not in Home directly
   });
 
   it('has no private infrastructure references in DOM', () => {
