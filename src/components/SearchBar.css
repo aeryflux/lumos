@@ -1,21 +1,25 @@
+/* ============================================================
+   SEARCH BAR — INPUT
+   ============================================================ */
+
 .search-bar {
   width: 100%;
-  max-width: 320px;
+  max-width: 420px;
 }
 
 .search-input-wrapper {
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 8px 14px;
-  border-radius: 20px;
+  padding: 10px 16px;
+  border-radius: 8px;
   background: rgba(255, 255, 255, 0.04);
   border: 1px solid var(--border-subtle);
   transition: all var(--duration-normal) var(--easing-default);
 }
 
 .search-bar.focused .search-input-wrapper {
-  border-color: rgba(255, 255, 255, 0.12);
+  border-color: rgba(255, 255, 255, 0.14);
   background: rgba(255, 255, 255, 0.06);
 }
 
@@ -35,8 +39,8 @@
   outline: none;
   color: var(--color-text-primary);
   font-family: var(--font-body);
-  font-size: 12px;
-  letter-spacing: 0.5px;
+  font-size: 13px;
+  letter-spacing: 0.3px;
 }
 
 .search-input:focus-visible {
@@ -45,8 +49,8 @@
 
 .search-input::placeholder {
   color: var(--color-text-muted);
-  font-size: 11px;
-  letter-spacing: 1px;
+  font-size: 12px;
+  letter-spacing: 0.8px;
 }
 
 .search-clear {
@@ -73,36 +77,38 @@
   animation: aery-spin 0.6s linear infinite;
 }
 
-/* Results - inline below */
+/* ============================================================
+   RESULTS PANEL
+   ============================================================ */
+
 .search-results {
   width: 100%;
-  max-width: 320px;
-  margin-top: 12px;
-  padding: 10px 14px;
+  max-width: 420px;
+  margin-top: 8px;
+  padding: 12px 16px;
   min-height: 48px;
-  background: rgba(10, 10, 15, 0.85);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  background: rgba(10, 10, 15, 0.88);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
   border: 1px solid var(--border-subtle);
-  border-radius: 12px;
+  border-radius: 6px;
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 8px;
   animation: aery-fade-in var(--duration-normal) var(--easing-default);
 }
 
-/* Loading placeholder */
 .search-results-loading {
   width: 100%;
-  max-width: 320px;
-  margin-top: 12px;
-  padding: 14px;
+  max-width: 420px;
+  margin-top: 8px;
+  padding: 14px 16px;
   min-height: 48px;
-  background: rgba(10, 10, 15, 0.85);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  background: rgba(10, 10, 15, 0.88);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
   border: 1px solid var(--border-subtle);
-  border-radius: 12px;
+  border-radius: 6px;
   display: flex;
   flex-direction: column;
   gap: 8px;
@@ -110,7 +116,7 @@
 
 .search-skeleton {
   height: 10px;
-  border-radius: 4px;
+  border-radius: 3px;
   background: rgba(255, 255, 255, 0.06);
   animation: skeleton-pulse 1.2s ease-in-out infinite;
 }
@@ -131,6 +137,10 @@
   margin: 0;
 }
 
+/* ============================================================
+   COUNTRY TAGS
+   ============================================================ */
+
 .search-countries {
   display: flex;
   flex-wrap: wrap;
@@ -139,7 +149,7 @@
 
 .search-country-tag {
   padding: 3px 10px;
-  border-radius: 10px;
+  border-radius: 4px;
   background: rgba(0, 255, 136, 0.1);
   border: 1px solid rgba(0, 255, 136, 0.2);
   color: var(--color-primary);
@@ -148,29 +158,14 @@
   letter-spacing: 0.5px;
 }
 
-.search-suggestions {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
+/* ============================================================
+   WIKI SNIPPET
+   ============================================================ */
 
-.search-suggestion {
-  background: none;
-  border: none;
-  text-align: left;
-  padding: 4px 0;
-  color: var(--color-text-muted);
-  font-size: 11px;
-  cursor: pointer;
-  font-family: var(--font-body);
-  transition: color var(--duration-fast);
-}
-
-/* Wiki snippet */
 .search-wiki {
   display: flex;
   flex-direction: column;
-  gap: 3px;
+  gap: 4px;
   text-decoration: none;
   padding: 6px 0;
   transition: opacity var(--duration-fast);
@@ -190,10 +185,13 @@
 .search-wiki-extract {
   font-size: 11px;
   color: var(--color-text-muted);
-  line-height: 1.5;
+  line-height: 1.55;
 }
 
-/* News cards */
+/* ============================================================
+   NEWS CARDS
+   ============================================================ */
+
 .search-news-grid {
   display: flex;
   gap: 6px;
@@ -204,7 +202,7 @@
   padding: 8px 10px;
   background: rgba(255, 255, 255, 0.03);
   border-left: 2px solid var(--color-primary);
-  border-radius: 6px;
+  border-radius: 4px;
   text-decoration: none;
   display: flex;
   flex-direction: column;
@@ -219,7 +217,7 @@
 .search-news-title {
   font-size: 10px;
   color: var(--color-text-primary);
-  line-height: 1.4;
+  line-height: 1.45;
   display: -webkit-box;
   -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;
@@ -232,7 +230,94 @@
   letter-spacing: 0.3px;
 }
 
-/* Music CTA */
+/* ============================================================
+   WEATHER CARD — single country
+   ============================================================ */
+
+.search-weather-card {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 10px 14px;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.04);
+  border-left: 3px solid;
+}
+
+.search-weather-temp {
+  font-size: 26px;
+  font-family: var(--font-display);
+  font-weight: 600;
+  letter-spacing: -0.5px;
+  line-height: 1;
+}
+
+.search-weather-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.search-weather-condition {
+  font-size: 12px;
+  color: var(--color-text-secondary);
+}
+
+.search-weather-avg {
+  font-size: 9px;
+  color: var(--color-text-muted);
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+/* ============================================================
+   WEATHER SUMMARY — global hottest / coldest
+   ============================================================ */
+
+.search-weather-summary {
+  display: flex;
+  gap: 16px;
+}
+
+.search-weather-group {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.search-weather-group-label {
+  font-size: 9px;
+  font-family: var(--font-display);
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+  color: var(--color-text-secondary);
+  opacity: 0.55;
+  margin-bottom: 2px;
+}
+
+.search-weather-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.search-weather-country {
+  font-size: 11px;
+  color: var(--color-text-primary);
+}
+
+.search-weather-value {
+  font-size: 11px;
+  font-family: var(--font-display);
+  font-weight: 600;
+}
+
+/* ============================================================
+   MUSIC CTA
+   ============================================================ */
+
 .search-music-cta {
   display: flex;
   align-items: center;
@@ -252,8 +337,8 @@
   letter-spacing: 0.5px;
   color: var(--color-primary);
   text-decoration: none;
-  padding: 4px 12px;
-  border-radius: 10px;
+  padding: 5px 14px;
+  border-radius: 4px;
   background: rgba(0, 255, 136, 0.08);
   border: 1px solid rgba(0, 255, 136, 0.15);
   transition: all var(--duration-fast);
@@ -264,27 +349,36 @@
   color: var(--color-text-primary);
 }
 
-/* Mobile */
+/* ============================================================
+   MOBILE — column layout (globe top, search bottom)
+   ============================================================ */
+
 @media (max-width: 768px) {
   .search-bar {
-    max-width: 260px;
+    max-width: 100%;
   }
 
   .search-input-wrapper {
-    padding: 6px 12px;
-    background: rgba(10, 10, 15, 0.85);
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
+    padding: 10px 14px;
+    background: rgba(255, 255, 255, 0.05);
   }
 
-  .search-input {
-    font-size: 11px;
+  .search-results,
+  .search-results-loading {
+    max-width: 100%;
   }
 
-  .search-results {
-    max-width: 260px;
+  .search-news-grid {
+    flex-direction: column;
   }
 
+  .search-weather-summary {
+    flex-direction: column;
+    gap: 10px;
+  }
+}
+
+@media (max-width: 480px) {
   .search-wiki-extract {
     font-size: 10px;
   }

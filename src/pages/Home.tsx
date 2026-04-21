@@ -45,18 +45,12 @@ export function Home() {
         <div className="content-body">
           <h1>aeryflux</h1>
           <div className="taglines">
-            <p>{t('tagline.explore')}</p>
+            <a href="https://atlas.aeryflux.com" className="tagline-link">{t('tagline.explore')}</a>
             <span className="tagline-separator">/</span>
-            <p>{t('tagline.learn')}</p>
+            <a href="https://haki.aeryflux.com" className="tagline-link">{t('tagline.learn')}</a>
           </div>
 
           <SearchBar ref={searchRef} onCountryHighlight={handleCountryHighlight} />
-
-          <div className="links">
-            <a href="https://atlas.aeryflux.com">Atlas</a>
-            <a href="https://haki.aeryflux.com">Haki</a>
-            <a href="https://github.com/aeryflux" target="_blank" rel="noopener noreferrer">{t('nav.github')}</a>
-          </div>
         </div>
       </div>
     </div>
