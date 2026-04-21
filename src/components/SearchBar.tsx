@@ -144,13 +144,40 @@ const COUNTRY_EN: Record<string, string> = {
   'venezuela': 'Venezuela', 'pérou': 'Peru', 'perou': 'Peru',
 };
 
+// Cache for resolved Wikipedia titles per language (avoids repeated langlinks lookups)
+const wikiTitleCache: Record<string, Record<string, string>> = {};
+
+// Resolve the correct Wikipedia article title in the target language using langlinks.
+// e.g. "Japan" → "fr" → "Japon" (fr.wikipedia.org/wiki/Japan is a disambiguation stub)
+async function resolveWikiTitle(englishName: string, lang: string): Promise<string> {
+  if (lang === 'en') return englishName;
+  if (wikiTitleCache[lang]?.[englishName]) return wikiTitleCache[lang][englishName];
+  try {
+    const url = `https://en.wikipedia.org/w/api.php?action=query&titles=${encodeURIComponent(englishName)}&prop=langlinks&lllang=${lang}&format=json&redirects=1&origin=*`;
+    const res = await fetch(url);
+    if (!res.ok) return englishName;
+    const data = await res.json();
+    const pages = data.query?.pages;
+    if (pages) {
+      const page = Object.values(pages)[0] as Record<string, unknown>;
+      const langlinks = page?.langlinks as Array<Record<string, string>> | undefined;
+      const localTitle = langlinks?.[0]?.['*'];
+      if (localTitle) {
+        if (!wikiTitleCache[lang]) wikiTitleCache[lang] = {};
+        wikiTitleCache[lang][englishName] = localTitle;
+        return localTitle;
+      }
+    }
+  } catch { /* ignore, fall through */ }
+  return englishName;
+}
+
 async function fetchWikiSnippet(country: string, lang = 'en'): Promise<WikiSnippet | null> {
   const englishName = COUNTRY_EN[country.toLowerCase()] || country.replace(/\b\w/g, c => c.toUpperCase());
   try {
-    // Use language-specific Wikipedia — REST API handles redirects (e.g. "Japan" → "Japon" on fr.wikipedia.org)
-    const res = await fetch(`https://${lang}.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(englishName)}`);
+    const title = await resolveWikiTitle(englishName, lang);
+    const res = await fetch(`https://${lang}.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(title)}`);
     if (!res.ok) {
-      // Fallback to English if lang-specific page not found
       if (lang !== 'en') return fetchWikiSnippet(country, 'en');
       return null;
     }
@@ -158,7 +185,7 @@ async function fetchWikiSnippet(country: string, lang = 'en'): Promise<WikiSnipp
     return {
       title: data.title,
       extract: data.extract?.slice(0, 120) + (data.extract?.length > 120 ? '...' : ''),
-      url: data.content_urls?.desktop?.page || `https://${lang}.wikipedia.org/wiki/${englishName}`,
+      url: data.content_urls?.desktop?.page || `https://${lang}.wikipedia.org/wiki/${title}`,
     };
   } catch { return null; }
 }
