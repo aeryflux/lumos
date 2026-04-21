@@ -105,7 +105,7 @@
     z-index: 0;
   }
 
-  /* Content strip overlays at bottom — grows upward as results appear */
+  /* Content strip overlays at bottom — height = content only, grows upward */
   .content-section {
     position: absolute;
     bottom: 0;
@@ -113,10 +113,10 @@
     right: 0;
     top: auto;
     width: 100%;
-    max-height: 68dvh;
-    overflow-y: auto;
+    height: auto;
+    overflow: visible;
     display: flex;
-    align-items: flex-end;
+    align-items: flex-start;
     justify-content: center;
     padding: 10px 16px calc(env(safe-area-inset-bottom, 0px) + 10px);
     background: rgba(5, 5, 8, 0.92);

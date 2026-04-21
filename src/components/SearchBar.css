@@ -366,6 +366,8 @@
   .search-results,
   .search-results-loading {
     max-width: 100%;
+    max-height: 38dvh;
+    overflow-y: auto;
     /* in-flow: content-section (position:absolute bottom:0) grows upward */
   }
 
