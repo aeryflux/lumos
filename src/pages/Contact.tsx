@@ -12,7 +12,7 @@ export function Contact() {
     const email   = (f.elements.namedItem('email')   as HTMLInputElement).value;
     const message = (f.elements.namedItem('message') as HTMLTextAreaElement).value;
     window.location.href =
-      `mailto:contact@aeryflux.com?subject=${encodeURIComponent(`Contact — ${name}`)}&body=${encodeURIComponent(`${message}\n\n${email}`)}`;
+      `mailto:martinbaud.git@gmail.com?subject=${encodeURIComponent(`Contact — ${name}`)}&body=${encodeURIComponent(`${message}\n\n${email}`)}`;
     setSent(true);
   };
 

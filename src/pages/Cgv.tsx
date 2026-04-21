@@ -66,7 +66,7 @@ export function Cgv() {
         <div className="legal-section">
           <h2>7. Contact</h2>
           <p>
-            Pour toute question relative aux présentes CGV : contact@aeryflux.com
+            Pour toute question relative aux présentes CGV : martinbaud.git@gmail.com
           </p>
         </div>
       </div>

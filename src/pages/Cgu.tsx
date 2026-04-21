@@ -70,7 +70,7 @@ export function Cgu() {
         <div className="legal-section">
           <h2>7. Contact</h2>
           <p>
-            Pour toute question relative aux présentes CGU : contact@aeryflux.com
+            Pour toute question relative aux présentes CGU : martinbaud.git@gmail.com
           </p>
         </div>
       </div>
