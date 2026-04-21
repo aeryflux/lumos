@@ -45,7 +45,7 @@ export function Home() {
         <div className="content-body">
           <h1>aeryflux</h1>
           <div className="taglines">
-            <a href="https://aeryflux.com" className="tagline-link">{t('tagline.explore')}</a>
+            <a href="https://atlas.aeryflux.com" className="tagline-link">{t('tagline.explore')}</a>
             <span className="tagline-separator">/</span>
             <a href="https://haki.aeryflux.com" className="tagline-link">{t('tagline.learn')}</a>
           </div>

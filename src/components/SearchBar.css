@@ -252,9 +252,22 @@
   line-height: 1;
 }
 
+.search-weather-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
 .search-weather-condition {
   font-size: 12px;
   color: var(--color-text-secondary);
+}
+
+.search-weather-avg {
+  font-size: 9px;
+  color: var(--color-text-muted);
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
 }
 
 /* ============================================================

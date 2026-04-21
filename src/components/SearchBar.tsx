@@ -711,9 +711,12 @@ export const SearchBar = forwardRef<SearchBarHandle, SearchBarProps>(function Se
               <span className="search-weather-temp" style={{ color: countryWeather.color }}>
                 {countryWeather.temperature}{countryWeather.unit}
               </span>
-              <span className="search-weather-condition">
-                {translateCondition(countryWeather.condition, lang)}
-              </span>
+              <div className="search-weather-meta">
+                <span className="search-weather-condition">
+                  {translateCondition(countryWeather.condition, lang)}
+                </span>
+                <span className="search-weather-avg">{t('weather.average')}</span>
+              </div>
             </div>
           )}
           {globalWeatherSummary && (
