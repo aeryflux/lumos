@@ -9,7 +9,7 @@ interface I18nContextValue {
   t: (key: string, params?: Record<string, string>) => string;
 }
 
-const LANG_ORDER: Lang[] = ['en', 'fr', 'es', 'de', 'it'];
+const LANG_ORDER: Lang[] = ['en', 'fr', 'es', 'de', 'it', 'pt', 'ru', 'ja', 'ko'];
 
 export const I18nContext = createContext<I18nContextValue>(null!);
 
@@ -19,6 +19,10 @@ export const LANGS: { id: Lang; label: string }[] = [
   { id: 'es', label: 'ES' },
   { id: 'de', label: 'DE' },
   { id: 'it', label: 'IT' },
+  { id: 'pt', label: 'PT' },
+  { id: 'ru', label: 'RU' },
+  { id: 'ja', label: 'JA' },
+  { id: 'ko', label: 'KO' },
 ];
 
 function detectLang(): Lang {

@@ -21,6 +21,16 @@ const SHOWCASE_SEQUENCE = [
 const TYPING_SPEED = 45;
 const SHOWCASE_INTERVAL = 10000;
 
+// English country name for each showcase key — used to bypass NLP for non-Latin languages
+// (ja/ko/ru showcase queries can't be parsed by the Latin-only EntityExtractor)
+const SHOWCASE_COUNTRY_MAP: Record<string, string> = {
+  'showcase.1': 'Japan',
+  'showcase.2': 'Brazil',
+  'showcase.3': 'South Korea',
+  'showcase.4': 'Germany',
+  'showcase.5': 'Australia',
+};
+
 interface Entity { type: string; value: string; normalizedValue: string }
 interface SearchResult { intent?: { category: string }; entities?: Entity[] }
 interface CountryHighlight { scale: number; color?: string; extrusion?: number }
@@ -142,6 +152,29 @@ const COUNTRY_EN: Record<string, string> = {
   'philippines': 'Philippines', 'nouvelle-zélande': 'New Zealand',
   'argentine': 'Argentina', 'colombie': 'Colombia', 'chili': 'Chile',
   'venezuela': 'Venezuela', 'pérou': 'Peru', 'perou': 'Peru',
+  // Portuguese country names
+  'japão': 'Japan', 'japao': 'Japan', 'coreia do sul': 'South Korea',
+  'alemanha': 'Germany', 'espanha': 'Spain', 'reino unido': 'United Kingdom',
+  'estados unidos': 'United States', 'rússia': 'Russia', 'russia': 'Russia',
+  'austrália': 'Australia', 'australia': 'Australia', 'méxico': 'Mexico', 'mexico': 'Mexico',
+  'turquia': 'Turkey', 'egito': 'Egypt', 'África do sul': 'South Africa', 'africa do sul': 'South Africa',
+  'tailândia': 'Thailand', 'tailandia': 'Thailand', 'índia': 'India', 'india': 'India',
+  'colômbia': 'Colombia', 'colombia': 'Colombia', 'chile': 'Chile',
+  'perú': 'Peru', 'marrocos': 'Morocco', 'nigéria': 'Nigeria', 'nigeria': 'Nigeria',
+  'quênia': 'Kenya', 'quenia': 'Kenya', 'etiópia': 'Ethiopia', 'etiopia': 'Ethiopia',
+  'tanzânia': 'Tanzania', 'tanzania': 'Tanzania', 'argélia': 'Algeria', 'argelia': 'Algeria',
+  'senegal': 'Senegal', 'camarões': 'Cameroon', 'camaroes': 'Cameroon',
+  'países baixos': 'Netherlands', 'paises baixos': 'Netherlands',
+  'bélgica': 'Belgium', 'belgica': 'Belgium', 'suíça': 'Switzerland', 'suica': 'Switzerland',
+  'áustria': 'Austria', 'austria': 'Austria', 'grécia': 'Greece', 'grecia': 'Greece',
+  'polônia': 'Poland', 'polonia': 'Poland', 'suécia': 'Sweden', 'suecia': 'Sweden',
+  'noruega': 'Norway', 'dinamarca': 'Denmark', 'finlândia': 'Finland', 'finlandia': 'Finland',
+  'hungria': 'Hungary', 'romênia': 'Romania', 'romenia': 'Romania', 'ucrânia': 'Ukraine', 'ucrania': 'Ukraine',
+  'arábia saudita': 'Saudi Arabia', 'arabia saudita': 'Saudi Arabia',
+  'emirados árabes': 'United Arab Emirates', 'emirados arabes': 'United Arab Emirates',
+  'paquistão': 'Pakistan', 'paquistao': 'Pakistan', 'bangladesh': 'Bangladesh',
+  'indonésia': 'Indonesia', 'indonesia': 'Indonesia', 'malásia': 'Malaysia', 'malasia': 'Malaysia',
+  'nova zelândia': 'New Zealand', 'nova zelandia': 'New Zealand',
   // Italian country names
   'giappone': 'Japan', 'cina': 'China', 'corea del sud': 'South Korea',
   'germania': 'Germany', 'brasile': 'Brazil', 'spagna': 'Spain',
@@ -419,14 +452,21 @@ export const SearchBar = forwardRef<SearchBarHandle, SearchBarProps>(function Se
     return () => clearInterval(typeTimer);
   }, [showcaseIndex, userActive, focused, query, onCountryHighlight, t]);
 
-  // Showcase: trigger search when typing finishes
+  // Showcase: trigger enrichment when typing finishes
+  // Use SHOWCASE_COUNTRY_MAP to bypass NLP — ja/ko/ru queries can't be parsed by the Latin EntityExtractor
   useEffect(() => {
     if (userActive || focused || query) return;
     const key = SHOWCASE_SEQUENCE[showcaseIndex];
     if (!key.startsWith('__global_') && typedPlaceholder === t(key)) {
-      search(typedPlaceholder, true);
+      const countryName = SHOWCASE_COUNTRY_MAP[key];
+      if (countryName) {
+        highlightCountries([{ value: countryName }]);
+        fetchEnrichment(countryName, typedPlaceholder, true);
+      } else {
+        search(typedPlaceholder, true);
+      }
     }
-  }, [typedPlaceholder, showcaseIndex, userActive, focused, query, search, t]);
+  }, [typedPlaceholder, showcaseIndex, userActive, focused, query, search, t, highlightCountries, fetchEnrichment]);
 
   // Showcase: rotate
   useEffect(() => {
