@@ -528,10 +528,12 @@ export const SearchBar = forwardRef<SearchBarHandle, SearchBarProps>(function Se
         });
       } else if (key === '__global_news__') {
         setTypedPlaceholder(t('search.showcase.news'));
-        fetchGlobalNews().then(items => {
+        fetchGlobalNews().then(async items => {
           setLoading(false);
           if (userActiveRef.current) return;
-          setNews(items);
+          const translated = await translateTitles(items, lang);
+          if (userActiveRef.current) return;
+          setNews(translated);
           const newsHighlights: Record<string, CountryHighlight> = {};
           for (const c of ['United States', 'China', 'France', 'United Kingdom', 'Russia', 'Japan', 'Germany', 'Brazil', 'India', 'Australia']) {
             newsHighlights[c] = { scale: 0.7, color: '#ef4444', extrusion: 0.2 };
@@ -570,7 +572,7 @@ export const SearchBar = forwardRef<SearchBarHandle, SearchBarProps>(function Se
     }, TYPING_SPEED);
 
     return () => clearInterval(typeTimer);
-  }, [showcaseIndex, userActive, focused, query, onCountryHighlight, t]);
+  }, [showcaseIndex, userActive, focused, query, onCountryHighlight, t, lang]);
 
   // Showcase: trigger enrichment when typing finishes
   // Use SHOWCASE_COUNTRY_MAP to bypass NLP — ja/ko/ru queries can't be parsed by the Latin EntityExtractor
