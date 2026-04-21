@@ -1,3 +1,5 @@
+import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { Github } from 'lucide-react';
 import './Docs.css';
 
@@ -25,12 +27,38 @@ const PACKAGES = [
   },
 ];
 
+function ContactForm() {
+  const [sent, setSent] = useState(false);
+
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const f = e.currentTarget;
+    const name = (f.elements.namedItem('name') as HTMLInputElement).value;
+    const email = (f.elements.namedItem('email') as HTMLInputElement).value;
+    const message = (f.elements.namedItem('message') as HTMLTextAreaElement).value;
+    window.location.href =
+      `mailto:contact@aeryflux.com?subject=${encodeURIComponent(`Contact — ${name}`)}&body=${encodeURIComponent(`${message}\n\n${email}`)}`;
+    setSent(true);
+  };
+
+  if (sent) return <p className="docs-body docs-sent">Message envoyé. On revient vers toi rapidement.</p>;
+
+  return (
+    <form className="docs-contact-form" onSubmit={handleSubmit}>
+      <input name="name"    type="text"  placeholder="Nom"     className="docs-input" required />
+      <input name="email"   type="email" placeholder="Email"   className="docs-input" required />
+      <textarea name="message" placeholder="Message" className="docs-textarea" rows={4} required />
+      <button type="submit" className="docs-submit">Envoyer</button>
+    </form>
+  );
+}
+
 export function Docs() {
   return (
     <div className="docs">
-      <div className="docs-container">
 
-        {/* Left column — philosophy */}
+      {/* ── Main 2-col ── */}
+      <div className="docs-container">
         <div className="docs-col-left">
           <section className="docs-hero">
             <span className="docs-tag">Open Source</span>
@@ -49,7 +77,7 @@ export function Docs() {
               <span className="docs-em">aeryflux.com</span>,{' '}
               <a href="https://haki.aeryflux.com" className="docs-link">Haki</a> — are
               open source. The closed core is{' '}
-              <span className="docs-em">aeryflux-core</span>: the{' '}
+              <span className="docs-em">aeryflux-core</span> : the{' '}
               <a href="https://atlas.aeryflux.com" className="docs-link">Atlas</a> product,
               the Pythagoras API, and the Holocron back-office.
             </p>
@@ -67,7 +95,6 @@ export function Docs() {
           </div>
         </div>
 
-        {/* Right column — packages */}
         <div className="docs-col-right">
           <h2 className="docs-section-title">Packages</h2>
           <div className="docs-packages">
@@ -92,8 +119,25 @@ export function Docs() {
             ))}
           </div>
         </div>
-
       </div>
+
+      {/* ── Footer ── */}
+      <footer className="docs-footer">
+        <div className="docs-footer-col">
+          <h2 className="docs-section-title">Légal</h2>
+          <nav className="docs-footer-nav">
+            <Link to="/cgu" className="docs-footer-link">Conditions Générales d'Utilisation</Link>
+            <Link to="/cgv" className="docs-footer-link">Conditions Générales de Vente</Link>
+          </nav>
+          <p className="docs-footer-copy">© {new Date().getFullYear()} Aeryflux</p>
+        </div>
+
+        <div className="docs-footer-col">
+          <h2 className="docs-section-title">Contact</h2>
+          <ContactForm />
+        </div>
+      </footer>
+
     </div>
   );
 }

@@ -1,22 +1,25 @@
 .docs {
   width: 100vw;
   height: calc(100dvh - 52px);
-  margin-top: 52px; /* clear fixed nav */
-  overflow: hidden;
+  margin-top: 52px;
+  overflow-y: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
   background: var(--color-bg-deep);
-  display: flex;
-  align-items: stretch;
 }
 
-/* ── 2-column grid — fills viewport on desktop ── */
+.docs::-webkit-scrollbar {
+  display: none;
+}
+
+/* ── 2-column main — left: philosophy / right: packages ── */
 
 .docs-container {
-  width: 100%;
   display: grid;
   grid-template-columns: 1fr 1fr;
   padding: 40px 56px;
   gap: 0;
-  overflow: hidden;
+  min-height: calc(100dvh - 52px - 260px); /* push footer to visible area */
 }
 
 .docs-col-left {
@@ -25,7 +28,6 @@
   gap: 36px;
   padding-right: 48px;
   border-right: 1px solid var(--border-subtle);
-  overflow: hidden;
 }
 
 .docs-col-right {
@@ -33,7 +35,6 @@
   flex-direction: column;
   gap: 20px;
   padding-left: 48px;
-  overflow: hidden;
 }
 
 /* ── Hero ── */
@@ -206,7 +207,7 @@
   font-size: 11px;
   color: var(--color-text-muted);
   letter-spacing: 0.5px;
-  margin-top: auto; /* push to bottom of left column */
+  margin-top: auto;
 }
 
 .docs-notice-dot {
@@ -218,25 +219,123 @@
   flex-shrink: 0;
 }
 
-/* ── Mobile — single column, hidden scrollbar ── */
+/* ── Footer ── */
+
+.docs-footer {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0;
+  padding: 40px 56px;
+  border-top: 1px solid var(--border-subtle);
+}
+
+.docs-footer-col {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.docs-footer-col:first-child {
+  padding-right: 48px;
+  border-right: 1px solid var(--border-subtle);
+}
+
+.docs-footer-col:last-child {
+  padding-left: 48px;
+}
+
+.docs-footer-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.docs-footer-link {
+  font-size: 12px;
+  color: var(--color-text-secondary);
+  text-decoration: none;
+  transition: color 0.15s ease;
+  letter-spacing: 0.3px;
+}
+
+.docs-footer-link:hover {
+  color: var(--color-text-primary);
+}
+
+.docs-footer-copy {
+  font-size: 11px;
+  color: var(--color-text-muted);
+  margin: 0;
+  margin-top: auto;
+  letter-spacing: 0.3px;
+}
+
+/* ── Contact form ── */
+
+.docs-contact-form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.docs-input,
+.docs-textarea {
+  width: 100%;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--border-subtle);
+  border-radius: 6px;
+  padding: 10px 14px;
+  color: var(--color-text-primary);
+  font-family: var(--font-body, 'Inter', sans-serif);
+  font-size: 12px;
+  outline: none;
+  resize: none;
+  transition: border-color 0.15s ease, background 0.15s ease;
+  box-sizing: border-box;
+}
+
+.docs-input::placeholder,
+.docs-textarea::placeholder {
+  color: var(--color-text-muted);
+}
+
+.docs-input:focus,
+.docs-textarea:focus {
+  border-color: rgba(255, 255, 255, 0.14);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.docs-submit {
+  align-self: flex-start;
+  padding: 8px 20px;
+  background: rgba(0, 255, 136, 0.08);
+  border: 1px solid rgba(0, 255, 136, 0.2);
+  border-radius: 6px;
+  color: var(--color-primary);
+  font-family: var(--font-display, 'HemiHead', sans-serif);
+  font-size: 11px;
+  letter-spacing: 1px;
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.docs-submit:hover {
+  background: rgba(0, 255, 136, 0.14);
+  border-color: rgba(0, 255, 136, 0.35);
+}
+
+.docs-sent {
+  color: var(--color-primary) !important;
+}
+
+/* ── Mobile ── */
 
 @media (max-width: 768px) {
-  .docs {
-    height: calc(100dvh - 52px);
-    overflow-y: auto;
-    scrollbar-width: none;
-    -ms-overflow-style: none;
-    display: block;
-  }
-
-  .docs::-webkit-scrollbar {
-    display: none;
-  }
-
   .docs-container {
     grid-template-columns: 1fr;
-    padding: 24px 16px 48px;
+    padding: 24px 16px;
     gap: 40px;
+    min-height: unset;
   }
 
   .docs-col-left {
@@ -257,5 +356,118 @@
 
   .docs-notice {
     margin-top: 0;
+  }
+
+  .docs-footer {
+    grid-template-columns: 1fr;
+    padding: 32px 16px 48px;
+    gap: 40px;
+  }
+
+  .docs-footer-col:first-child {
+    padding-right: 0;
+    border-right: none;
+    border-bottom: 1px solid var(--border-subtle);
+    padding-bottom: 40px;
+  }
+
+  .docs-footer-col:last-child {
+    padding-left: 0;
+  }
+}
+
+/* ── Legal pages (CGU / CGV) — reuse docs layout ── */
+
+.legal {
+  width: 100vw;
+  height: calc(100dvh - 52px);
+  margin-top: 52px;
+  overflow-y: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  background: var(--color-bg-deep);
+}
+
+.legal::-webkit-scrollbar {
+  display: none;
+}
+
+.legal-container {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 48px 56px 80px;
+  display: flex;
+  flex-direction: column;
+  gap: 40px;
+}
+
+.legal-header {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  border-bottom: 1px solid var(--border-subtle);
+  padding-bottom: 24px;
+}
+
+.legal-title {
+  font-size: 26px;
+  font-family: var(--font-display, 'HemiHead', sans-serif);
+  letter-spacing: 2px;
+  color: var(--color-text-primary);
+  margin: 0;
+}
+
+.legal-updated {
+  font-size: 11px;
+  color: var(--color-text-muted);
+  letter-spacing: 0.5px;
+}
+
+.legal-section {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.legal-section h2 {
+  font-size: 12px;
+  font-family: var(--font-display, 'HemiHead', sans-serif);
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--color-text-secondary);
+  margin: 0;
+}
+
+.legal-section p {
+  font-size: 13px;
+  color: var(--color-text-muted);
+  line-height: 1.75;
+  margin: 0;
+}
+
+.legal-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  color: var(--color-text-muted);
+  text-decoration: none;
+  letter-spacing: 0.5px;
+  transition: color 0.15s ease;
+  margin-top: 16px;
+}
+
+.legal-back:hover {
+  color: var(--color-text-primary);
+}
+
+@media (max-width: 768px) {
+  .legal-container {
+    padding: 32px 16px 60px;
+    gap: 32px;
+  }
+
+  .legal-title {
+    font-size: 20px;
   }
 }
