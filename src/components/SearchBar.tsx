@@ -419,42 +419,14 @@ export const SearchBar = forwardRef<SearchBarHandle, SearchBarProps>(function Se
         const w = await fetchWikiSnippet(countryName, lang);
         if (!userActiveRef.current) setWiki(w);
       } else if (hasWeatherIntent(rawInput)) {
+        // Fetch full weather data (uses global cache if warm), then filter for the target country
+        const highlights = await fetchGlobalWeather();
+        if (!userActiveRef.current) return;
+        if (highlights) onCountryHighlight?.(highlights);
         const englishName = toEnglish(countryName);
-
-        // If global cache is already warm, use it immediately
-        if (weatherCache && weatherRawData) {
-          if (userActiveRef.current) onCountryHighlight?.(weatherCache);
-          const entry = weatherRawData[englishName];
-          if (entry && userActiveRef.current) {
-            setCountryWeather({ temperature: entry.temperature, condition: entry.condition, color: entry.color, unit: entry.viewUnit || '°C' });
-          }
-        } else {
-          // Try global fetch (populates cache for all future uses)
-          const highlights = await fetchGlobalWeather();
-          if (!userActiveRef.current) return;
-
-          if (highlights && weatherRawData) {
-            onCountryHighlight?.(highlights);
-            const entry = weatherRawData[englishName];
-            if (entry) setCountryWeather({ temperature: entry.temperature, condition: entry.condition, color: entry.color, unit: entry.viewUnit || '°C' });
-          } else {
-            // Global endpoint failed — fallback to country-specific endpoint
-            try {
-              const res = await fetch(`${API_BASE}/api/weather/data?view=temperature&country=${encodeURIComponent(englishName)}`);
-              if (res.ok && userActiveRef.current) {
-                const { data } = await res.json() as { data: Record<string, RawWeatherEntry> };
-                if (data) {
-                  const globeHighlights: Record<string, CountryHighlight> = {};
-                  for (const [c, v] of Object.entries(data)) {
-                    globeHighlights[c] = { scale: v.scale, color: v.color, extrusion: v.scale * 0.3 };
-                  }
-                  onCountryHighlight?.(globeHighlights);
-                  const entry = data[englishName];
-                  if (entry) setCountryWeather({ temperature: entry.temperature, condition: entry.condition, color: entry.color, unit: entry.viewUnit || '°C' });
-                }
-              }
-            } catch { /* silent — weather unavailable */ }
-          }
+        const entry = weatherRawData?.[englishName];
+        if (entry) {
+          setCountryWeather({ temperature: entry.temperature, condition: entry.condition, color: entry.color, unit: entry.viewUnit || '°C' });
         }
       } else if (hasNewsIntent(rawInput)) {
         const items = await fetchCountryNews(countryName);
