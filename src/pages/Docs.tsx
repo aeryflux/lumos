@@ -45,12 +45,13 @@ export function Docs() {
           <section className="docs-section">
             <h2 className="docs-section-title">Open Core</h2>
             <p className="docs-body">
-              Core packages are open source so the community can build on the same
-              primitives. Applications —{' '}
+              Core packages and front-end applications —{' '}
               <span className="docs-em">aeryflux.com</span>,{' '}
-              <a href="https://haki.aeryflux.com" className="docs-link">Haki</a>,{' '}
-              <a href="https://atlas.aeryflux.com" className="docs-link">Atlas</a> — are
-              closed products that fund ongoing development.
+              <a href="https://haki.aeryflux.com" className="docs-link">Haki</a> — are
+              open source. The closed core is{' '}
+              <span className="docs-em">aeryflux-core</span>: the{' '}
+              <a href="https://atlas.aeryflux.com" className="docs-link">Atlas</a> product,
+              the Pythagoras API, and the Holocron back-office.
             </p>
             <p className="docs-body">
               Contributions, issues and feature requests are welcome on{' '}
