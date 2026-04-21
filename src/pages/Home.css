@@ -103,46 +103,58 @@
     min-height: 0;
   }
 
+  /* Content strip: compact single row — globe gets all remaining space */
   .content-section {
     position: relative;
     top: auto;
     right: auto;
     width: 100%;
-    height: auto;
-    flex: 0 0 auto; /* shrink to content height, give space to globe */
+    flex: 0 0 auto;
     display: flex;
-    align-items: flex-start;
+    align-items: center;
     justify-content: center;
-    padding: 20px 20px calc(env(safe-area-inset-bottom, 0px) + 20px);
+    padding: 10px 16px calc(env(safe-area-inset-bottom, 0px) + 10px);
     background: var(--color-bg-deep);
     border-top: 1px solid var(--border-subtle);
-    overflow-y: auto;
-    z-index: 1;
+    overflow: visible; /* results float above, never push layout */
+    z-index: 2;
   }
 
+  /* Row layout: [aeryflux + taglines] then [search] on same flex container */
   .content-body {
-    gap: 12px;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px 10px;
     padding: 0;
     max-width: 100%;
     width: 100%;
   }
 
   .content-body h1 {
-    font-size: 22px;
-    letter-spacing: 3px;
+    font-size: 15px;
+    letter-spacing: 2.5px;
+    flex-shrink: 0;
   }
 
   .taglines {
-    gap: 6px;
+    gap: 5px;
+    flex-shrink: 0;
   }
 
   .tagline-link {
-    font-size: 10px;
+    font-size: 9px;
     letter-spacing: 1.5px;
   }
 
   .tagline-separator {
-    font-size: 10px;
+    font-size: 9px;
+  }
+
+  /* SearchBar takes full width on its own line */
+  .content-body .search-bar {
+    flex: 0 0 100%;
+    max-width: 100%;
   }
 }
 
@@ -152,12 +164,12 @@
 
 @media (max-width: 480px) {
   .content-section {
-    padding: 16px 16px calc(env(safe-area-inset-bottom, 0px) + 16px);
+    padding: 8px 12px calc(env(safe-area-inset-bottom, 0px) + 8px);
   }
 
   .content-body h1 {
-    font-size: 18px;
-    letter-spacing: 2.5px;
+    font-size: 14px;
+    letter-spacing: 2px;
   }
 }
 

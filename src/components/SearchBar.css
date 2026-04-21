@@ -354,7 +354,9 @@
    ============================================================ */
 
 @media (max-width: 768px) {
+  /* Results float above the search bar — never push the layout */
   .search-bar {
+    position: relative;
     max-width: 100%;
   }
 
@@ -365,7 +367,15 @@
 
   .search-results,
   .search-results-loading {
+    position: absolute;
+    bottom: calc(100% + 8px);
+    left: 0;
+    right: 0;
     max-width: 100%;
+    max-height: 55vh;
+    overflow-y: auto;
+    margin-top: 0;
+    z-index: 20;
   }
 
   .search-news-grid {
