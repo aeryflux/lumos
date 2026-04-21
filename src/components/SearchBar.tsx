@@ -1,4 +1,5 @@
-import { useState, useRef, useCallback, useEffect, forwardRef, useImperativeHandle } from 'react';
+import { useState, useRef, useCallback, useEffect, useMemo, forwardRef, useImperativeHandle } from 'react';
+import { EntityExtractor } from '@aeryflux/xenova-bridge';
 import { useI18n } from '../i18n';
 import './SearchBar.css';
 
@@ -18,7 +19,7 @@ const SHOWCASE_SEQUENCE = [
 ];
 
 const TYPING_SPEED = 45;
-const SHOWCASE_INTERVAL = 7000;
+const SHOWCASE_INTERVAL = 10000;
 
 interface Entity { type: string; value: string; normalizedValue: string }
 interface SearchResult { intent?: { category: string }; entities?: Entity[] }
@@ -34,7 +35,13 @@ export interface SearchBarHandle {
   setQuery: (q: string) => void;
 }
 
+// In-memory cache for global weather (expensive API call)
+let weatherCache: Record<string, CountryHighlight> | null = null;
+let weatherCacheTime = 0;
+const WEATHER_CACHE_TTL = 5 * 60 * 1000; // 5 minutes
+
 async function fetchGlobalWeather(): Promise<Record<string, CountryHighlight> | null> {
+  if (weatherCache && Date.now() - weatherCacheTime < WEATHER_CACHE_TTL) return weatherCache;
   try {
     const res = await fetch(`${API_BASE}/api/weather/data?view=temperature`);
     if (!res.ok) return null;
@@ -43,6 +50,8 @@ async function fetchGlobalWeather(): Promise<Record<string, CountryHighlight> | 
     for (const [country, info] of Object.entries(data as Record<string, { scale: number; color: string }>)) {
       highlights[country] = { scale: info.scale, color: info.color, extrusion: info.scale * 0.3 };
     }
+    weatherCache = highlights;
+    weatherCacheTime = Date.now();
     return highlights;
   } catch { return null; }
 }
@@ -62,7 +71,30 @@ async function fetchGlobalNews(): Promise<NewsItem[]> {
 }
 
 function toEnglish(name: string): string {
-  return COUNTRY_EN[name.toLowerCase()] || name;
+  return COUNTRY_EN[name.toLowerCase()] || name.replace(/\b\w/g, c => c.toUpperCase());
+}
+
+const WEATHER_KEYWORDS = ['meteo', 'météo', 'weather', 'temperature', 'température', 'climat', 'temps', 'forecast', 'wetter', 'tiempo'];
+const GLOBAL_KEYWORDS = ['mondial', 'world', 'global', 'partout', 'everywhere'];
+const NEWS_KEYWORDS = ['news', 'actu', 'actualité', 'actualite', 'actualités', 'actualites', 'info', 'infos'];
+
+function normalizeSimple(s: string) {
+  return s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+}
+
+function hasWeatherIntent(input: string): boolean {
+  const n = normalizeSimple(input);
+  return WEATHER_KEYWORDS.some(k => n.includes(normalizeSimple(k)));
+}
+
+function hasGlobalIntent(input: string): boolean {
+  const n = normalizeSimple(input);
+  return GLOBAL_KEYWORDS.some(k => n.includes(k));
+}
+
+function hasNewsIntent(input: string): boolean {
+  const n = normalizeSimple(input);
+  return NEWS_KEYWORDS.some(k => n.includes(k));
 }
 
 async function fetchCountryNews(country: string): Promise<NewsItem[]> {
@@ -79,7 +111,7 @@ async function fetchCountryNews(country: string): Promise<NewsItem[]> {
   } catch { return []; }
 }
 
-// Map common non-English country names to English for Wikipedia
+// Map common non-English country names to English for Wikipedia + globe highlight
 const COUNTRY_EN: Record<string, string> = {
   'corée': 'South Korea', 'coree': 'South Korea', 'corée du sud': 'South Korea',
   'japon': 'Japan', 'allemagne': 'Germany', 'brésil': 'Brazil', 'bresil': 'Brazil',
@@ -93,6 +125,23 @@ const COUNTRY_EN: Record<string, string> = {
   'estados unidos': 'United States', 'reino unido': 'United Kingdom',
   'südkorea': 'South Korea', 'frankreich': 'France', 'brasilien': 'Brazil',
   'spanien': 'Spain', 'italien': 'Italy', 'vereinigte staaten': 'United States',
+  // French country names missing from xenova-bridge toEnglish path
+  'tanzanie': 'Tanzania', 'algérie': 'Algeria', 'algerie': 'Algeria',
+  'maroc': 'Morocco', 'tunisie': 'Tunisia', 'sénégal': 'Senegal', 'senegal': 'Senegal',
+  'côte d\'ivoire': 'Ivory Coast', 'cameroun': 'Cameroon', 'éthiopie': 'Ethiopia',
+  'ethiopie': 'Ethiopia', 'nigeria': 'Nigeria', 'kenya': 'Kenya', 'ghana': 'Ghana',
+  'pologne': 'Poland', 'suède': 'Sweden', 'suede': 'Sweden', 'norvège': 'Norway',
+  'norvege': 'Norway', 'danemark': 'Denmark', 'finlande': 'Finland',
+  'pays-bas': 'Netherlands', 'belgique': 'Belgium', 'suisse': 'Switzerland',
+  'autriche': 'Austria', 'portugal': 'Portugal', 'grèce': 'Greece', 'grece': 'Greece',
+  'hongrie': 'Hungary', 'roumanie': 'Romania', 'ukraine': 'Ukraine',
+  'arabie saoudite': 'Saudi Arabia', 'émirats arabes unis': 'United Arab Emirates',
+  'iran': 'Iran', 'irak': 'Iraq', 'israël': 'Israel', 'israel': 'Israel',
+  'pakistan': 'Pakistan', 'bangladesh': 'Bangladesh', 'vietnam': 'Vietnam',
+  'indonésie': 'Indonesia', 'indonesie': 'Indonesia', 'malaisie': 'Malaysia',
+  'philippines': 'Philippines', 'nouvelle-zélande': 'New Zealand',
+  'argentine': 'Argentina', 'colombie': 'Colombia', 'chili': 'Chile',
+  'venezuela': 'Venezuela', 'pérou': 'Peru', 'perou': 'Peru',
 };
 
 async function fetchWikiSnippet(country: string): Promise<WikiSnippet | null> {
@@ -121,10 +170,68 @@ export const SearchBar = forwardRef<SearchBarHandle, SearchBarProps>(function Se
   const [wiki, setWiki] = useState<WikiSnippet | null>(null);
   const [news, setNews] = useState<NewsItem[]>([]);
   const [showMusic, setShowMusic] = useState(false);
+  const [localEntities, setLocalEntities] = useState<{ value: string }[]>([]);
   const inputRef = useRef<HTMLInputElement>(null);
   const debounceRef = useRef<ReturnType<typeof setTimeout>>(undefined);
   const userActiveRef = useRef(false);
 
+  // Prefetch global weather on mount so cache is warm when showcase reaches __global_weather__
+  useEffect(() => { fetchGlobalWeather(); }, []);
+
+  // Local entity extractor — browser-safe, synchronous, no network
+  const extractor = useMemo(() => new EntityExtractor(), []);
+
+  // Extract country entities from input locally (~1ms, no network)
+  const extractCountries = useCallback((input: string) => {
+    if (!input.trim()) return [];
+    return extractor.extract(input).filter(e => e.type === 'country');
+  }, [extractor]);
+
+  // Highlight globe from local entity extraction — called immediately on input change
+  const highlightCountries = useCallback((countryEntities: { value: string }[]) => {
+    const highlights: Record<string, CountryHighlight> = {};
+    for (const entity of countryEntities) {
+      highlights[toEnglish(entity.value)] = { scale: 1, color: '#00ff88', extrusion: 0.4 };
+    }
+    onCountryHighlight?.(highlights);
+  }, [onCountryHighlight]);
+
+  // Fetch enrichment — routes to weather, news, or wiki based on intent keywords
+  const fetchEnrichment = useCallback(async (countryName: string, rawInput: string, isShowcase = false) => {
+    setNews([]);
+    setWiki(null);
+    setLoading(true);
+    try {
+      if (isShowcase) {
+        const w = await fetchWikiSnippet(countryName);
+        if (!userActiveRef.current) setWiki(w);
+      } else if (hasWeatherIntent(rawInput)) {
+        // "météo france" → country weather data on globe
+        const res = await fetch(`${API_BASE}/api/weather/data?view=temperature&country=${encodeURIComponent(toEnglish(countryName))}`);
+        if (res.ok) {
+          const { data } = await res.json();
+          if (data && userActiveRef.current) onCountryHighlight?.(data);
+        }
+      } else if (hasNewsIntent(rawInput)) {
+        // "actu france / news france" → news articles
+        const items = await fetchCountryNews(countryName);
+        if (userActiveRef.current && items.length > 0) setNews(items);
+      } else {
+        // Default: wiki snippet
+        const items = await fetchCountryNews(countryName);
+        if (userActiveRef.current && items.length > 0) {
+          setNews(items);
+        } else if (userActiveRef.current) {
+          const w = await fetchWikiSnippet(countryName);
+          setWiki(w);
+        }
+      }
+    } finally {
+      setLoading(false);
+    }
+  }, [onCountryHighlight]);
+
+  // Full Pythagoras pipeline — used for showcase and complex intents (no country found locally)
   const search = useCallback(async (input: string, isShowcase = false) => {
     if (!input.trim()) {
       setResult(null);
@@ -143,38 +250,23 @@ export const SearchBar = forwardRef<SearchBarHandle, SearchBarProps>(function Se
       const data = await res.json();
       setResult(data);
 
-      const countryEntities = (data.entities || []).filter((e: Entity) => e.type === 'country');
-      const countries: Record<string, CountryHighlight> = {};
-      for (const entity of countryEntities) {
-        const name = toEnglish(entity.value);
-        countries[name] = { scale: 1, color: '#00ff88', extrusion: 0.4 };
-      }
-      onCountryHighlight?.(countries);
+      let countryEntities = (data.entities || []).filter((e: Entity) => e.type === 'country');
 
-      setNews([]);
-      setWiki(null);
-      const searchName = countryEntities.length > 0 ? countryEntities[0].value : input.trim();
-      if (searchName) {
-        if (isShowcase) {
-          fetchWikiSnippet(searchName).then(w => {
-            if (!userActiveRef.current) setWiki(w);
-          });
-        } else {
-          fetchCountryNews(searchName).then(items => {
-            if (userActiveRef.current && items.length > 0) {
-              setNews(items);
-            } else if (userActiveRef.current) {
-              fetchWikiSnippet(searchName).then(setWiki);
-            }
-          });
-        }
+      // Fallback: Pythagoras (old xenova-bridge) may miss accented names — try local extraction
+      if (countryEntities.length === 0) {
+        countryEntities = extractCountries(input) as Entity[];
       }
+
+      highlightCountries(countryEntities);
+
+      const searchName = countryEntities.length > 0 ? countryEntities[0].value : null;
+      if (searchName) fetchEnrichment(searchName, input, isShowcase);
     } catch {
       setResult(null);
     } finally {
       setLoading(false);
     }
-  }, [onCountryHighlight, lang]);
+  }, [onCountryHighlight, lang, highlightCountries, fetchEnrichment, extractCountries]);
 
   useImperativeHandle(ref, () => ({
     setQuery: (q: string) => {
@@ -279,26 +371,56 @@ export const SearchBar = forwardRef<SearchBarHandle, SearchBarProps>(function Se
     setQuery(value);
     setActive(true);
     clearTimeout(debounceRef.current);
-    if (value) {
-      debounceRef.current = setTimeout(() => search(value), 400);
-    } else {
+
+    if (!value) {
       setResult(null);
+      setWiki(null);
+      setNews([]);
       onCountryHighlight?.({});
       setActive(false);
+      return;
+    }
+
+    // 1. Immediate: local entity extraction → globe highlight, no network
+    const localCountries = extractCountries(value);
+    setLocalEntities(localCountries);
+    highlightCountries(localCountries);
+
+    // 2. Debounced enrichment
+    if (hasWeatherIntent(value) && hasGlobalIntent(value)) {
+      // "météo mondiale" → global weather heatmap
+      debounceRef.current = setTimeout(() => {
+        setLoading(true);
+        fetchGlobalWeather().then(data => {
+          setLoading(false);
+          if (data && userActiveRef.current) onCountryHighlight?.(data);
+        });
+      }, 400);
+    } else if (localCountries.length > 0) {
+      // Country found → enrichment (weather/news/wiki based on intent keywords)
+      debounceRef.current = setTimeout(() => {
+        fetchEnrichment(localCountries[0].value, value);
+      }, 400);
+    } else {
+      // No country, no weather global → full Pythagoras pipeline (complex intents)
+      debounceRef.current = setTimeout(() => search(value), 400);
     }
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter') { clearTimeout(debounceRef.current); search(query); }
-    if (e.key === 'Escape') { setQuery(''); setResult(null); setActive(false); onCountryHighlight?.({}); inputRef.current?.blur(); }
+    if (e.key === 'Escape') { setQuery(''); setResult(null); setWiki(null); setNews([]); setActive(false); onCountryHighlight?.({}); inputRef.current?.blur(); }
   };
 
   const setActive = (v: boolean) => { setUserActive(v); userActiveRef.current = v; };
   const handleFocus = () => { setFocused(true); setActive(true); };
   const handleBlur = () => { setTimeout(() => { setFocused(false); if (!query) setActive(false); }, 150); };
-  const clear = () => { setQuery(''); setResult(null); setActive(false); onCountryHighlight?.({}); inputRef.current?.focus(); };
+  const clear = () => { setQuery(''); setResult(null); setWiki(null); setNews([]); setLocalEntities([]); setActive(false); onCountryHighlight?.({}); inputRef.current?.focus(); };
 
-  const countries = (result?.entities || []).filter(e => e.type === 'country');
+  // Use local entities for immediate UI feedback, fallback to Pythagoras result for complex intents
+  const countries = localEntities.length > 0
+    ? localEntities
+    : (result?.entities || []).filter((e: Entity) => e.type === 'country');
   const hasResults = countries.length > 0 || wiki || news.length > 0 || showMusic;
   const showResults = hasResults;
 
