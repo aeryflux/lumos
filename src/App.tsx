@@ -1,6 +1,7 @@
 import { Routes, Route } from 'react-router-dom'
 import { Layout } from './components/layout/Layout'
 import { Home } from './pages/Home'
+import { Docs } from './pages/Docs'
 import { NotFound } from './pages/NotFound'
 import { I18nContext, useI18nProvider } from './i18n'
 
@@ -12,6 +13,7 @@ function App() {
       <Routes>
         <Route path="/" element={<Layout />}>
           <Route index element={<Home />} />
+          <Route path="docs" element={<Docs />} />
           <Route path="*" element={<NotFound />} />
         </Route>
       </Routes>
