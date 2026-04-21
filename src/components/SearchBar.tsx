@@ -144,18 +144,44 @@ const COUNTRY_EN: Record<string, string> = {
   'venezuela': 'Venezuela', 'pérou': 'Peru', 'perou': 'Peru',
 };
 
-async function fetchWikiSnippet(country: string): Promise<WikiSnippet | null> {
-  const englishName = COUNTRY_EN[country.toLowerCase()] || country;
+async function fetchWikiSnippet(country: string, lang = 'en'): Promise<WikiSnippet | null> {
+  const englishName = COUNTRY_EN[country.toLowerCase()] || country.replace(/\b\w/g, c => c.toUpperCase());
   try {
-    const res = await fetch(`https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(englishName)}`);
-    if (!res.ok) return null;
+    // Use language-specific Wikipedia — REST API handles redirects (e.g. "Japan" → "Japon" on fr.wikipedia.org)
+    const res = await fetch(`https://${lang}.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(englishName)}`);
+    if (!res.ok) {
+      // Fallback to English if lang-specific page not found
+      if (lang !== 'en') return fetchWikiSnippet(country, 'en');
+      return null;
+    }
     const data = await res.json();
     return {
       title: data.title,
       extract: data.extract?.slice(0, 120) + (data.extract?.length > 120 ? '...' : ''),
-      url: data.content_urls?.desktop?.page || `https://en.wikipedia.org/wiki/${country}`,
+      url: data.content_urls?.desktop?.page || `https://${lang}.wikipedia.org/wiki/${englishName}`,
     };
   } catch { return null; }
+}
+
+async function translateTexts(texts: string[], lang: string): Promise<string[]> {
+  if (lang === 'en' || !texts.length) return texts;
+  try {
+    const res = await fetch(`${API_BASE}/api/translate`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ texts, from: 'en', to: lang }),
+    });
+    if (!res.ok) return texts;
+    const data = await res.json();
+    return data.translations || texts;
+  } catch { return texts; }
+}
+
+async function translateTitles(items: NewsItem[], lang: string): Promise<NewsItem[]> {
+  if (lang === 'en') return items;
+  const titles = items.map(i => i.title);
+  const translated = await translateTexts(titles, lang);
+  return items.map((item, i) => ({ ...item, title: translated[i] ?? item.title }));
 }
 
 export const SearchBar = forwardRef<SearchBarHandle, SearchBarProps>(function SearchBar({ onCountryHighlight }, ref) {
@@ -203,33 +229,34 @@ export const SearchBar = forwardRef<SearchBarHandle, SearchBarProps>(function Se
     setLoading(true);
     try {
       if (isShowcase) {
-        const w = await fetchWikiSnippet(countryName);
+        const w = await fetchWikiSnippet(countryName, lang);
         if (!userActiveRef.current) setWiki(w);
       } else if (hasWeatherIntent(rawInput)) {
-        // "météo france" → country weather data on globe
         const res = await fetch(`${API_BASE}/api/weather/data?view=temperature&country=${encodeURIComponent(toEnglish(countryName))}`);
         if (res.ok) {
           const { data } = await res.json();
           if (data && userActiveRef.current) onCountryHighlight?.(data);
         }
       } else if (hasNewsIntent(rawInput)) {
-        // "actu france / news france" → news articles
-        const items = await fetchCountryNews(countryName);
-        if (userActiveRef.current && items.length > 0) setNews(items);
-      } else {
-        // Default: wiki snippet
         const items = await fetchCountryNews(countryName);
         if (userActiveRef.current && items.length > 0) {
-          setNews(items);
+          const translated = await translateTitles(items, lang);
+          if (userActiveRef.current) setNews(translated);
+        }
+      } else {
+        const items = await fetchCountryNews(countryName);
+        if (userActiveRef.current && items.length > 0) {
+          const translated = await translateTitles(items, lang);
+          if (userActiveRef.current) setNews(translated);
         } else if (userActiveRef.current) {
-          const w = await fetchWikiSnippet(countryName);
+          const w = await fetchWikiSnippet(countryName, lang);
           setWiki(w);
         }
       }
     } finally {
       setLoading(false);
     }
-  }, [onCountryHighlight]);
+  }, [onCountryHighlight, lang]);
 
   // Full Pythagoras pipeline — used for showcase and complex intents (no country found locally)
   const search = useCallback(async (input: string, isShowcase = false) => {
