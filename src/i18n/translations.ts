@@ -37,6 +37,8 @@ export const translations: Record<Lang, Record<string, string>> = {
     'showcase.4': 'Show me Germany',
     'showcase.5': 'Where is Australia?',
     'music.try': 'Try on Atlas',
+    'weather.hottest': 'Hottest',
+    'weather.coldest': 'Coldest',
     'nav.github': 'GitHub',
   },
   fr: {
@@ -56,6 +58,8 @@ export const translations: Record<Lang, Record<string, string>> = {
     'showcase.4': 'Montre-moi l\'Allemagne',
     'showcase.5': 'Où est l\'Australie ?',
     'music.try': 'Essayer sur Atlas',
+    'weather.hottest': 'Les plus chauds',
+    'weather.coldest': 'Les plus frais',
     'nav.github': 'GitHub',
   },
   es: {
@@ -75,6 +79,8 @@ export const translations: Record<Lang, Record<string, string>> = {
     'showcase.4': 'Muéstrame Alemania',
     'showcase.5': '¿Dónde está Australia?',
     'music.try': 'Probar en Atlas',
+    'weather.hottest': 'Más calurosos',
+    'weather.coldest': 'Más fríos',
     'nav.github': 'GitHub',
   },
   de: {
@@ -94,6 +100,8 @@ export const translations: Record<Lang, Record<string, string>> = {
     'showcase.4': 'Zeig mir Deutschland',
     'showcase.5': 'Wo liegt Australien?',
     'music.try': 'Auf Atlas testen',
+    'weather.hottest': 'Wärmste',
+    'weather.coldest': 'Kälteste',
     'nav.github': 'GitHub',
   },
   it: {
@@ -113,6 +121,8 @@ export const translations: Record<Lang, Record<string, string>> = {
     'showcase.4': 'Mostrami la Germania',
     'showcase.5': 'Dov\'è l\'Australia?',
     'music.try': 'Prova su Atlas',
+    'weather.hottest': 'Più caldi',
+    'weather.coldest': 'Più freddi',
     'nav.github': 'GitHub',
   },
   pt: {
@@ -132,6 +142,8 @@ export const translations: Record<Lang, Record<string, string>> = {
     'showcase.4': 'Mostre-me a Alemanha',
     'showcase.5': 'Onde fica a Austrália?',
     'music.try': 'Experimentar no Atlas',
+    'weather.hottest': 'Mais quentes',
+    'weather.coldest': 'Mais frios',
     'nav.github': 'GitHub',
   },
   ru: {
@@ -151,6 +163,8 @@ export const translations: Record<Lang, Record<string, string>> = {
     'showcase.4': 'Покажи мне Германию',
     'showcase.5': 'Где находится Австралия?',
     'music.try': 'Попробовать на Atlas',
+    'weather.hottest': 'Самые жаркие',
+    'weather.coldest': 'Самые холодные',
     'nav.github': 'GitHub',
   },
   ja: {
@@ -170,6 +184,8 @@ export const translations: Record<Lang, Record<string, string>> = {
     'showcase.4': 'ドイツを見せて',
     'showcase.5': 'オーストラリアはどこ？',
     'music.try': 'Atlasで試す',
+    'weather.hottest': '最も暑い',
+    'weather.coldest': '最も寒い',
     'nav.github': 'GitHub',
   },
   ko: {
@@ -189,6 +205,8 @@ export const translations: Record<Lang, Record<string, string>> = {
     'showcase.4': '독일을 보여줘',
     'showcase.5': '호주는 어디에 있나요?',
     'music.try': 'Atlas에서 시도',
+    'weather.hottest': '가장 더운',
+    'weather.coldest': '가장 추운',
     'nav.github': 'GitHub',
   },
   zh: {
@@ -208,6 +226,8 @@ export const translations: Record<Lang, Record<string, string>> = {
     'showcase.4': '给我看德国',
     'showcase.5': '澳大利亚在哪里？',
     'music.try': '在Atlas上试试',
+    'weather.hottest': '最热',
+    'weather.coldest': '最冷',
     'nav.github': 'GitHub',
   },
   nl: {
@@ -227,6 +247,8 @@ export const translations: Record<Lang, Record<string, string>> = {
     'showcase.4': 'Laat me Duitsland zien',
     'showcase.5': 'Waar is Australië?',
     'music.try': 'Probeer op Atlas',
+    'weather.hottest': 'Heetste',
+    'weather.coldest': 'Koudste',
     'nav.github': 'GitHub',
   },
   pl: {
@@ -246,6 +268,8 @@ export const translations: Record<Lang, Record<string, string>> = {
     'showcase.4': 'Pokaż mi Niemcy',
     'showcase.5': 'Gdzie jest Australia?',
     'music.try': 'Wypróbuj na Atlas',
+    'weather.hottest': 'Najcieplejsze',
+    'weather.coldest': 'Najzimniejsze',
     'nav.github': 'GitHub',
   },
   tr: {
@@ -265,6 +289,8 @@ export const translations: Record<Lang, Record<string, string>> = {
     'showcase.4': 'Almanya\'yı göster',
     'showcase.5': 'Avustralya nerede?',
     'music.try': 'Atlas\'ta dene',
+    'weather.hottest': 'En sıcak',
+    'weather.coldest': 'En soğuk',
     'nav.github': 'GitHub',
   },
   sv: {
@@ -284,6 +310,8 @@ export const translations: Record<Lang, Record<string, string>> = {
     'showcase.4': 'Visa mig Tyskland',
     'showcase.5': 'Var ligger Australien?',
     'music.try': 'Prova på Atlas',
+    'weather.hottest': 'Varmaste',
+    'weather.coldest': 'Kallaste',
     'nav.github': 'GitHub',
   },
   id: {
@@ -303,6 +331,8 @@ export const translations: Record<Lang, Record<string, string>> = {
     'showcase.4': 'Tunjukkan Jerman',
     'showcase.5': 'Di mana Australia?',
     'music.try': 'Coba di Atlas',
+    'weather.hottest': 'Terpanas',
+    'weather.coldest': 'Terdingin',
     'nav.github': 'GitHub',
   },
 };

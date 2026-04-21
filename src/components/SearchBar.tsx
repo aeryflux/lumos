@@ -36,6 +36,9 @@ interface SearchResult { intent?: { category: string }; entities?: Entity[] }
 interface CountryHighlight { scale: number; color?: string; extrusion?: number }
 interface WikiSnippet { title: string; extract: string; url: string }
 interface NewsItem { title: string; link: string; source?: string; color?: string }
+interface WeatherCard { temperature: number; condition: string; color: string; unit: string }
+interface WeatherSummaryItem { name: string; temperature: number; color: string }
+interface GlobalWeatherSummary { hottest: WeatherSummaryItem[]; coldest: WeatherSummaryItem[] }
 
 interface SearchBarProps {
   onCountryHighlight?: (countries: Record<string, CountryHighlight>) => void;
@@ -49,6 +52,8 @@ export interface SearchBarHandle {
 let weatherCache: Record<string, CountryHighlight> | null = null;
 let weatherCacheTime = 0;
 const WEATHER_CACHE_TTL = 5 * 60 * 1000; // 5 minutes
+type RawWeatherEntry = { scale: number; color: string; temperature: number; condition: string; viewUnit: string };
+let weatherRawData: Record<string, RawWeatherEntry> | null = null;
 
 async function fetchGlobalWeather(): Promise<Record<string, CountryHighlight> | null> {
   if (weatherCache && Date.now() - weatherCacheTime < WEATHER_CACHE_TTL) return weatherCache;
@@ -56,6 +61,7 @@ async function fetchGlobalWeather(): Promise<Record<string, CountryHighlight> | 
     const res = await fetch(`${API_BASE}/api/weather/data?view=temperature`);
     if (!res.ok) return null;
     const { data } = await res.json();
+    weatherRawData = data as Record<string, RawWeatherEntry>;
     const highlights: Record<string, CountryHighlight> = {};
     for (const [country, info] of Object.entries(data as Record<string, { scale: number; color: string }>)) {
       highlights[country] = { scale: info.scale, color: info.color, extrusion: info.scale * 0.3 };
@@ -64,6 +70,32 @@ async function fetchGlobalWeather(): Promise<Record<string, CountryHighlight> | 
     weatherCacheTime = Date.now();
     return highlights;
   } catch { return null; }
+}
+
+function getGlobalWeatherSummary(): GlobalWeatherSummary | null {
+  if (!weatherRawData) return null;
+  const entries = Object.entries(weatherRawData)
+    .filter(([, v]) => typeof v.temperature === 'number')
+    .sort((a, b) => b[1].temperature - a[1].temperature);
+  return {
+    hottest: entries.slice(0, 3).map(([name, v]) => ({ name, temperature: v.temperature, color: v.color })),
+    coldest: entries.slice(-3).reverse().map(([name, v]) => ({ name, temperature: v.temperature, color: v.color })),
+  };
+}
+
+// Condition labels for all supported languages — no extra API call needed
+const CONDITION_LABELS: Record<string, Partial<Record<string, string>>> = {
+  sunny:         { en: 'Sunny', fr: 'Ensoleillé', es: 'Soleado', de: 'Sonnig', it: 'Soleggiato', pt: 'Ensolarado', ru: 'Солнечно', ja: '晴れ', ko: '맑음', zh: '晴天', nl: 'Zonnig', pl: 'Słonecznie', tr: 'Güneşli', sv: 'Soligt', id: 'Cerah' },
+  partly_cloudy: { en: 'Partly cloudy', fr: 'Partiellement nuageux', es: 'Parcialmente nublado', de: 'Teils bewölkt', it: 'Parzialmente nuvoloso', pt: 'Parcialmente nublado', ru: 'Переменная облачность', ja: '曇り時々晴れ', ko: '구름 조금', zh: '多云', nl: 'Gedeeltelijk bewolkt', pl: 'Częściowo pochmurno', tr: 'Parçalı bulutlu', sv: 'Delvis molnigt', id: 'Berawan sebagian' },
+  cloudy:        { en: 'Cloudy', fr: 'Nuageux', es: 'Nublado', de: 'Bewölkt', it: 'Nuvoloso', pt: 'Nublado', ru: 'Пасмурно', ja: '曇り', ko: '흐림', zh: '阴天', nl: 'Bewolkt', pl: 'Pochmurno', tr: 'Bulutlu', sv: 'Molnigt', id: 'Berawan' },
+  rainy:         { en: 'Rainy', fr: 'Pluvieux', es: 'Lluvioso', de: 'Regnerisch', it: 'Piovoso', pt: 'Chuvoso', ru: 'Дождливо', ja: '雨', ko: '비', zh: '雨天', nl: 'Regenachtig', pl: 'Deszczowo', tr: 'Yağmurlu', sv: 'Regnigt', id: 'Hujan' },
+  snowy:         { en: 'Snowy', fr: 'Neigeux', es: 'Nevado', de: 'Verschneit', it: 'Nevoso', pt: 'Nevado', ru: 'Снежно', ja: '雪', ko: '눈', zh: '雪天', nl: 'Sneeuwachtig', pl: 'Śnieżnie', tr: 'Karlı', sv: 'Snöigt', id: 'Bersalju' },
+  stormy:        { en: 'Stormy', fr: 'Orageux', es: 'Tormentoso', de: 'Stürmisch', it: 'Tempestoso', pt: 'Tempestuoso', ru: 'Штормовой', ja: '嵐', ko: '폭풍', zh: '暴风雨', nl: 'Stormachtig', pl: 'Burzowo', tr: 'Fırtınalı', sv: 'Stormigt', id: 'Badai' },
+  foggy:         { en: 'Foggy', fr: 'Brumeux', es: 'Neblinoso', de: 'Neblig', it: 'Nebbioso', pt: 'Nebuloso', ru: 'Туманно', ja: '霧', ko: '안개', zh: '雾天', nl: 'Mistig', pl: 'Mgliście', tr: 'Sisli', sv: 'Dimmigt', id: 'Berkabut' },
+};
+
+function translateCondition(condition: string, lang: string): string {
+  return CONDITION_LABELS[condition]?.[lang] || CONDITION_LABELS[condition]?.en || condition;
 }
 
 async function fetchGlobalNews(): Promise<NewsItem[]> {
@@ -348,6 +380,8 @@ export const SearchBar = forwardRef<SearchBarHandle, SearchBarProps>(function Se
   const [news, setNews] = useState<NewsItem[]>([]);
   const [showMusic, setShowMusic] = useState(false);
   const [localEntities, setLocalEntities] = useState<{ value: string }[]>([]);
+  const [countryWeather, setCountryWeather] = useState<WeatherCard | null>(null);
+  const [globalWeatherSummary, setGlobalWeatherSummary] = useState<GlobalWeatherSummary | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const debounceRef = useRef<ReturnType<typeof setTimeout>>(undefined);
   const userActiveRef = useRef(false);
@@ -377,16 +411,22 @@ export const SearchBar = forwardRef<SearchBarHandle, SearchBarProps>(function Se
   const fetchEnrichment = useCallback(async (countryName: string, rawInput: string, isShowcase = false) => {
     setNews([]);
     setWiki(null);
+    setCountryWeather(null);
+    setGlobalWeatherSummary(null);
     setLoading(true);
     try {
       if (isShowcase) {
         const w = await fetchWikiSnippet(countryName, lang);
         if (!userActiveRef.current) setWiki(w);
       } else if (hasWeatherIntent(rawInput)) {
-        const res = await fetch(`${API_BASE}/api/weather/data?view=temperature&country=${encodeURIComponent(toEnglish(countryName))}`);
-        if (res.ok) {
-          const { data } = await res.json();
-          if (data && userActiveRef.current) onCountryHighlight?.(data);
+        // Fetch full weather data (uses global cache if warm), then filter for the target country
+        const highlights = await fetchGlobalWeather();
+        if (!userActiveRef.current) return;
+        if (highlights) onCountryHighlight?.(highlights);
+        const englishName = toEnglish(countryName);
+        const entry = weatherRawData?.[englishName];
+        if (entry) {
+          setCountryWeather({ temperature: entry.temperature, condition: entry.condition, color: entry.color, unit: entry.viewUnit || '°C' });
         }
       } else if (hasNewsIntent(rawInput)) {
         const items = await fetchCountryNews(countryName);
@@ -474,13 +514,17 @@ export const SearchBar = forwardRef<SearchBarHandle, SearchBarProps>(function Se
       setResult(null);
       setNews([]);
       setShowMusic(false);
+      setCountryWeather(null);
+      setGlobalWeatherSummary(null);
       setLoading(true);
 
       if (key === '__global_weather__') {
         setTypedPlaceholder(t('search.showcase.weather'));
         fetchGlobalWeather().then(data => {
           setLoading(false);
-          if (data && !userActiveRef.current) onCountryHighlight?.(data);
+          if (userActiveRef.current) return;
+          if (data) onCountryHighlight?.(data);
+          setGlobalWeatherSummary(getGlobalWeatherSummary());
         });
       } else if (key === '__global_news__') {
         setTypedPlaceholder(t('search.showcase.news'));
@@ -508,6 +552,8 @@ export const SearchBar = forwardRef<SearchBarHandle, SearchBarProps>(function Se
     setResult(null);
     setNews([]);
     setShowMusic(false);
+    setCountryWeather(null);
+    setGlobalWeatherSummary(null);
     onCountryHighlight?.({});
 
     const target = t(key);
@@ -561,6 +607,8 @@ export const SearchBar = forwardRef<SearchBarHandle, SearchBarProps>(function Se
       setResult(null);
       setWiki(null);
       setNews([]);
+      setCountryWeather(null);
+      setGlobalWeatherSummary(null);
       onCountryHighlight?.({});
       setActive(false);
       return;
@@ -573,12 +621,14 @@ export const SearchBar = forwardRef<SearchBarHandle, SearchBarProps>(function Se
 
     // 2. Debounced enrichment
     if (hasWeatherIntent(value) && hasGlobalIntent(value)) {
-      // "météo mondiale" → global weather heatmap
+      // "météo mondiale" → global weather heatmap + summary
       debounceRef.current = setTimeout(() => {
         setLoading(true);
         fetchGlobalWeather().then(data => {
           setLoading(false);
-          if (data && userActiveRef.current) onCountryHighlight?.(data);
+          if (!userActiveRef.current) return;
+          if (data) onCountryHighlight?.(data);
+          setGlobalWeatherSummary(getGlobalWeatherSummary());
         });
       }, 400);
     } else if (localCountries.length > 0) {
@@ -594,19 +644,19 @@ export const SearchBar = forwardRef<SearchBarHandle, SearchBarProps>(function Se
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter') { clearTimeout(debounceRef.current); search(query); }
-    if (e.key === 'Escape') { setQuery(''); setResult(null); setWiki(null); setNews([]); setActive(false); onCountryHighlight?.({}); inputRef.current?.blur(); }
+    if (e.key === 'Escape') { setQuery(''); setResult(null); setWiki(null); setNews([]); setCountryWeather(null); setGlobalWeatherSummary(null); setActive(false); onCountryHighlight?.({}); inputRef.current?.blur(); }
   };
 
   const setActive = (v: boolean) => { setUserActive(v); userActiveRef.current = v; };
   const handleFocus = () => { setFocused(true); setActive(true); };
   const handleBlur = () => { setTimeout(() => { setFocused(false); if (!query) setActive(false); }, 150); };
-  const clear = () => { setQuery(''); setResult(null); setWiki(null); setNews([]); setLocalEntities([]); setActive(false); onCountryHighlight?.({}); inputRef.current?.focus(); };
+  const clear = () => { setQuery(''); setResult(null); setWiki(null); setNews([]); setCountryWeather(null); setGlobalWeatherSummary(null); setLocalEntities([]); setActive(false); onCountryHighlight?.({}); inputRef.current?.focus(); };
 
   // Use local entities for immediate UI feedback, fallback to Pythagoras result for complex intents
   const countries = localEntities.length > 0
     ? localEntities
     : (result?.entities || []).filter((e: Entity) => e.type === 'country');
-  const hasResults = countries.length > 0 || wiki || news.length > 0 || showMusic;
+  const hasResults = countries.length > 0 || wiki || news.length > 0 || showMusic || countryWeather !== null || globalWeatherSummary !== null;
   const showResults = hasResults;
 
   return (
@@ -648,8 +698,42 @@ export const SearchBar = forwardRef<SearchBarHandle, SearchBarProps>(function Se
           {countries.length > 0 && (
             <div className="search-countries">
               {countries.map((c, i) => (
-                <span key={i} className="search-country-tag">{c.value}</span>
+                <span key={i} className="search-country-tag">
+                  {c.value.charAt(0).toUpperCase() + c.value.slice(1)}
+                </span>
               ))}
+            </div>
+          )}
+          {countryWeather && (
+            <div className="search-weather-card" style={{ borderLeftColor: countryWeather.color }}>
+              <span className="search-weather-temp" style={{ color: countryWeather.color }}>
+                {countryWeather.temperature}{countryWeather.unit}
+              </span>
+              <span className="search-weather-condition">
+                {translateCondition(countryWeather.condition, lang)}
+              </span>
+            </div>
+          )}
+          {globalWeatherSummary && (
+            <div className="search-weather-summary">
+              <div className="search-weather-group">
+                <span className="search-weather-group-label">{t('weather.hottest')}</span>
+                {globalWeatherSummary.hottest.map((item, i) => (
+                  <div key={i} className="search-weather-row">
+                    <span className="search-weather-country">{item.name}</span>
+                    <span className="search-weather-value" style={{ color: item.color }}>{item.temperature}°C</span>
+                  </div>
+                ))}
+              </div>
+              <div className="search-weather-group">
+                <span className="search-weather-group-label">{t('weather.coldest')}</span>
+                {globalWeatherSummary.coldest.map((item, i) => (
+                  <div key={i} className="search-weather-row">
+                    <span className="search-weather-country">{item.name}</span>
+                    <span className="search-weather-value" style={{ color: item.color }}>{item.temperature}°C</span>
+                  </div>
+                ))}
+              </div>
             </div>
           )}
           {wiki && (

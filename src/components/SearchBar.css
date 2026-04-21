@@ -232,6 +232,71 @@
   letter-spacing: 0.3px;
 }
 
+/* Weather card — single country */
+.search-weather-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 12px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.04);
+  border-left: 3px solid;
+}
+
+.search-weather-temp {
+  font-size: 22px;
+  font-family: var(--font-display);
+  font-weight: 600;
+  letter-spacing: -0.5px;
+  line-height: 1;
+}
+
+.search-weather-condition {
+  font-size: 12px;
+  color: var(--color-text-secondary);
+}
+
+/* Weather summary — global hottest/coldest */
+.search-weather-summary {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.search-weather-group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.search-weather-group-label {
+  font-size: 10px;
+  font-family: var(--font-display);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--color-text-secondary);
+  opacity: 0.6;
+  margin-bottom: 2px;
+}
+
+.search-weather-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.search-weather-country {
+  font-size: 12px;
+  color: var(--color-text-primary);
+}
+
+.search-weather-value {
+  font-size: 12px;
+  font-family: var(--font-display);
+  font-weight: 600;
+}
+
 /* Music CTA */
 .search-music-cta {
   display: flex;
