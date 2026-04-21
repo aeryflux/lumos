@@ -82,45 +82,51 @@
 }
 
 /* ============================================================
-   MOBILE — column layout: globe top, search bottom
+   MOBILE — globe full-screen, content overlay at bottom
+   (same model as desktop: globe is absolute, content overlays)
    ============================================================ */
 
 @media (max-width: 768px) {
   .home {
-    display: flex;
-    flex-direction: column;
+    /* drop flex — globe is absolute like desktop */
+    display: block;
     overflow: hidden;
     height: 100dvh;
-    padding-top: 52px; /* clear fixed nav */
+    padding-top: 0;
   }
 
+  /* Globe fills 100% of the screen — never 0×0 at init */
   .globe-section {
-    position: relative;
-    left: 0;
+    position: absolute;
     top: 0;
+    left: 0;
     width: 100%;
-    flex: 1; /* grow to fill remaining space above content */
-    min-height: 0;
+    height: 100%;
+    z-index: 0;
   }
 
-  /* Content strip: compact single row — globe gets all remaining space */
+  /* Content strip overlays at bottom — compact row layout */
   .content-section {
-    position: relative;
-    top: auto;
-    right: auto;
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
     width: 100%;
-    flex: 0 0 auto;
+    height: auto;
+    top: auto;
     display: flex;
     align-items: center;
     justify-content: center;
     padding: 10px 16px calc(env(safe-area-inset-bottom, 0px) + 10px);
-    background: var(--color-bg-deep);
+    background: rgba(5, 5, 8, 0.88);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
     border-top: 1px solid var(--border-subtle);
-    overflow: visible; /* results float above, never push layout */
-    z-index: 2;
+    overflow: visible; /* search results float upward into globe area */
+    z-index: 1;
   }
 
-  /* Row layout: [aeryflux + taglines] then [search] on same flex container */
+  /* Row layout: [aeryflux · taglines] / [search bar] */
   .content-body {
     flex-direction: row;
     flex-wrap: wrap;
@@ -151,7 +157,7 @@
     font-size: 9px;
   }
 
-  /* SearchBar takes full width on its own line */
+  /* SearchBar takes full width on second line */
   .content-body .search-bar {
     flex: 0 0 100%;
     max-width: 100%;
