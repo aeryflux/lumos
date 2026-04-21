@@ -51,12 +51,6 @@ export function Home() {
           </div>
 
           <SearchBar ref={searchRef} onCountryHighlight={handleCountryHighlight} />
-
-          <div className="links">
-            <a href="https://atlas.aeryflux.com">Atlas</a>
-            <a href="https://haki.aeryflux.com">Haki</a>
-            <a href="https://github.com/aeryflux" target="_blank" rel="noopener noreferrer">{t('nav.github')}</a>
-          </div>
         </div>
       </div>
     </div>
