@@ -142,6 +142,23 @@ const COUNTRY_EN: Record<string, string> = {
   'philippines': 'Philippines', 'nouvelle-zélande': 'New Zealand',
   'argentine': 'Argentina', 'colombie': 'Colombia', 'chili': 'Chile',
   'venezuela': 'Venezuela', 'pérou': 'Peru', 'perou': 'Peru',
+  // Italian country names
+  'giappone': 'Japan', 'cina': 'China', 'corea del sud': 'South Korea',
+  'germania': 'Germany', 'brasile': 'Brazil', 'spagna': 'Spain',
+  'stati uniti': 'United States', 'regno unito': 'United Kingdom',
+  'messico': 'Mexico', 'turchia': 'Turkey', 'egitto': 'Egypt',
+  'sudafrica': 'South Africa', 'tailandia': 'Thailand',
+  'paesi bassi': 'Netherlands', 'belgio': 'Belgium', 'svizzera': 'Switzerland',
+  'grecia': 'Greece', 'polonia': 'Poland', 'svezia': 'Sweden',
+  'norvegia': 'Norway', 'danimarca': 'Denmark', 'finlandia': 'Finland',
+  'portogallo': 'Portugal', 'ungheria': 'Hungary', 'romania': 'Romania',
+  'ucraina': 'Ukraine', 'israele': 'Israel', 'arabia saudita': 'Saudi Arabia',
+  'emirati arabi uniti': 'United Arab Emirates', 'indonesia': 'Indonesia',
+  'malesia': 'Malaysia', 'nuova zelanda': 'New Zealand',
+  'cile': 'Chile', 'perù': 'Peru', 'colombia': 'Colombia',
+  'marocco': 'Morocco', 'nigeria': 'Nigeria', 'etiopia': 'Ethiopia',
+  'tanzania': 'Tanzania', 'algeria': 'Algeria', 'senegal': 'Senegal',
+  'camerun': 'Cameroon',
 };
 
 // Cache for resolved Wikipedia titles per language (avoids repeated langlinks lookups)

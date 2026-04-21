@@ -1,4 +1,4 @@
-export type Lang = 'en' | 'fr' | 'es' | 'de';
+export type Lang = 'en' | 'fr' | 'es' | 'de' | 'it';
 
 /** ISO 3166-1 alpha-2 country codes for flag-icons CSS */
 export const LANG_COUNTRY: Record<Lang, string> = {
@@ -6,9 +6,33 @@ export const LANG_COUNTRY: Record<Lang, string> = {
   fr: 'fr',
   es: 'es',
   de: 'de',
+  it: 'it',
 };
 
 export const translations: Record<Lang, Record<string, string>> = {
+  it: {
+    'tagline.explore': 'esplora il mondo',
+    'tagline.learn': 'impara a programmare',
+
+    'search.placeholder': 'Cerca un paese...',
+    'search.showcase.weather': 'Meteo mondiale',
+    'search.showcase.news': 'Notizie mondiali',
+    'search.showcase.music': 'Suona del jazz',
+    'search.found': 'Trovato:',
+    'search.explore': 'Esplora {name} sul globo',
+    'search.explore.globe': 'Esplora paesi e dati sul globo interattivo',
+    'search.try': 'Prova un paese come "Giappone" o "Francia"',
+
+    'showcase.1': 'Dov\'è il Giappone?',
+    'showcase.2': 'Parlami del Brasile',
+    'showcase.3': 'E la Corea del Sud?',
+    'showcase.4': 'Mostrami la Germania',
+    'showcase.5': 'Dov\'è l\'Australia?',
+
+    'music.try': 'Prova su Atlas',
+
+    'nav.github': 'GitHub',
+  },
   en: {
     // Home
     'tagline.explore': 'explore the world',
