@@ -42,6 +42,7 @@ export function Layout() {
                 ))}
               </div>
             </div>
+            <Link to="/docs" className="nav-link-minimal">Docs</Link>
             <a href="https://atlas.aeryflux.com" className="nav-link-minimal">Atlas</a>
             <a href="https://haki.aeryflux.com" className="nav-link-minimal">Haki</a>
             <a href="https://github.com/aeryflux" className="nav-link-minimal" target="_blank" rel="noopener noreferrer">

@@ -82,67 +82,163 @@
 }
 
 /* ============================================================
-   MOBILE — column layout: globe top, search bottom
+   FOOTER — desktop only
+   ============================================================ */
+
+.home-footer {
+  position: absolute;
+  bottom: 20px;
+  left: 32px;
+  right: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  z-index: 2;
+  pointer-events: none;
+}
+
+/* Legal links — left side */
+.home-footer-legal {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  pointer-events: auto;
+}
+
+.home-footer-legal-link {
+  font-size: 10px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+  text-decoration: none;
+  opacity: 0.45;
+  transition: opacity 0.15s ease;
+}
+
+.home-footer-legal-link:hover {
+  opacity: 1;
+}
+
+/* Made with — right side */
+.home-footer-made {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  pointer-events: auto;
+}
+
+.home-footer-label {
+  font-size: 10px;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+  opacity: 0.5;
+}
+
+.home-footer-icons {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.home-footer-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0.4;
+  transition: opacity 0.15s ease, transform 0.15s ease;
+}
+
+.home-footer-icon:hover {
+  opacity: 1;
+  transform: translateY(-2px);
+}
+
+/* ============================================================
+   MOBILE — globe full-screen, content overlay at bottom
+   (same model as desktop: globe is absolute, content overlays)
    ============================================================ */
 
 @media (max-width: 768px) {
   .home {
-    display: flex;
-    flex-direction: column;
+    /* drop flex — globe is absolute like desktop */
+    display: block;
     overflow: hidden;
     height: 100dvh;
-    padding-top: 52px; /* clear fixed nav */
+    padding-top: 0;
   }
 
+  .home-footer {
+    display: none;
+  }
+
+  /* Globe fills 100% of the screen — never 0×0 at init */
   .globe-section {
-    position: relative;
-    left: 0;
+    position: absolute;
     top: 0;
+    left: 0;
     width: 100%;
-    flex: 1; /* grow to fill remaining space above content */
-    min-height: 0;
+    height: 100%;
+    z-index: 0;
   }
 
+  /* Content strip overlays at bottom — height = content only, grows upward */
   .content-section {
-    position: relative;
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
     top: auto;
-    right: auto;
     width: 100%;
     height: auto;
-    flex: 0 0 auto; /* shrink to content height, give space to globe */
+    overflow: visible;
     display: flex;
     align-items: flex-start;
     justify-content: center;
-    padding: 20px 20px calc(env(safe-area-inset-bottom, 0px) + 20px);
-    background: var(--color-bg-deep);
+    padding: 10px 16px calc(env(safe-area-inset-bottom, 0px) + 10px);
+    background: rgba(5, 5, 8, 0.92);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
     border-top: 1px solid var(--border-subtle);
-    overflow-y: auto;
     z-index: 1;
   }
 
+  /* Row layout: [aeryflux · taglines] / [search bar] */
   .content-body {
-    gap: 12px;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px 10px;
     padding: 0;
     max-width: 100%;
     width: 100%;
   }
 
   .content-body h1 {
-    font-size: 22px;
-    letter-spacing: 3px;
+    font-size: 15px;
+    letter-spacing: 2.5px;
+    flex-shrink: 0;
   }
 
   .taglines {
-    gap: 6px;
+    gap: 5px;
+    flex-shrink: 0;
   }
 
   .tagline-link {
-    font-size: 10px;
+    font-size: 9px;
     letter-spacing: 1.5px;
   }
 
   .tagline-separator {
-    font-size: 10px;
+    font-size: 9px;
+  }
+
+  /* SearchBar takes full width on second line */
+  .content-body .search-bar {
+    flex: 0 0 100%;
+    max-width: 100%;
   }
 }
 
@@ -152,12 +248,12 @@
 
 @media (max-width: 480px) {
   .content-section {
-    padding: 16px 16px calc(env(safe-area-inset-bottom, 0px) + 16px);
+    padding: 8px 12px calc(env(safe-area-inset-bottom, 0px) + 8px);
   }
 
   .content-body h1 {
-    font-size: 18px;
-    letter-spacing: 2.5px;
+    font-size: 14px;
+    letter-spacing: 2px;
   }
 }
 

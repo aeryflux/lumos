@@ -14,10 +14,10 @@
   font-display: swap;
 }
 
-/* Lumos-specific: fullscreen app, no scroll */
 body {
   width: 100vw;
   height: 100dvh;
   overflow: hidden;
   background: transparent;
+  /* Each page manages its own internal scroll */
 }

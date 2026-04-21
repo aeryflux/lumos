@@ -366,15 +366,56 @@
   .search-results,
   .search-results-loading {
     max-width: 100%;
+    max-height: 38dvh;
+    overflow-y: auto;
+    /* in-flow: content-section (position:absolute bottom:0) grows upward */
   }
 
+  /* News cards stay in a row — 2 compact columns */
   .search-news-grid {
-    flex-direction: column;
+    flex-direction: row;
   }
 
+  .search-news-card {
+    padding: 6px 8px;
+  }
+
+  .search-news-title {
+    font-size: 9px;
+    -webkit-line-clamp: 2;
+  }
+
+  /* Global weather summary: two columns, tighter */
   .search-weather-summary {
-    flex-direction: column;
+    flex-direction: row;
+    gap: 8px;
+  }
+
+  .search-weather-group-label {
+    font-size: 8px;
+    letter-spacing: 0.8px;
+  }
+
+  .search-weather-country {
+    font-size: 10px;
+  }
+
+  .search-weather-value {
+    font-size: 10px;
+  }
+
+  /* Single-country weather card: more compact */
+  .search-weather-card {
+    padding: 7px 10px;
     gap: 10px;
+  }
+
+  .search-weather-temp {
+    font-size: 20px;
+  }
+
+  .search-weather-condition {
+    font-size: 11px;
   }
 }
 
