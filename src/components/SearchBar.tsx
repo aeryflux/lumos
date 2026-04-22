@@ -120,6 +120,45 @@ const WEATHER_KEYWORDS = ['meteo', 'météo', 'weather', 'temperature', 'tempér
 const GLOBAL_KEYWORDS = ['mondial', 'world', 'global', 'partout', 'everywhere'];
 const NEWS_KEYWORDS = ['news', 'actu', 'actualité', 'actualite', 'actualités', 'actualites', 'info', 'infos'];
 
+// Sports & topic keywords — bare terms that should directly fetch news articles
+const TOPIC_KEYWORDS = [
+  // Football / Soccer
+  'football', 'soccer', 'premier league', 'champions league', 'ligue 1', 'la liga',
+  'bundesliga', 'serie a', 'world cup', 'coupe du monde', 'euro', 'fifa', 'uefa',
+  // F1
+  'formula 1', 'formula one', 'f1', 'grand prix', 'motorsport',
+  // Tennis
+  'tennis', 'wimbledon', 'roland garros', 'us open', 'australian open',
+  // Basketball
+  'basketball', 'nba',
+  // Rugby
+  'rugby', 'six nations',
+  // Cricket
+  'cricket', 'ashes',
+  // Golf
+  'golf', 'masters', 'pga',
+  // Boxing / MMA
+  'boxing', 'mma', 'ufc',
+  // Cycling
+  'cycling', 'tour de france', 'giro',
+  // Athletics & other
+  'athletics', 'marathon', 'olympics', 'olympic', 'super bowl', 'superbowl',
+  'swimming', 'volleyball', 'handball', 'hockey', 'baseball', 'nfl', 'nhl', 'mlb',
+  // French sports
+  'basket', 'formule 1', 'cyclisme', 'natation', 'jeux olympiques', 'ligue des champions',
+  // Spanish sports
+  'fútbol', 'futbol', 'baloncesto', 'tenis', 'ciclismo',
+  // German sports
+  'fußball', 'fussball',
+  // General topics
+  'science', 'technology', 'tech', 'ai', 'space', 'nasa', 'climate', 'environment',
+  'health', 'medicine', 'covid', 'economy', 'finance', 'crypto', 'bitcoin',
+  // French topics
+  'santé', 'sante', 'economie', 'environnement', 'technologie', 'espace', 'culture',
+  // Spanish topics
+  'salud', 'tecnología', 'tecnologia', 'medio ambiente',
+];
+
 function normalizeSimple(s: string) {
   return s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
 }
@@ -137,6 +176,29 @@ function hasGlobalIntent(input: string): boolean {
 function hasNewsIntent(input: string): boolean {
   const n = normalizeSimple(input);
   return NEWS_KEYWORDS.some(k => n.includes(k));
+}
+
+/** Detect bare topic/sports keywords (e.g. "football", "f1", "climate") */
+function hasTopicIntent(input: string): boolean {
+  const n = normalizeSimple(input);
+  return TOPIC_KEYWORDS.some(k => {
+    const nk = normalizeSimple(k);
+    return n === nk || n.startsWith(nk + ' ') || n.endsWith(' ' + nk) || n.includes(' ' + nk + ' ');
+  });
+}
+
+async function fetchTopicNews(topic: string): Promise<NewsItem[]> {
+  try {
+    const res = await fetch(`${API_BASE}/api/news/articles?query=${encodeURIComponent(topic)}`);
+    if (!res.ok) return [];
+    const data = await res.json();
+    return (Array.isArray(data) ? data : []).slice(0, 3).map((a: Record<string, unknown>) => ({
+      title: (a.title as string)?.slice(0, 80) + ((a.title as string)?.length > 80 ? '...' : ''),
+      link: a.link as string,
+      source: a.source as string,
+      color: a.color as string || (a.theme as Record<string, string>)?.color,
+    }));
+  } catch { return []; }
 }
 
 async function fetchCountryNews(country: string): Promise<NewsItem[]> {
@@ -492,7 +554,18 @@ export const SearchBar = forwardRef<SearchBarHandle, SearchBarProps>(function Se
       highlightCountries(countryEntities);
 
       const searchName = countryEntities.length > 0 ? countryEntities[0].value : null;
-      if (searchName) fetchEnrichment(searchName, input, isShowcase);
+      if (searchName) {
+        fetchEnrichment(searchName, input, isShowcase);
+      } else if (data.intent?.category === 'search' || hasTopicIntent(input)) {
+        // Topic/sports search with no country — fetch news for the raw query
+        fetchTopicNews(input).then(async items => {
+          if (!userActiveRef.current) return;
+          if (items.length > 0) {
+            const translated = await translateTitles(items, lang);
+            if (userActiveRef.current) setNews(translated);
+          }
+        }).catch(() => { /* ignore */ });
+      }
     } catch {
       setResult(null);
     } finally {
@@ -652,8 +725,25 @@ export const SearchBar = forwardRef<SearchBarHandle, SearchBarProps>(function Se
       debounceRef.current = setTimeout(() => {
         fetchEnrichment(localCountries[0].value, value);
       }, 400);
+    } else if (hasTopicIntent(value)) {
+      // Sport/topic keyword → fetch news directly, skip Pythagoras round-trip
+      debounceRef.current = setTimeout(async () => {
+        setLoading(true);
+        setNews([]);
+        setWiki(null);
+        try {
+          const items = await fetchTopicNews(value);
+          if (!userActiveRef.current) return;
+          if (items.length > 0) {
+            const translated = await translateTitles(items, lang);
+            if (userActiveRef.current) setNews(translated);
+          }
+        } finally {
+          setLoading(false);
+        }
+      }, 400);
     } else {
-      // No country, no weather global → full Pythagoras pipeline (complex intents)
+      // No country, no topic → full Pythagoras pipeline (complex intents)
       debounceRef.current = setTimeout(() => search(value), 400);
     }
   };
