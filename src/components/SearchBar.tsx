@@ -137,13 +137,27 @@ async function fetchTopicNews(topic: string): Promise<NewsItem[]> {
 
 function highlightNewsCountries(
   items: NewsItem[],
-  onHighlight: ((c: Record<string, CountryHighlight>) => void) | undefined
+  onHighlight: ((c: Record<string, CountryHighlight>) => void) | undefined,
+  extractor?: EntityExtractor
 ) {
   if (!onHighlight) return;
   const highlights: Record<string, CountryHighlight> = {};
+  // Feed publisher country — strong signal
   for (const item of items) {
     if (item.country) {
       highlights[item.country] = { scale: 0.9, color: '#4a9eff', extrusion: 0.3 };
+    }
+  }
+  // Countries mentioned in article titles — weaker signal (e.g. "Italian GP", "Monaco Grand Prix")
+  if (extractor) {
+    for (const item of items) {
+      const entities = extractor.extract(item.title).filter((e: { type: string }) => e.type === 'country');
+      for (const entity of entities) {
+        const name = toEnglish(entity.value);
+        if (!highlights[name]) {
+          highlights[name] = { scale: 0.6, color: '#4a9eff', extrusion: 0.2 };
+        }
+      }
     }
   }
   if (Object.keys(highlights).length > 0) onHighlight(highlights);
@@ -531,7 +545,7 @@ export const SearchBar = forwardRef<SearchBarHandle, SearchBarProps>(function Se
         fetchTopicNews(input).then(async items => {
           if (!userActiveRef.current) return;
           if (items.length > 0) {
-            highlightNewsCountries(items, onCountryHighlight);
+            highlightNewsCountries(items, onCountryHighlight, extractor);
             const translated = await translateTitles(items, lang);
             if (userActiveRef.current) setNews(translated);
           }
@@ -542,7 +556,7 @@ export const SearchBar = forwardRef<SearchBarHandle, SearchBarProps>(function Se
     } finally {
       setLoading(false);
     }
-  }, [onCountryHighlight, lang, highlightCountries, fetchEnrichment, extractCountries]);
+  }, [onCountryHighlight, lang, highlightCountries, fetchEnrichment, extractCountries, extractor]);
 
   useImperativeHandle(ref, () => ({
     setQuery: (q: string) => {
@@ -706,7 +720,7 @@ export const SearchBar = forwardRef<SearchBarHandle, SearchBarProps>(function Se
           const items = await fetchTopicNews(value);
           if (!userActiveRef.current) return;
           if (items.length > 0) {
-            highlightNewsCountries(items, onCountryHighlight);
+            highlightNewsCountries(items, onCountryHighlight, extractor);
             const translated = await translateTitles(items, lang);
             if (userActiveRef.current) setNews(translated);
           }
