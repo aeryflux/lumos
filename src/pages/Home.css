@@ -173,13 +173,13 @@
     display: none;
   }
 
-  /* Globe fills 100% of the screen — never 0×0 at init */
+  /* Globe fills visible area above content-section (~110px) */
   .globe-section {
     position: absolute;
     top: 0;
     left: 0;
     width: 100%;
-    height: 100%;
+    height: calc(100% - 110px);
     z-index: 0;
   }
 
