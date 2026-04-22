@@ -83,9 +83,9 @@
 
 .search-results {
   width: 100%;
-  max-width: 360px;
+  max-width: 420px;
   margin-top: 8px;
-  padding: 10px 14px;
+  padding: 12px 16px;
   min-height: 48px;
   max-height: 44vh;
   overflow-y: auto;
