@@ -373,26 +373,22 @@
     /* in-flow: content-section (position:absolute bottom:0) grows upward */
   }
 
-  /* News cards: horizontal row on mobile (compact, scrollable container) */
+  /* News cards: stacked vertically on mobile */
   .search-news-grid {
-    flex-direction: row;
-    flex-wrap: nowrap;
-    overflow-x: auto;
+    flex-direction: column;
   }
 
   .search-news-card {
-    flex: 0 0 48%;
-    min-width: 140px;
     padding: 6px 8px;
   }
 
   .search-news-title {
-    font-size: 9px;
+    font-size: 11px;
     -webkit-line-clamp: 2;
   }
 
   .search-news-source {
-    font-size: 8px;
+    font-size: 9px;
   }
 
   /* Global weather summary: two columns, tighter */
