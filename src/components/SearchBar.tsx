@@ -3,7 +3,7 @@ import { EntityExtractor } from '@aeryflux/xenova-bridge';
 import { useI18n } from '../i18n';
 import './SearchBar.css';
 
-const API_BASE = import.meta.env.DEV ? 'http://localhost:3000' : 'https://api.aeryflux.com';
+const API_BASE = import.meta.env.VITE_API_URL ?? 'https://api.aeryflux.com';
 
 // Showcase sequence: translated keys or special modes
 const SHOWCASE_SEQUENCE = [
