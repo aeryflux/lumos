@@ -83,11 +83,11 @@
 
 .search-results {
   width: 100%;
-  max-width: 420px;
+  max-width: 360px;
   margin-top: 8px;
-  padding: 12px 16px;
+  padding: 10px 14px;
   min-height: 48px;
-  max-height: 52vh;
+  max-height: 44vh;
   overflow-y: auto;
   scrollbar-width: thin;
   scrollbar-color: rgba(255,255,255,0.15) transparent;
@@ -370,7 +370,7 @@
   .search-results,
   .search-results-loading {
     max-width: 100%;
-    max-height: 26dvh;
+    max-height: 15dvh;
     overflow-y: auto;
     /* in-flow: content-section (position:absolute bottom:0) grows upward */
   }

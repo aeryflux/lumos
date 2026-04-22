@@ -1,5 +1,5 @@
 import { useState, useRef, useCallback, useEffect, useMemo, forwardRef, useImperativeHandle } from 'react';
-import { EntityExtractor } from '@aeryflux/xenova-bridge';
+import { EntityExtractor, detectMode } from '@aeryflux/xenova-bridge';
 import { useI18n } from '../i18n';
 import './SearchBar.css';
 
@@ -120,44 +120,12 @@ const WEATHER_KEYWORDS = ['meteo', 'météo', 'weather', 'temperature', 'tempér
 const GLOBAL_KEYWORDS = ['mondial', 'world', 'global', 'partout', 'everywhere'];
 const NEWS_KEYWORDS = ['news', 'actu', 'actualité', 'actualite', 'actualités', 'actualites', 'info', 'infos'];
 
-// Topic keywords that should route directly to news (no country needed)
-const TOPIC_KEYWORDS = [
-  // Sports — EN
-  'football', 'soccer', 'basketball', 'tennis', 'formula 1', 'formula one', 'f1', 'grand prix',
-  'rugby', 'cricket', 'golf', 'boxing', 'mma', 'ufc', 'cycling', 'athletics', 'swimming',
-  'premier league', 'champions league', 'ligue 1', 'la liga', 'bundesliga', 'serie a',
-  'wimbledon', 'tour de france', 'olympics', 'olympic', 'nba', 'nfl', 'nhl', 'mlb',
-  'sport', 'sports', 'match', 'tournament', 'championship', 'league', 'racing', 'motorsport',
-  // Sports — FR
-  'foot', 'ballon', 'championnat', 'ligue', 'formule 1', 'cyclisme', 'athlétisme', 'athletisme',
-  'natation', 'escrime', 'judo', 'boxe', 'handball', 'volleyball', 'basket',
-  // Sports — ES
-  'fútbol', 'futbol', 'baloncesto', 'tenis', 'ciclismo', 'atletismo',
-  // Sports — DE
-  'fußball', 'fussball', 'leichtathletik', 'radsport',
-  // General topics
-  'science', 'health', 'climate', 'technology', 'business', 'economy', 'politics', 'environment',
-  'santé', 'sante', 'économie', 'economie', 'politique', 'environnement', 'technologie', 'science',
-];
-
-function hasTopicIntent(input: string): boolean {
-  const n = normalizeSimple(input);
-  return TOPIC_KEYWORDS.some(k => {
-    const nk = normalizeSimple(k);
-    const idx = n.indexOf(nk);
-    if (idx === -1) return false;
-    const before = idx === 0 || /\W/.test(n[idx - 1]);
-    const after = idx + nk.length >= n.length || /\W/.test(n[idx + nk.length]);
-    return before && after;
-  });
-}
-
 async function fetchTopicNews(topic: string): Promise<NewsItem[]> {
   try {
     const res = await fetch(`${API_BASE}/api/news/articles?query=${encodeURIComponent(topic)}`);
     if (!res.ok) return [];
     const data = await res.json();
-    return (Array.isArray(data) ? data : []).slice(0, 12).map((a: Record<string, unknown>) => ({
+    return (Array.isArray(data) ? data : []).slice(0, 20).map((a: Record<string, unknown>) => ({
       title: (a.title as string)?.slice(0, 80) + ((a.title as string)?.length > 80 ? '...' : ''),
       link: a.link as string,
       source: a.source as string,
@@ -559,7 +527,7 @@ export const SearchBar = forwardRef<SearchBarHandle, SearchBarProps>(function Se
       const searchName = countryEntities.length > 0 ? countryEntities[0].value : null;
       if (searchName) {
         fetchEnrichment(searchName, input, isShowcase);
-      } else if (data.intent?.category === 'search' || hasTopicIntent(input)) {
+      } else if (data.intent?.category === 'search' || detectMode(input) === 'news') {
         fetchTopicNews(input).then(async items => {
           if (!userActiveRef.current) return;
           if (items.length > 0) {
@@ -728,7 +696,7 @@ export const SearchBar = forwardRef<SearchBarHandle, SearchBarProps>(function Se
       debounceRef.current = setTimeout(() => {
         fetchEnrichment(localCountries[0].value, value);
       }, 400);
-    } else if (hasTopicIntent(value)) {
+    } else if (detectMode(value) === 'news') {
       // Topic keyword (football, science…) → immediate clear + debounced topic news
       setNews([]); setWiki(null); setCountryWeather(null);
       setGlobalWeatherSummary(null); setShowMusic(false);
