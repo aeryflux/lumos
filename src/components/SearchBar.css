@@ -87,8 +87,6 @@
   margin-top: 8px;
   padding: 12px 16px;
   min-height: 48px;
-  max-height: 60vh;
-  overflow-y: auto;
   background: rgba(10, 10, 15, 0.88);
   backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(14px);

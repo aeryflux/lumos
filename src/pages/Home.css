@@ -36,6 +36,15 @@
   justify-content: center;
   z-index: 1;
   pointer-events: none;
+  overflow-y: auto;
+  overflow-x: hidden;
+  /* hide scrollbar visually but keep scroll */
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.content-section::-webkit-scrollbar {
+  display: none;
 }
 
 .content-body {

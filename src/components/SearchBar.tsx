@@ -157,7 +157,7 @@ async function fetchTopicNews(topic: string): Promise<NewsItem[]> {
     const res = await fetch(`${API_BASE}/api/news/articles?query=${encodeURIComponent(topic)}`);
     if (!res.ok) return [];
     const data = await res.json();
-    return (Array.isArray(data) ? data : []).slice(0, 5).map((a: Record<string, unknown>) => ({
+    return (Array.isArray(data) ? data : []).slice(0, 12).map((a: Record<string, unknown>) => ({
       title: (a.title as string)?.slice(0, 80) + ((a.title as string)?.length > 80 ? '...' : ''),
       link: a.link as string,
       source: a.source as string,
