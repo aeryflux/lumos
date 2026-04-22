@@ -35,7 +35,7 @@ interface Entity { type: string; value: string; normalizedValue: string }
 interface SearchResult { intent?: { category: string }; entities?: Entity[] }
 interface CountryHighlight { scale: number; color?: string; extrusion?: number }
 interface WikiSnippet { title: string; extract: string; url: string }
-interface NewsItem { title: string; link: string; source?: string; color?: string }
+interface NewsItem { title: string; link: string; source?: string; color?: string; country?: string }
 interface WeatherCard { temperature: number; condition: string; color: string; unit: string }
 interface WeatherSummaryItem { name: string; temperature: number; color: string }
 interface GlobalWeatherSummary { hottest: WeatherSummaryItem[]; coldest: WeatherSummaryItem[] }
@@ -162,8 +162,23 @@ async function fetchTopicNews(topic: string): Promise<NewsItem[]> {
       link: a.link as string,
       source: a.source as string,
       color: a.color as string || (a.theme as Record<string, string>)?.color,
+      country: a.country as string | undefined,
     }));
   } catch { return []; }
+}
+
+function highlightNewsCountries(
+  items: NewsItem[],
+  onHighlight: ((c: Record<string, CountryHighlight>) => void) | undefined
+) {
+  if (!onHighlight) return;
+  const highlights: Record<string, CountryHighlight> = {};
+  for (const item of items) {
+    if (item.country) {
+      highlights[item.country] = { scale: 0.9, color: '#4a9eff', extrusion: 0.3 };
+    }
+  }
+  if (Object.keys(highlights).length > 0) onHighlight(highlights);
 }
 
 function normalizeSimple(s: string) {
@@ -548,6 +563,7 @@ export const SearchBar = forwardRef<SearchBarHandle, SearchBarProps>(function Se
         fetchTopicNews(input).then(async items => {
           if (!userActiveRef.current) return;
           if (items.length > 0) {
+            highlightNewsCountries(items, onCountryHighlight);
             const translated = await translateTitles(items, lang);
             if (userActiveRef.current) setNews(translated);
           }
@@ -722,6 +738,7 @@ export const SearchBar = forwardRef<SearchBarHandle, SearchBarProps>(function Se
           const items = await fetchTopicNews(value);
           if (!userActiveRef.current) return;
           if (items.length > 0) {
+            highlightNewsCountries(items, onCountryHighlight);
             const translated = await translateTitles(items, lang);
             if (userActiveRef.current) setNews(translated);
           }
