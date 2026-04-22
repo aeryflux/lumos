@@ -120,6 +120,52 @@ const WEATHER_KEYWORDS = ['meteo', 'météo', 'weather', 'temperature', 'tempér
 const GLOBAL_KEYWORDS = ['mondial', 'world', 'global', 'partout', 'everywhere'];
 const NEWS_KEYWORDS = ['news', 'actu', 'actualité', 'actualite', 'actualités', 'actualites', 'info', 'infos'];
 
+// Topic keywords that should route directly to news (no country needed)
+const TOPIC_KEYWORDS = [
+  // Sports — EN
+  'football', 'soccer', 'basketball', 'tennis', 'formula 1', 'formula one', 'f1', 'grand prix',
+  'rugby', 'cricket', 'golf', 'boxing', 'mma', 'ufc', 'cycling', 'athletics', 'swimming',
+  'premier league', 'champions league', 'ligue 1', 'la liga', 'bundesliga', 'serie a',
+  'wimbledon', 'tour de france', 'olympics', 'olympic', 'nba', 'nfl', 'nhl', 'mlb',
+  'sport', 'sports', 'match', 'tournament', 'championship', 'league', 'racing', 'motorsport',
+  // Sports — FR
+  'foot', 'ballon', 'championnat', 'ligue', 'formule 1', 'cyclisme', 'athlétisme', 'athletisme',
+  'natation', 'escrime', 'judo', 'boxe', 'handball', 'volleyball', 'basket',
+  // Sports — ES
+  'fútbol', 'futbol', 'baloncesto', 'tenis', 'ciclismo', 'atletismo',
+  // Sports — DE
+  'fußball', 'fussball', 'leichtathletik', 'radsport',
+  // General topics
+  'science', 'health', 'climate', 'technology', 'business', 'economy', 'politics', 'environment',
+  'santé', 'sante', 'économie', 'economie', 'politique', 'environnement', 'technologie', 'science',
+];
+
+function hasTopicIntent(input: string): boolean {
+  const n = normalizeSimple(input);
+  return TOPIC_KEYWORDS.some(k => {
+    const nk = normalizeSimple(k);
+    const idx = n.indexOf(nk);
+    if (idx === -1) return false;
+    const before = idx === 0 || /\W/.test(n[idx - 1]);
+    const after = idx + nk.length >= n.length || /\W/.test(n[idx + nk.length]);
+    return before && after;
+  });
+}
+
+async function fetchTopicNews(topic: string): Promise<NewsItem[]> {
+  try {
+    const res = await fetch(`${API_BASE}/api/news/articles?query=${encodeURIComponent(topic)}`);
+    if (!res.ok) return [];
+    const data = await res.json();
+    return (Array.isArray(data) ? data : []).slice(0, 5).map((a: Record<string, unknown>) => ({
+      title: (a.title as string)?.slice(0, 80) + ((a.title as string)?.length > 80 ? '...' : ''),
+      link: a.link as string,
+      source: a.source as string,
+      color: a.color as string || (a.theme as Record<string, string>)?.color,
+    }));
+  } catch { return []; }
+}
+
 function normalizeSimple(s: string) {
   return s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
 }
@@ -472,6 +518,10 @@ export const SearchBar = forwardRef<SearchBarHandle, SearchBarProps>(function Se
       return;
     }
 
+    // Clear stale showcase/previous results before any async work
+    setWiki(null); setNews([]); setCountryWeather(null);
+    setGlobalWeatherSummary(null); setShowMusic(false);
+
     setLoading(true);
     try {
       const res = await fetch(`${API_BASE}/intent/process`, {
@@ -492,7 +542,17 @@ export const SearchBar = forwardRef<SearchBarHandle, SearchBarProps>(function Se
       highlightCountries(countryEntities);
 
       const searchName = countryEntities.length > 0 ? countryEntities[0].value : null;
-      if (searchName) fetchEnrichment(searchName, input, isShowcase);
+      if (searchName) {
+        fetchEnrichment(searchName, input, isShowcase);
+      } else if (data.intent?.category === 'search' || hasTopicIntent(input)) {
+        fetchTopicNews(input).then(async items => {
+          if (!userActiveRef.current) return;
+          if (items.length > 0) {
+            const translated = await translateTitles(items, lang);
+            if (userActiveRef.current) setNews(translated);
+          }
+        }).catch(() => {});
+      }
     } catch {
       setResult(null);
     } finally {
@@ -651,6 +711,21 @@ export const SearchBar = forwardRef<SearchBarHandle, SearchBarProps>(function Se
       // Country found → enrichment (weather/news/wiki based on intent keywords)
       debounceRef.current = setTimeout(() => {
         fetchEnrichment(localCountries[0].value, value);
+      }, 400);
+    } else if (hasTopicIntent(value)) {
+      // Topic keyword (football, science…) → immediate clear + debounced topic news
+      setNews([]); setWiki(null); setCountryWeather(null);
+      setGlobalWeatherSummary(null); setShowMusic(false);
+      debounceRef.current = setTimeout(async () => {
+        setLoading(true);
+        try {
+          const items = await fetchTopicNews(value);
+          if (!userActiveRef.current) return;
+          if (items.length > 0) {
+            const translated = await translateTitles(items, lang);
+            if (userActiveRef.current) setNews(translated);
+          }
+        } finally { setLoading(false); }
       }, 400);
     } else {
       // No country, no weather global → full Pythagoras pipeline (complex intents)
