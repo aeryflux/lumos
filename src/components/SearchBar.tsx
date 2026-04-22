@@ -1,5 +1,5 @@
 import { useState, useRef, useCallback, useEffect, useMemo, forwardRef, useImperativeHandle } from 'react';
-import { EntityExtractor } from '@aeryflux/xenova-bridge';
+import { EntityExtractor, detectMode } from '@aeryflux/xenova-bridge';
 import { useI18n } from '../i18n';
 import './SearchBar.css';
 
@@ -35,7 +35,7 @@ interface Entity { type: string; value: string; normalizedValue: string }
 interface SearchResult { intent?: { category: string }; entities?: Entity[] }
 interface CountryHighlight { scale: number; color?: string; extrusion?: number }
 interface WikiSnippet { title: string; extract: string; url: string }
-interface NewsItem { title: string; link: string; source?: string; color?: string }
+interface NewsItem { title: string; link: string; source?: string; color?: string; country?: string }
 interface WeatherCard { temperature: number; condition: string; color: string; unit: string }
 interface WeatherSummaryItem { name: string; temperature: number; color: string }
 interface GlobalWeatherSummary { hottest: WeatherSummaryItem[]; coldest: WeatherSummaryItem[] }
@@ -119,6 +119,49 @@ function toEnglish(name: string): string {
 const WEATHER_KEYWORDS = ['meteo', 'météo', 'weather', 'temperature', 'température', 'climat', 'temps', 'forecast', 'wetter', 'tiempo'];
 const GLOBAL_KEYWORDS = ['mondial', 'world', 'global', 'partout', 'everywhere'];
 const NEWS_KEYWORDS = ['news', 'actu', 'actualité', 'actualite', 'actualités', 'actualites', 'info', 'infos'];
+
+async function fetchTopicNews(topic: string): Promise<NewsItem[]> {
+  try {
+    const res = await fetch(`${API_BASE}/api/news/articles?query=${encodeURIComponent(topic)}`);
+    if (!res.ok) return [];
+    const data = await res.json();
+    return (Array.isArray(data) ? data : []).slice(0, 20).map((a: Record<string, unknown>) => ({
+      title: (a.title as string)?.slice(0, 80) + ((a.title as string)?.length > 80 ? '...' : ''),
+      link: a.link as string,
+      source: a.source as string,
+      color: a.color as string || (a.theme as Record<string, string>)?.color,
+      country: a.country as string | undefined,
+    }));
+  } catch { return []; }
+}
+
+function highlightNewsCountries(
+  items: NewsItem[],
+  onHighlight: ((c: Record<string, CountryHighlight>) => void) | undefined,
+  extractor?: EntityExtractor
+) {
+  if (!onHighlight) return;
+  const highlights: Record<string, CountryHighlight> = {};
+  // Feed publisher country — strong signal
+  for (const item of items) {
+    if (item.country) {
+      highlights[item.country] = { scale: 0.9, color: '#4a9eff', extrusion: 0.3 };
+    }
+  }
+  // Countries mentioned in article titles — weaker signal (e.g. "Italian GP", "Monaco Grand Prix")
+  if (extractor) {
+    for (const item of items) {
+      const entities = extractor.extract(item.title).filter((e: { type: string }) => e.type === 'country');
+      for (const entity of entities) {
+        const name = toEnglish(entity.value);
+        if (!highlights[name]) {
+          highlights[name] = { scale: 0.6, color: '#4a9eff', extrusion: 0.2 };
+        }
+      }
+    }
+  }
+  if (Object.keys(highlights).length > 0) onHighlight(highlights);
+}
 
 function normalizeSimple(s: string) {
   return s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
@@ -472,6 +515,10 @@ export const SearchBar = forwardRef<SearchBarHandle, SearchBarProps>(function Se
       return;
     }
 
+    // Clear stale showcase/previous results before any async work
+    setWiki(null); setNews([]); setCountryWeather(null);
+    setGlobalWeatherSummary(null); setShowMusic(false);
+
     setLoading(true);
     try {
       const res = await fetch(`${API_BASE}/intent/process`, {
@@ -492,13 +539,24 @@ export const SearchBar = forwardRef<SearchBarHandle, SearchBarProps>(function Se
       highlightCountries(countryEntities);
 
       const searchName = countryEntities.length > 0 ? countryEntities[0].value : null;
-      if (searchName) fetchEnrichment(searchName, input, isShowcase);
+      if (searchName) {
+        fetchEnrichment(searchName, input, isShowcase);
+      } else if (data.intent?.category === 'search' || detectMode(input) === 'news') {
+        fetchTopicNews(input).then(async items => {
+          if (!userActiveRef.current) return;
+          if (items.length > 0) {
+            highlightNewsCountries(items, onCountryHighlight, extractor);
+            const translated = await translateTitles(items, lang);
+            if (userActiveRef.current) setNews(translated);
+          }
+        }).catch(() => {});
+      }
     } catch {
       setResult(null);
     } finally {
       setLoading(false);
     }
-  }, [onCountryHighlight, lang, highlightCountries, fetchEnrichment, extractCountries]);
+  }, [onCountryHighlight, lang, highlightCountries, fetchEnrichment, extractCountries, extractor]);
 
   useImperativeHandle(ref, () => ({
     setQuery: (q: string) => {
@@ -651,6 +709,22 @@ export const SearchBar = forwardRef<SearchBarHandle, SearchBarProps>(function Se
       // Country found → enrichment (weather/news/wiki based on intent keywords)
       debounceRef.current = setTimeout(() => {
         fetchEnrichment(localCountries[0].value, value);
+      }, 400);
+    } else if (detectMode(value) === 'news') {
+      // Topic keyword (football, science…) → immediate clear + debounced topic news
+      setNews([]); setWiki(null); setCountryWeather(null);
+      setGlobalWeatherSummary(null); setShowMusic(false);
+      debounceRef.current = setTimeout(async () => {
+        setLoading(true);
+        try {
+          const items = await fetchTopicNews(value);
+          if (!userActiveRef.current) return;
+          if (items.length > 0) {
+            highlightNewsCountries(items, onCountryHighlight, extractor);
+            const translated = await translateTitles(items, lang);
+            if (userActiveRef.current) setNews(translated);
+          }
+        } finally { setLoading(false); }
       }, 400);
     } else {
       // No country, no weather global → full Pythagoras pipeline (complex intents)
