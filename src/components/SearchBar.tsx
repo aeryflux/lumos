@@ -534,6 +534,13 @@ export const SearchBar = forwardRef<SearchBarHandle, SearchBarProps>(function Se
       return;
     }
 
+    // Clear stale showcase/previous results before any async work
+    setWiki(null);
+    setNews([]);
+    setCountryWeather(null);
+    setGlobalWeatherSummary(null);
+    setShowMusic(false);
+
     setLoading(true);
     try {
       const res = await fetch(`${API_BASE}/intent/process`, {
@@ -727,10 +734,14 @@ export const SearchBar = forwardRef<SearchBarHandle, SearchBarProps>(function Se
       }, 400);
     } else if (hasTopicIntent(value)) {
       // Sport/topic keyword → fetch news directly, skip Pythagoras round-trip
+      // Clear stale content immediately (not inside the timeout) to avoid overlap with showcase
+      setNews([]);
+      setWiki(null);
+      setCountryWeather(null);
+      setGlobalWeatherSummary(null);
+      setShowMusic(false);
       debounceRef.current = setTimeout(async () => {
         setLoading(true);
-        setNews([]);
-        setWiki(null);
         try {
           const items = await fetchTopicNews(value);
           if (!userActiveRef.current) return;
