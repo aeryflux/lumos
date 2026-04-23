@@ -5,30 +5,40 @@ import './SearchBar.css';
 
 const API_BASE = import.meta.env.VITE_API_URL ?? 'https://api.aeryflux.com';
 
-// Showcase sequence: translated keys or special modes
+// Showcase sequence: 3 wiki → 3 weather → 3 news
 const SHOWCASE_SEQUENCE = [
-  'showcase.1',
-  '__global_weather__',
-  'showcase.2',
-  '__global_news__',
-  'showcase.3',
-  '__global_music__',
-  'showcase.4',
-  '__global_weather__',
-  'showcase.5',
+  'showcase.1',   // wiki — Japan
+  'showcase.2',   // wiki — Brazil
+  'showcase.3',   // wiki — South Korea
+  'showcase.w1',  // weather — Colombia
+  'showcase.w2',  // weather — Iceland
+  'showcase.w3',  // weather — India
+  'showcase.n1',  // news — sports
+  'showcase.n2',  // news — technology
+  '__global_news__', // news — world
 ];
 
 const TYPING_SPEED = 45;
 const SHOWCASE_INTERVAL = 10000;
 
-// English country name for each showcase key — used to bypass NLP for non-Latin languages
-// (ja/ko/ru showcase queries can't be parsed by the Latin-only EntityExtractor)
+// English country name for wiki showcase keys — bypasses NLP for non-Latin scripts
 const SHOWCASE_COUNTRY_MAP: Record<string, string> = {
   'showcase.1': 'Japan',
   'showcase.2': 'Brazil',
   'showcase.3': 'South Korea',
-  'showcase.4': 'Germany',
-  'showcase.5': 'Australia',
+};
+
+// Country for weather showcase keys
+const SHOWCASE_WEATHER_MAP: Record<string, string> = {
+  'showcase.w1': 'Colombia',
+  'showcase.w2': 'Iceland',
+  'showcase.w3': 'India',
+};
+
+// Topic for news showcase keys
+const SHOWCASE_NEWS_MAP: Record<string, string> = {
+  'showcase.n1': 'sports',
+  'showcase.n2': 'technology',
 };
 
 interface Entity { type: string; value: string; normalizedValue: string }
@@ -36,7 +46,7 @@ interface SearchResult { intent?: { category: string }; entities?: Entity[] }
 interface CountryHighlight { scale: number; color?: string; extrusion?: number }
 interface WikiSnippet { title: string; extract: string; url: string; rawExtract?: string; articleLinks?: string[] }
 interface NewsItem { title: string; link: string; source?: string; color?: string; country?: string }
-interface WeatherCard { temperature: number; condition: string; color: string; unit: string }
+interface WeatherCard { temperature: number; condition: string; color: string; unit: string; countryName?: string }
 interface WeatherSummaryItem { name: string; temperature: number; color: string }
 interface GlobalWeatherSummary { hottest: WeatherSummaryItem[]; coldest: WeatherSummaryItem[] }
 
@@ -98,6 +108,46 @@ const CONDITION_LABELS: Record<string, Partial<Record<string, string>>> = {
 
 function translateCondition(condition: string, lang: string): string {
   return CONDITION_LABELS[condition]?.[lang] || CONDITION_LABELS[condition]?.en || condition;
+}
+
+// Representative IANA timezone per country (English name as used in globe/Pythagoras)
+const COUNTRY_TIMEZONE: Record<string, string> = {
+  'France': 'Europe/Paris', 'Germany': 'Europe/Berlin', 'United Kingdom': 'Europe/London',
+  'Italy': 'Europe/Rome', 'Spain': 'Europe/Madrid', 'Netherlands': 'Europe/Amsterdam',
+  'Belgium': 'Europe/Brussels', 'Switzerland': 'Europe/Zurich', 'Austria': 'Europe/Vienna',
+  'Portugal': 'Europe/Lisbon', 'Sweden': 'Europe/Stockholm', 'Norway': 'Europe/Oslo',
+  'Denmark': 'Europe/Copenhagen', 'Finland': 'Europe/Helsinki', 'Poland': 'Europe/Warsaw',
+  'Greece': 'Europe/Athens', 'Romania': 'Europe/Bucharest', 'Hungary': 'Europe/Budapest',
+  'Ukraine': 'Europe/Kyiv', 'Turkey': 'Europe/Istanbul',
+  'Russia': 'Europe/Moscow',
+  'United States': 'America/New_York', 'Canada': 'America/Toronto',
+  'Mexico': 'America/Mexico_City', 'Brazil': 'America/Sao_Paulo',
+  'Argentina': 'America/Argentina/Buenos_Aires', 'Colombia': 'America/Bogota',
+  'Chile': 'America/Santiago', 'Peru': 'America/Lima', 'Venezuela': 'America/Caracas',
+  'Japan': 'Asia/Tokyo', 'China': 'Asia/Shanghai', 'South Korea': 'Asia/Seoul',
+  'India': 'Asia/Kolkata', 'Pakistan': 'Asia/Karachi', 'Bangladesh': 'Asia/Dhaka',
+  'Indonesia': 'Asia/Jakarta', 'Malaysia': 'Asia/Kuala_Lumpur',
+  'Vietnam': 'Asia/Ho_Chi_Minh', 'Thailand': 'Asia/Bangkok',
+  'Philippines': 'Asia/Manila', 'Singapore': 'Asia/Singapore',
+  'Saudi Arabia': 'Asia/Riyadh', 'United Arab Emirates': 'Asia/Dubai',
+  'Iran': 'Asia/Tehran', 'Iraq': 'Asia/Baghdad', 'Israel': 'Asia/Jerusalem',
+  'Australia': 'Australia/Sydney', 'New Zealand': 'Pacific/Auckland',
+  'South Africa': 'Africa/Johannesburg', 'Nigeria': 'Africa/Lagos',
+  'Kenya': 'Africa/Nairobi', 'Ethiopia': 'Africa/Addis_Ababa',
+  'Egypt': 'Africa/Cairo', 'Morocco': 'Africa/Casablanca',
+  'Algeria': 'Africa/Algiers', 'Tanzania': 'Africa/Dar_es_Salaam',
+  'Ghana': 'Africa/Accra', 'Senegal': 'Africa/Dakar',
+  'Iceland': 'Atlantic/Reykjavik',
+};
+
+function getLocalTime(countryName: string): string | null {
+  const tz = COUNTRY_TIMEZONE[countryName];
+  if (!tz) return null;
+  try {
+    return new Intl.DateTimeFormat([], {
+      timeZone: tz, hour: '2-digit', minute: '2-digit', hour12: false,
+    }).format(new Date());
+  } catch { return null; }
 }
 
 async function fetchGlobalNews(): Promise<NewsItem[]> {
@@ -515,8 +565,9 @@ export const SearchBar = forwardRef<SearchBarHandle, SearchBarProps>(function Se
   const [wiki, setWiki] = useState<WikiSnippet | null>(null);
   const [wikiResults, setWikiResults] = useState<WikiSnippet[]>([]);
   const [searchMode, setSearchMode] = useState<SearchMode>('auto');
+  const [showcasePlaying, setShowcasePlaying] = useState(true);
+  const showcasePlayingRef = useRef(true);
   const [news, setNews] = useState<NewsItem[]>([]);
-  const [showMusic, setShowMusic] = useState(false);
   const [localEntities, setLocalEntities] = useState<{ value: string }[]>([]);
   const [countryWeather, setCountryWeather] = useState<WeatherCard | null>(null);
   const [globalWeatherSummary, setGlobalWeatherSummary] = useState<GlobalWeatherSummary | null>(null);
@@ -564,7 +615,7 @@ export const SearchBar = forwardRef<SearchBarHandle, SearchBarProps>(function Se
         const englishName = toEnglish(countryName);
         const entry = weatherRawData?.[englishName];
         if (entry) {
-          setCountryWeather({ temperature: entry.temperature, condition: entry.condition, color: entry.color, unit: entry.viewUnit || '°C' });
+          setCountryWeather({ temperature: entry.temperature, condition: entry.condition, color: entry.color, unit: entry.viewUnit || '°C', countryName: englishName });
         }
       } else if (hasNewsIntent(rawInput)) {
         const items = await fetchCountryNews(countryName);
@@ -590,8 +641,7 @@ export const SearchBar = forwardRef<SearchBarHandle, SearchBarProps>(function Se
   // Wiki universal search — fetches up to 3 Wikipedia articles for any keyword,
   // extracts country entities from results for globe highlight (silver/white)
   const handleWikiSearch = useCallback(async (input: string) => {
-    setNews([]); setWiki(null); setCountryWeather(null); setGlobalWeatherSummary(null); setShowMusic(false);
-    setLoading(true);
+    setNews([]); setWiki(null); setCountryWeather(null); setGlobalWeatherSummary(null);    setLoading(true);
     try {
       const results = await fetchWikiSearch(input, lang);
       if (!userActiveRef.current) return;
@@ -642,8 +692,7 @@ export const SearchBar = forwardRef<SearchBarHandle, SearchBarProps>(function Se
 
     // Clear stale showcase/previous results before any async work
     setWiki(null); setNews([]); setCountryWeather(null);
-    setGlobalWeatherSummary(null); setShowMusic(false);
-
+    setGlobalWeatherSummary(null);
     setLoading(true);
     try {
       const res = await fetch(`${API_BASE}/intent/process`, {
@@ -698,61 +747,34 @@ export const SearchBar = forwardRef<SearchBarHandle, SearchBarProps>(function Se
 
   // Showcase: typing effect + special modes
   useEffect(() => {
-    if (userActive || focused || query) {
+    if (userActive || focused || query || !showcasePlaying) {
       setTypedPlaceholder('');
       return;
     }
 
     const key = SHOWCASE_SEQUENCE[showcaseIndex];
 
-    // Special showcase modes
-    if (key.startsWith('__global_')) {
-      setWiki(null);
-      setResult(null);
-      setNews([]);
-      setShowMusic(false);
-      setCountryWeather(null);
-      setGlobalWeatherSummary(null);
-      setLoading(true);
-
-      if (key === '__global_weather__') {
-        setTypedPlaceholder(t('search.showcase.weather'));
-        fetchGlobalWeather().then(data => {
-          setLoading(false);
-          if (userActiveRef.current) return;
-          if (data) onCountryHighlight?.(data);
-          setGlobalWeatherSummary(getGlobalWeatherSummary());
-        });
-      } else if (key === '__global_news__') {
-        setTypedPlaceholder(t('search.showcase.news'));
-        fetchGlobalNews().then(async items => {
-          setLoading(false);
-          if (userActiveRef.current) return;
-          const translated = await translateTitles(items, lang);
-          if (userActiveRef.current) return;
-          setNews(translated);
-          const newsHighlights: Record<string, CountryHighlight> = {};
-          for (const c of ['United States', 'China', 'France', 'United Kingdom', 'Russia', 'Japan', 'Germany', 'Brazil', 'India', 'Australia']) {
-            newsHighlights[c] = { scale: 0.7, color: '#ef4444', extrusion: 0.2 };
-          }
-          onCountryHighlight?.(newsHighlights);
-        });
-      } else if (key === '__global_music__') {
-        setTypedPlaceholder(t('search.showcase.music'));
+    // __global_news__ special mode
+    if (key === '__global_news__') {
+      setWiki(null); setResult(null); setNews([]);      setCountryWeather(null); setGlobalWeatherSummary(null); setLoading(true);
+      setTypedPlaceholder(t('search.showcase.news'));
+      fetchGlobalNews().then(async items => {
         setLoading(false);
-        setShowMusic(true);
-        onCountryHighlight?.({});
-      }
+        if (userActiveRef.current) return;
+        const translated = await translateTitles(items, lang);
+        if (userActiveRef.current) return;
+        setNews(translated);
+        const newsHighlights: Record<string, CountryHighlight> = {};
+        for (const c of ['United States', 'China', 'France', 'United Kingdom', 'Russia', 'Japan', 'Germany', 'Brazil', 'India', 'Australia']) {
+          newsHighlights[c] = { scale: 0.7, color: '#ef4444', extrusion: 0.2 };
+        }
+        onCountryHighlight?.(newsHighlights);
+      });
       return;
     }
 
-    // Regular query — reset + type
-    setWiki(null);
-    setResult(null);
-    setNews([]);
-    setShowMusic(false);
-    setCountryWeather(null);
-    setGlobalWeatherSummary(null);
+    // Regular typed query — reset + type
+    setWiki(null); setResult(null); setNews([]);    setCountryWeather(null); setGlobalWeatherSummary(null);
     onCountryHighlight?.({});
 
     const target = t(key);
@@ -769,32 +791,50 @@ export const SearchBar = forwardRef<SearchBarHandle, SearchBarProps>(function Se
     }, TYPING_SPEED);
 
     return () => clearInterval(typeTimer);
-  }, [showcaseIndex, userActive, focused, query, onCountryHighlight, t, lang]);
+  }, [showcaseIndex, userActive, focused, query, showcasePlaying, onCountryHighlight, t, lang]);
 
   // Showcase: trigger enrichment when typing finishes
-  // Use SHOWCASE_COUNTRY_MAP to bypass NLP — ja/ko/ru queries can't be parsed by the Latin EntityExtractor
+  // Routes to wiki / weather / news based on the showcase key type.
   useEffect(() => {
-    if (userActive || focused || query) return;
+    if (userActive || focused || query || !showcasePlaying) return;
     const key = SHOWCASE_SEQUENCE[showcaseIndex];
-    if (!key.startsWith('__global_') && typedPlaceholder === t(key)) {
-      const countryName = SHOWCASE_COUNTRY_MAP[key];
-      if (countryName) {
-        highlightCountries([{ value: countryName }]);
-        fetchEnrichment(countryName, typedPlaceholder, true);
-      } else {
-        search(typedPlaceholder, true);
-      }
+    if (key === '__global_news__' || typedPlaceholder !== t(key)) return;
+
+    const wikiCountry = SHOWCASE_COUNTRY_MAP[key];
+    const weatherCountry = SHOWCASE_WEATHER_MAP[key];
+    const newsTopic = SHOWCASE_NEWS_MAP[key];
+
+    if (wikiCountry) {
+      // Wiki: highlight globe + fetch Wikipedia snippet
+      highlightCountries([{ value: wikiCountry }]);
+      fetchEnrichment(wikiCountry, typedPlaceholder, true);
+    } else if (weatherCountry) {
+      // Weather: highlight country + fetch country weather
+      highlightCountries([{ value: weatherCountry }]);
+      fetchEnrichment(weatherCountry, 'weather', false);
+    } else if (newsTopic) {
+      // News: fetch topic articles + highlight countries from results
+      setLoading(true);
+      fetchTopicNews(newsTopic).then(async items => {
+        setLoading(false);
+        if (userActiveRef.current || !items.length) return;
+        highlightNewsCountries(items, onCountryHighlight, extractor);
+        const translated = await translateTitles(items, lang);
+        if (!userActiveRef.current) setNews(translated);
+      }).catch(() => setLoading(false));
+    } else {
+      search(typedPlaceholder, true);
     }
-  }, [typedPlaceholder, showcaseIndex, userActive, focused, query, search, t, highlightCountries, fetchEnrichment]);
+  }, [typedPlaceholder, showcaseIndex, userActive, focused, query, showcasePlaying, search, t, highlightCountries, fetchEnrichment, onCountryHighlight, extractor, lang]);
 
   // Showcase: rotate
   useEffect(() => {
-    if (userActive || focused || query) return;
+    if (userActive || focused || query || !showcasePlaying) return;
     const interval = setInterval(() => {
       setShowcaseIndex(prev => (prev + 1) % SHOWCASE_SEQUENCE.length);
     }, SHOWCASE_INTERVAL);
     return () => clearInterval(interval);
-  }, [userActive, focused, query]);
+  }, [userActive, focused, query, showcasePlaying]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
@@ -822,12 +862,10 @@ export const SearchBar = forwardRef<SearchBarHandle, SearchBarProps>(function Se
     // 2. Debounced enrichment — forced mode takes priority over auto-detection
     if (searchMode === 'wiki') {
       // Forced wiki: any keyword → Wikipedia search
-      setNews([]); setWiki(null); setCountryWeather(null); setGlobalWeatherSummary(null); setShowMusic(false);
-      debounceRef.current = setTimeout(() => handleWikiSearch(value), 400);
+      setNews([]); setWiki(null); setCountryWeather(null); setGlobalWeatherSummary(null);      debounceRef.current = setTimeout(() => handleWikiSearch(value), 400);
     } else if (searchMode === 'news') {
       // Forced news: always fetch topic news
-      setWikiResults([]); setWiki(null); setCountryWeather(null); setGlobalWeatherSummary(null); setShowMusic(false);
-      debounceRef.current = setTimeout(async () => {
+      setWikiResults([]); setWiki(null); setCountryWeather(null); setGlobalWeatherSummary(null);      debounceRef.current = setTimeout(async () => {
         setLoading(true);
         try {
           const items = await fetchTopicNews(value);
@@ -841,8 +879,7 @@ export const SearchBar = forwardRef<SearchBarHandle, SearchBarProps>(function Se
       }, 400);
     } else if (searchMode === 'weather') {
       // Forced weather
-      setWikiResults([]); setNews([]); setWiki(null); setShowMusic(false);
-      if (hasGlobalIntent(value)) {
+      setWikiResults([]); setNews([]); setWiki(null);      if (hasGlobalIntent(value)) {
         debounceRef.current = setTimeout(() => {
           setLoading(true);
           fetchGlobalWeather().then(data => {
@@ -883,8 +920,7 @@ export const SearchBar = forwardRef<SearchBarHandle, SearchBarProps>(function Se
         setWikiResults([]);
         debounceRef.current = setTimeout(() => fetchEnrichment(localCountries[0].value, value), 400);
       } else if (detectMode(value) === 'news') {
-        setWikiResults([]); setWiki(null); setCountryWeather(null); setGlobalWeatherSummary(null); setShowMusic(false);
-        debounceRef.current = setTimeout(async () => {
+        setWikiResults([]); setWiki(null); setCountryWeather(null); setGlobalWeatherSummary(null);        debounceRef.current = setTimeout(async () => {
           setLoading(true);
           try {
             const items = await fetchTopicNews(value);
@@ -898,8 +934,7 @@ export const SearchBar = forwardRef<SearchBarHandle, SearchBarProps>(function Se
         }, 400);
       } else {
         // Universal wiki fallback — replaces old Pythagoras pipeline for free-form queries
-        setNews([]); setWiki(null); setCountryWeather(null); setGlobalWeatherSummary(null); setShowMusic(false);
-        debounceRef.current = setTimeout(() => handleWikiSearch(value), 400);
+        setNews([]); setWiki(null); setCountryWeather(null); setGlobalWeatherSummary(null);        debounceRef.current = setTimeout(() => handleWikiSearch(value), 400);
       }
     }
   };
@@ -910,6 +945,12 @@ export const SearchBar = forwardRef<SearchBarHandle, SearchBarProps>(function Se
   };
 
   const setActive = (v: boolean) => { setUserActive(v); userActiveRef.current = v; };
+  const toggleShowcase = () => {
+    setShowcasePlaying(prev => {
+      showcasePlayingRef.current = !prev;
+      return !prev;
+    });
+  };
   const handleFocus = () => { setFocused(true); setActive(true); };
   const handleBlur = () => { setTimeout(() => { setFocused(false); if (!query) setActive(false); }, 150); };
   const clear = () => { setQuery(''); setResult(null); setWiki(null); setWikiResults([]); setNews([]); setCountryWeather(null); setGlobalWeatherSummary(null); setLocalEntities([]); setActive(false); onCountryHighlight?.({}); inputRef.current?.focus(); };
@@ -934,7 +975,7 @@ export const SearchBar = forwardRef<SearchBarHandle, SearchBarProps>(function Se
   const countries = localEntities.length > 0
     ? localEntities
     : (result?.entities || []).filter((e: Entity) => e.type === 'country');
-  const hasResults = countries.length > 0 || wiki || wikiResults.length > 0 || news.length > 0 || showMusic || countryWeather !== null || globalWeatherSummary !== null;
+  const hasResults = countries.length > 0 || wiki || wikiResults.length > 0 || news.length > 0 || countryWeather !== null || globalWeatherSummary !== null;
   const showResults = hasResults;
 
   return (
@@ -961,6 +1002,24 @@ export const SearchBar = forwardRef<SearchBarHandle, SearchBarProps>(function Se
           autoComplete="off"
         />
         <div className="search-mode-selector" aria-label="Search mode">
+          <button
+            className="search-showcase-toggle"
+            onClick={toggleShowcase}
+            aria-label={showcasePlaying ? 'Pause showcase' : 'Play showcase'}
+            title={showcasePlaying ? 'Pause' : 'Play'}
+            type="button"
+          >
+            {showcasePlaying ? (
+              <svg viewBox="0 0 10 10" width="8" height="8" fill="currentColor">
+                <rect x="1.5" y="1" width="2.5" height="8" rx="1"/>
+                <rect x="6" y="1" width="2.5" height="8" rx="1"/>
+              </svg>
+            ) : (
+              <svg viewBox="0 0 10 10" width="8" height="8" fill="currentColor">
+                <polygon points="1.5,0.5 9.5,5 1.5,9.5"/>
+              </svg>
+            )}
+          </button>
           <button
             className={`search-mode-btn${searchMode === 'news' ? ' active' : ''}`}
             data-mode="news"
@@ -1011,19 +1070,25 @@ export const SearchBar = forwardRef<SearchBarHandle, SearchBarProps>(function Se
               ))}
             </div>
           )}
-          {countryWeather && (
-            <div className="search-weather-card" style={{ borderLeftColor: countryWeather.color }}>
-              <span className="search-weather-temp" style={{ color: countryWeather.color }}>
-                {countryWeather.temperature}{countryWeather.unit}
-              </span>
-              <div className="search-weather-meta">
-                <span className="search-weather-condition">
-                  {translateCondition(countryWeather.condition, lang)}
+          {countryWeather && (() => {
+            const localTime = countryWeather.countryName ? getLocalTime(countryWeather.countryName) : null;
+            return (
+              <div className="search-weather-card" style={{ borderLeftColor: countryWeather.color }}>
+                <span className="search-weather-temp" style={{ color: countryWeather.color }}>
+                  {countryWeather.temperature}{countryWeather.unit}
                 </span>
-                <span className="search-weather-avg">{t('weather.average')}</span>
+                <div className="search-weather-meta">
+                  <span className="search-weather-condition">
+                    {translateCondition(countryWeather.condition, lang)}
+                  </span>
+                  <span className="search-weather-avg">{t('weather.average')}</span>
+                </div>
+                {localTime && (
+                  <span className="search-weather-time">{localTime}</span>
+                )}
               </div>
-            </div>
-          )}
+            );
+          })()}
           {globalWeatherSummary && (
             <div className="search-weather-summary">
               <div className="search-weather-group">
@@ -1070,14 +1135,6 @@ export const SearchBar = forwardRef<SearchBarHandle, SearchBarProps>(function Se
                   {item.source && <span className="search-news-source">{item.source}</span>}
                 </a>
               ))}
-            </div>
-          )}
-          {showMusic && (
-            <div className="search-music-cta">
-              <span className="search-music-label">{t('search.showcase.music')}</span>
-              <a href="https://atlas.aeryflux.com" className="search-music-btn">
-                {t('music.try')} →
-              </a>
             </div>
           )}
         </div>

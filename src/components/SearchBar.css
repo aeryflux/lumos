@@ -274,6 +274,16 @@
   text-transform: uppercase;
 }
 
+.search-weather-time {
+  margin-left: auto;
+  font-size: 18px;
+  font-family: var(--font-display);
+  font-weight: 300;
+  color: var(--color-text-muted);
+  letter-spacing: 1px;
+  opacity: 0.6;
+}
+
 /* ============================================================
    WEATHER SUMMARY — global hottest / coldest
    ============================================================ */
@@ -359,16 +369,36 @@
 
 .search-mode-selector {
   display: flex;
-  gap: 5px;
+  gap: 6px;
   align-items: center;
   flex-shrink: 0;
 }
 
+/* Play/pause toggle */
+.search-showcase-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: var(--color-text-muted);
+  opacity: 0.3;
+  padding: 0;
+  transition: opacity var(--duration-fast), color var(--duration-fast);
+  flex-shrink: 0;
+}
+
+.search-showcase-toggle:hover { opacity: 0.7; }
+.search-showcase-toggle:active { opacity: 1; }
+
 .search-mode-btn {
-  width: 7px;
-  height: 7px;
+  width: 9px;
+  height: 9px;
   border-radius: 50%;
-  border: 1px solid currentColor;
+  border: 1.5px solid currentColor;
   background: transparent;
   cursor: pointer;
   padding: 0;
@@ -381,8 +411,8 @@
 .search-mode-btn[data-mode="weather"] { color: #00ff88; }
 .search-mode-btn[data-mode="wiki"]    { color: #e2e8f0; }
 
-.search-mode-btn:hover  { opacity: 0.7; transform: scale(1.25); }
-.search-mode-btn.active { opacity: 1; background: currentColor; transform: scale(1.15); }
+.search-mode-btn:hover  { opacity: 0.7; transform: scale(1.2); }
+.search-mode-btn.active { opacity: 1; background: currentColor; transform: scale(1.1); }
 
 /* Input wrapper border tint when a mode is forced */
 .search-bar[data-mode="news"]    .search-input-wrapper { border-color: rgba(239, 68, 68, 0.35); }
