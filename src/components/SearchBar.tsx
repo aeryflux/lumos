@@ -811,10 +811,9 @@ export const SearchBar = forwardRef<SearchBarHandle, SearchBarProps>(function Se
       highlightCountries([{ value: wikiCountry }]);
       fetchEnrichment(wikiCountry, typedPlaceholder, true);
     } else if (weatherCountry) {
-      // Weather showcase: highlight only the target country (not full global heatmap),
-      // then show the country weather card with local time
-      highlightCountries([{ value: weatherCountry }]);
-      fetchEnrichment(weatherCountry, 'météo', false);
+      // Weather showcase: strong single-country extrusion, then show weather card + local time
+      onCountryHighlight?.({ [weatherCountry]: { scale: 1.4, color: '#00ff88', extrusion: 1.8 } });
+      fetchEnrichment(weatherCountry, 'météo', true);
     } else if (newsTopic) {
       // News: fetch topic articles + highlight countries from results
       setLoading(true);
