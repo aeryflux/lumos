@@ -741,7 +741,7 @@ export const SearchBar = forwardRef<SearchBarHandle, SearchBarProps>(function Se
   useImperativeHandle(ref, () => ({
     setQuery: (q: string) => {
       setQuery(q);
-      setActive(true);
+      // Do NOT set userActive — external calls (globe click) must not block fetchEnrichment guards
       search(q);
     },
   }));
