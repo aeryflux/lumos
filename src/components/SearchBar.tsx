@@ -611,8 +611,8 @@ export const SearchBar = forwardRef<SearchBarHandle, SearchBarProps>(function Se
       if (hasWeatherIntent(rawInput)) {
         // Fetch full weather data (uses global cache if warm), then filter for the target country
         await fetchGlobalWeather();
-        // Cancel if the user has taken control (typed something) — but allow showcase to proceed
-        if (userActiveRef.current) return;
+        // Cancel only if showcase is running AND user has started typing — never cancel user-triggered fetches
+        if (isShowcase && userActiveRef.current) return;
         // In showcase keep the single-country highlight — don't override with global heatmap
         if (!isShowcase && weatherCache) onCountryHighlight?.(weatherCache);
         const englishName = toEnglish(countryName);
@@ -961,21 +961,59 @@ export const SearchBar = forwardRef<SearchBarHandle, SearchBarProps>(function Se
   const handleBlur = () => { setTimeout(() => { setFocused(false); if (!query) setActive(false); }, 150); };
   const clear = () => { setQuery(''); setResult(null); setWiki(null); setWikiResults([]); setNews([]); setCountryWeather(null); setGlobalWeatherSummary(null); setLocalEntities([]); setActive(false); onCountryHighlight?.({}); inputRef.current?.focus(); };
   const toggleMode = (mode: SearchMode) => {
-    setSearchMode(prev => {
-      const next = prev === mode ? 'auto' : mode;
-      // Re-run search immediately if there's an active query
-      if (query.trim()) {
-        clearTimeout(debounceRef.current);
-        setWikiResults([]); setWiki(null); setNews([]); setCountryWeather(null); setGlobalWeatherSummary(null);
-        debounceRef.current = setTimeout(() => {
-          if (next === 'wiki') { handleWikiSearch(query); }
-          else if (next === 'news') { setLoading(true); fetchTopicNews(query).then(async items => { setLoading(false); if (!userActiveRef.current || !items.length) return; const t = await translateTitles(items, lang); if (userActiveRef.current) { highlightNewsCountries(items, onCountryHighlight, extractor); setNews(t); } }); }
-          else { search(query); }
-        }, 0);
+    const next = searchMode === mode ? 'auto' : mode;
+    setSearchMode(next);
+    // Pause showcase so it doesn't override the explicit mode selection
+    setShowcasePlaying(false);
+    showcasePlayingRef.current = false;
+    clearTimeout(debounceRef.current);
+    setWikiResults([]); setWiki(null); setNews([]); setCountryWeather(null); setGlobalWeatherSummary(null);
+
+    if (next === 'wiki') {
+      if (query.trim()) debounceRef.current = setTimeout(() => handleWikiSearch(query), 0);
+    } else if (next === 'news') {
+      const q = query.trim() || 'world';
+      setLoading(true);
+      fetchTopicNews(q).then(async items => {
+        setLoading(false);
+        if (!items.length) return;
+        highlightNewsCountries(items, onCountryHighlight, extractor);
+        const translated = await translateTitles(items, lang);
+        setNews(translated);
+      }).catch(() => setLoading(false));
+    } else if (next === 'weather') {
+      const localCountriesForMode = extractCountries(query);
+      if (localCountriesForMode.length > 0) {
+        fetchEnrichment(localCountriesForMode[0].value, 'météo ' + query);
+      } else {
+        setLoading(true);
+        fetchGlobalWeather().then(data => {
+          setLoading(false);
+          if (data) onCountryHighlight?.(data);
+          setGlobalWeatherSummary(getGlobalWeatherSummary());
+        }).catch(() => setLoading(false));
       }
-      return next;
-    });
+    } else {
+      // back to auto
+      if (query.trim()) debounceRef.current = setTimeout(() => search(query), 0);
+    }
   };
+
+  // Derive which mode dot to highlight — reflects forced mode, showcase, or auto-detected query intent
+  const activeDisplayMode: SearchMode = (() => {
+    if (searchMode !== 'auto') return searchMode;
+    if (!userActive && !query && showcasePlaying) {
+      const key = SHOWCASE_SEQUENCE[showcaseIndex];
+      if (key === '__global_news__' || SHOWCASE_NEWS_MAP[key]) return 'news';
+      if (SHOWCASE_WEATHER_MAP[key]) return 'weather';
+      return 'wiki';
+    }
+    if (query) {
+      if (hasWeatherIntent(query)) return 'weather';
+      if (hasNewsIntent(query) || detectMode(query) === 'news') return 'news';
+    }
+    return 'wiki';
+  })();
 
   // Use local entities for immediate UI feedback, fallback to Pythagoras result for complex intents
   const countries = localEntities.length > 0
@@ -1016,18 +1054,18 @@ export const SearchBar = forwardRef<SearchBarHandle, SearchBarProps>(function Se
             type="button"
           >
             {showcasePlaying ? (
-              <svg viewBox="0 0 10 10" width="8" height="8" fill="currentColor">
+              <svg viewBox="0 0 10 10" width="11" height="11" fill="currentColor">
                 <rect x="1.5" y="1" width="2.5" height="8" rx="1"/>
                 <rect x="6" y="1" width="2.5" height="8" rx="1"/>
               </svg>
             ) : (
-              <svg viewBox="0 0 10 10" width="8" height="8" fill="currentColor">
+              <svg viewBox="0 0 10 10" width="11" height="11" fill="currentColor">
                 <polygon points="1.5,0.5 9.5,5 1.5,9.5"/>
               </svg>
             )}
           </button>
           <button
-            className={`search-mode-btn${searchMode === 'news' ? ' active' : ''}`}
+            className={`search-mode-btn${activeDisplayMode === 'news' ? ' active' : ''}${searchMode === 'news' ? ' forced' : ''}`}
             data-mode="news"
             onClick={() => toggleMode('news')}
             aria-label="News mode"
@@ -1035,7 +1073,7 @@ export const SearchBar = forwardRef<SearchBarHandle, SearchBarProps>(function Se
             type="button"
           />
           <button
-            className={`search-mode-btn${searchMode === 'weather' ? ' active' : ''}`}
+            className={`search-mode-btn${activeDisplayMode === 'weather' ? ' active' : ''}${searchMode === 'weather' ? ' forced' : ''}`}
             data-mode="weather"
             onClick={() => toggleMode('weather')}
             aria-label="Weather mode"
@@ -1043,7 +1081,7 @@ export const SearchBar = forwardRef<SearchBarHandle, SearchBarProps>(function Se
             type="button"
           />
           <button
-            className={`search-mode-btn${searchMode === 'wiki' ? ' active' : ''}`}
+            className={`search-mode-btn${activeDisplayMode === 'wiki' ? ' active' : ''}${searchMode === 'wiki' ? ' forced' : ''}`}
             data-mode="wiki"
             onClick={() => toggleMode('wiki')}
             aria-label="Wikipedia mode"

@@ -379,19 +379,19 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 16px;
-  height: 16px;
+  width: 20px;
+  height: 20px;
   background: transparent;
   border: none;
   cursor: pointer;
   color: var(--color-text-muted);
-  opacity: 0.3;
+  opacity: 0.35;
   padding: 0;
   transition: opacity var(--duration-fast), color var(--duration-fast);
   flex-shrink: 0;
 }
 
-.search-showcase-toggle:hover { opacity: 0.7; }
+.search-showcase-toggle:hover { opacity: 0.75; }
 .search-showcase-toggle:active { opacity: 1; }
 
 .search-mode-btn {
@@ -411,8 +411,9 @@
 .search-mode-btn[data-mode="weather"] { color: #00ff88; }
 .search-mode-btn[data-mode="wiki"]    { color: #e2e8f0; }
 
-.search-mode-btn:hover  { opacity: 0.7; transform: scale(1.2); }
-.search-mode-btn.active { opacity: 1; background: currentColor; transform: scale(1.1); }
+.search-mode-btn:hover         { opacity: 0.7; transform: scale(1.2); }
+.search-mode-btn.active        { opacity: 0.75; background: currentColor; transform: scale(1.1); }
+.search-mode-btn.active.forced { opacity: 1; transform: scale(1.15); }
 
 /* Input wrapper border tint when a mode is forced */
 .search-bar[data-mode="news"]    .search-input-wrapper { border-color: rgba(239, 68, 68, 0.35); }
