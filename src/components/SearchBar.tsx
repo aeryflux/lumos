@@ -40,6 +40,8 @@ interface WeatherCard { temperature: number; condition: string; color: string; u
 interface WeatherSummaryItem { name: string; temperature: number; color: string }
 interface GlobalWeatherSummary { hottest: WeatherSummaryItem[]; coldest: WeatherSummaryItem[] }
 
+type SearchMode = 'auto' | 'news' | 'weather' | 'wiki';
+
 interface SearchBarProps {
   onCountryHighlight?: (countries: Record<string, CountryHighlight>) => void;
 }
@@ -403,6 +405,60 @@ async function fetchWikiSnippet(country: string, lang = 'en'): Promise<WikiSnipp
   } catch { return null; }
 }
 
+// Detect script/language from query characters for non-Latin queries
+function detectQueryLang(query: string): string | null {
+  if (/[\u3000-\u9fff\uf900-\ufaff\u3400-\u4dbf]/.test(query)) return 'ja'; // CJK
+  if (/[\u0400-\u04ff]/.test(query)) return 'ru'; // Cyrillic
+  if (/[\u0600-\u06ff]/.test(query)) return 'ar'; // Arabic
+  if (/[\uac00-\ud7af]/.test(query)) return 'ko'; // Korean
+  return null;
+}
+
+// Universal Wikipedia search — returns up to 3 article snippets for any keyword
+// Uses two requests: search → extract, to avoid HTML snippet markup from list=search
+async function fetchWikiSearch(query: string, lang = 'en'): Promise<WikiSnippet[]> {
+  if (!query.trim()) return [];
+  const scriptLang = detectQueryLang(query);
+  const targetLang = scriptLang ?? lang;
+  try {
+    const searchRes = await fetch(
+      `https://${targetLang}.wikipedia.org/w/api.php?` +
+      new URLSearchParams({ action: 'query', list: 'search', srsearch: query,
+        format: 'json', origin: '*', utf8: '1', srlimit: '3' })
+    );
+    if (!searchRes.ok) return targetLang !== 'en' ? fetchWikiSearch(query, 'en') : [];
+    const searchData = await searchRes.json();
+    const hits: Array<{ title: string }> = searchData.query?.search ?? [];
+    if (hits.length === 0) return targetLang !== 'en' ? fetchWikiSearch(query, 'en') : [];
+    // Fetch extracts for all results in one request
+    const titles = hits.map(h => h.title).join('|');
+    const extractRes = await fetch(
+      `https://${targetLang}.wikipedia.org/w/api.php?` +
+      new URLSearchParams({ action: 'query', titles, prop: 'extracts|info',
+        exintro: '1', explaintext: '1', exsectionformat: 'plain',
+        exlimit: '3', inprop: 'url', format: 'json', origin: '*' })
+    );
+    if (!extractRes.ok) return hits.map(h => ({
+      title: h.title, extract: '',
+      url: `https://${targetLang}.wikipedia.org/wiki/${encodeURIComponent(h.title)}`,
+    }));
+    const extractData = await extractRes.json();
+    const pages = Object.values(extractData.query?.pages ?? {}) as Array<{
+      title: string; extract?: string; fullurl?: string;
+    }>;
+    const pageMap = new Map(pages.map(p => [p.title, p]));
+    return hits.map(h => {
+      const page = pageMap.get(h.title);
+      const extract = page?.extract ?? '';
+      return {
+        title: h.title,
+        extract: extract.slice(0, 160) + (extract.length > 160 ? '...' : ''),
+        url: page?.fullurl ?? `https://${targetLang}.wikipedia.org/wiki/${encodeURIComponent(h.title)}`,
+      };
+    }).filter(r => r.title);
+  } catch { return []; }
+}
+
 async function translateTexts(texts: string[], lang: string): Promise<string[]> {
   if (lang === 'en' || !texts.length) return texts;
   try {
@@ -434,6 +490,8 @@ export const SearchBar = forwardRef<SearchBarHandle, SearchBarProps>(function Se
   const [showcaseIndex, setShowcaseIndex] = useState(0);
   const [typedPlaceholder, setTypedPlaceholder] = useState('');
   const [wiki, setWiki] = useState<WikiSnippet | null>(null);
+  const [wikiResults, setWikiResults] = useState<WikiSnippet[]>([]);
+  const [searchMode, setSearchMode] = useState<SearchMode>('auto');
   const [news, setNews] = useState<NewsItem[]>([]);
   const [showMusic, setShowMusic] = useState(false);
   const [localEntities, setLocalEntities] = useState<{ value: string }[]>([]);
@@ -505,6 +563,28 @@ export const SearchBar = forwardRef<SearchBarHandle, SearchBarProps>(function Se
       setLoading(false);
     }
   }, [onCountryHighlight, lang]);
+
+  // Wiki universal search — fetches up to 3 Wikipedia articles for any keyword,
+  // extracts country entities from results for globe highlight (silver/white)
+  const handleWikiSearch = useCallback(async (input: string) => {
+    setNews([]); setWiki(null); setCountryWeather(null); setGlobalWeatherSummary(null); setShowMusic(false);
+    setLoading(true);
+    try {
+      const results = await fetchWikiSearch(input, lang);
+      if (!userActiveRef.current) return;
+      setWikiResults(results);
+      const highlights: Record<string, CountryHighlight> = {};
+      for (const r of results) {
+        const entities = extractor.extract(r.title + ' ' + r.extract)
+          .filter((e: { type: string }) => e.type === 'country');
+        for (const entity of entities) {
+          const name = toEnglish(entity.value);
+          if (!highlights[name]) highlights[name] = { scale: 0.7, color: '#e2e8f0', extrusion: 0.2 };
+        }
+      }
+      if (Object.keys(highlights).length > 0) onCountryHighlight?.(highlights);
+    } finally { setLoading(false); }
+  }, [lang, extractor, onCountryHighlight]);
 
   // Full Pythagoras pipeline — used for showcase and complex intents (no country found locally)
   const search = useCallback(async (input: string, isShowcase = false) => {
@@ -680,6 +760,7 @@ export const SearchBar = forwardRef<SearchBarHandle, SearchBarProps>(function Se
     if (!value) {
       setResult(null);
       setWiki(null);
+      setWikiResults([]);
       setNews([]);
       setCountryWeather(null);
       setGlobalWeatherSummary(null);
@@ -693,27 +774,14 @@ export const SearchBar = forwardRef<SearchBarHandle, SearchBarProps>(function Se
     setLocalEntities(localCountries);
     highlightCountries(localCountries);
 
-    // 2. Debounced enrichment
-    if (hasWeatherIntent(value) && hasGlobalIntent(value)) {
-      // "météo mondiale" → global weather heatmap + summary
-      debounceRef.current = setTimeout(() => {
-        setLoading(true);
-        fetchGlobalWeather().then(data => {
-          setLoading(false);
-          if (!userActiveRef.current) return;
-          if (data) onCountryHighlight?.(data);
-          setGlobalWeatherSummary(getGlobalWeatherSummary());
-        });
-      }, 400);
-    } else if (localCountries.length > 0) {
-      // Country found → enrichment (weather/news/wiki based on intent keywords)
-      debounceRef.current = setTimeout(() => {
-        fetchEnrichment(localCountries[0].value, value);
-      }, 400);
-    } else if (detectMode(value) === 'news') {
-      // Topic keyword (football, science…) → immediate clear + debounced topic news
-      setNews([]); setWiki(null); setCountryWeather(null);
-      setGlobalWeatherSummary(null); setShowMusic(false);
+    // 2. Debounced enrichment — forced mode takes priority over auto-detection
+    if (searchMode === 'wiki') {
+      // Forced wiki: any keyword → Wikipedia search
+      setNews([]); setWiki(null); setCountryWeather(null); setGlobalWeatherSummary(null); setShowMusic(false);
+      debounceRef.current = setTimeout(() => handleWikiSearch(value), 400);
+    } else if (searchMode === 'news') {
+      // Forced news: always fetch topic news
+      setWikiResults([]); setWiki(null); setCountryWeather(null); setGlobalWeatherSummary(null); setShowMusic(false);
       debounceRef.current = setTimeout(async () => {
         setLoading(true);
         try {
@@ -726,31 +794,109 @@ export const SearchBar = forwardRef<SearchBarHandle, SearchBarProps>(function Se
           }
         } finally { setLoading(false); }
       }, 400);
+    } else if (searchMode === 'weather') {
+      // Forced weather
+      setWikiResults([]); setNews([]); setWiki(null); setShowMusic(false);
+      if (hasGlobalIntent(value)) {
+        debounceRef.current = setTimeout(() => {
+          setLoading(true);
+          fetchGlobalWeather().then(data => {
+            setLoading(false);
+            if (!userActiveRef.current) return;
+            if (data) onCountryHighlight?.(data);
+            setGlobalWeatherSummary(getGlobalWeatherSummary());
+          });
+        }, 400);
+      } else if (localCountries.length > 0) {
+        debounceRef.current = setTimeout(() => fetchEnrichment(localCountries[0].value, 'météo ' + value), 400);
+      } else {
+        // No country specified → show global weather
+        debounceRef.current = setTimeout(() => {
+          setLoading(true);
+          fetchGlobalWeather().then(data => {
+            setLoading(false);
+            if (!userActiveRef.current) return;
+            if (data) onCountryHighlight?.(data);
+            setGlobalWeatherSummary(getGlobalWeatherSummary());
+          });
+        }, 400);
+      }
     } else {
-      // No country, no weather global → full Pythagoras pipeline (complex intents)
-      debounceRef.current = setTimeout(() => search(value), 400);
+      // Auto mode — existing routing + wiki as universal fallback
+      if (hasWeatherIntent(value) && hasGlobalIntent(value)) {
+        setWikiResults([]);
+        debounceRef.current = setTimeout(() => {
+          setLoading(true);
+          fetchGlobalWeather().then(data => {
+            setLoading(false);
+            if (!userActiveRef.current) return;
+            if (data) onCountryHighlight?.(data);
+            setGlobalWeatherSummary(getGlobalWeatherSummary());
+          });
+        }, 400);
+      } else if (localCountries.length > 0) {
+        setWikiResults([]);
+        debounceRef.current = setTimeout(() => fetchEnrichment(localCountries[0].value, value), 400);
+      } else if (detectMode(value) === 'news') {
+        setWikiResults([]); setWiki(null); setCountryWeather(null); setGlobalWeatherSummary(null); setShowMusic(false);
+        debounceRef.current = setTimeout(async () => {
+          setLoading(true);
+          try {
+            const items = await fetchTopicNews(value);
+            if (!userActiveRef.current) return;
+            if (items.length > 0) {
+              highlightNewsCountries(items, onCountryHighlight, extractor);
+              const translated = await translateTitles(items, lang);
+              if (userActiveRef.current) setNews(translated);
+            }
+          } finally { setLoading(false); }
+        }, 400);
+      } else {
+        // Universal wiki fallback — replaces old Pythagoras pipeline for free-form queries
+        setNews([]); setWiki(null); setCountryWeather(null); setGlobalWeatherSummary(null); setShowMusic(false);
+        debounceRef.current = setTimeout(() => handleWikiSearch(value), 400);
+      }
     }
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter') { clearTimeout(debounceRef.current); search(query); }
-    if (e.key === 'Escape') { setQuery(''); setResult(null); setWiki(null); setNews([]); setCountryWeather(null); setGlobalWeatherSummary(null); setActive(false); onCountryHighlight?.({}); inputRef.current?.blur(); }
+    if (e.key === 'Escape') { setQuery(''); setResult(null); setWiki(null); setWikiResults([]); setNews([]); setCountryWeather(null); setGlobalWeatherSummary(null); setActive(false); onCountryHighlight?.({}); inputRef.current?.blur(); }
   };
 
   const setActive = (v: boolean) => { setUserActive(v); userActiveRef.current = v; };
   const handleFocus = () => { setFocused(true); setActive(true); };
   const handleBlur = () => { setTimeout(() => { setFocused(false); if (!query) setActive(false); }, 150); };
-  const clear = () => { setQuery(''); setResult(null); setWiki(null); setNews([]); setCountryWeather(null); setGlobalWeatherSummary(null); setLocalEntities([]); setActive(false); onCountryHighlight?.({}); inputRef.current?.focus(); };
+  const clear = () => { setQuery(''); setResult(null); setWiki(null); setWikiResults([]); setNews([]); setCountryWeather(null); setGlobalWeatherSummary(null); setLocalEntities([]); setActive(false); onCountryHighlight?.({}); inputRef.current?.focus(); };
+  const toggleMode = (mode: SearchMode) => {
+    setSearchMode(prev => {
+      const next = prev === mode ? 'auto' : mode;
+      // Re-run search immediately if there's an active query
+      if (query.trim()) {
+        clearTimeout(debounceRef.current);
+        setWikiResults([]); setWiki(null); setNews([]); setCountryWeather(null); setGlobalWeatherSummary(null);
+        debounceRef.current = setTimeout(() => {
+          if (next === 'wiki') { handleWikiSearch(query); }
+          else if (next === 'news') { setLoading(true); fetchTopicNews(query).then(async items => { setLoading(false); if (!userActiveRef.current || !items.length) return; const t = await translateTitles(items, lang); if (userActiveRef.current) { highlightNewsCountries(items, onCountryHighlight, extractor); setNews(t); } }); }
+          else { search(query); }
+        }, 0);
+      }
+      return next;
+    });
+  };
 
   // Use local entities for immediate UI feedback, fallback to Pythagoras result for complex intents
   const countries = localEntities.length > 0
     ? localEntities
     : (result?.entities || []).filter((e: Entity) => e.type === 'country');
-  const hasResults = countries.length > 0 || wiki || news.length > 0 || showMusic || countryWeather !== null || globalWeatherSummary !== null;
+  const hasResults = countries.length > 0 || wiki || wikiResults.length > 0 || news.length > 0 || showMusic || countryWeather !== null || globalWeatherSummary !== null;
   const showResults = hasResults;
 
   return (
-    <div className={`search-bar ${focused ? 'focused' : ''} ${!userActive && typedPlaceholder ? 'showcasing' : ''}`}>
+    <div
+      className={`search-bar ${focused ? 'focused' : ''} ${!userActive && typedPlaceholder ? 'showcasing' : ''}`}
+      data-mode={searchMode !== 'auto' ? searchMode : undefined}
+    >
       <div className="search-input-wrapper">
         <svg className="search-icon" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2">
           <circle cx="11" cy="11" r="8" />
@@ -769,6 +915,32 @@ export const SearchBar = forwardRef<SearchBarHandle, SearchBarProps>(function Se
           spellCheck={false}
           autoComplete="off"
         />
+        <div className="search-mode-selector" aria-label="Search mode">
+          <button
+            className={`search-mode-btn${searchMode === 'news' ? ' active' : ''}`}
+            data-mode="news"
+            onClick={() => toggleMode('news')}
+            aria-label="News mode"
+            title="News"
+            type="button"
+          />
+          <button
+            className={`search-mode-btn${searchMode === 'weather' ? ' active' : ''}`}
+            data-mode="weather"
+            onClick={() => toggleMode('weather')}
+            aria-label="Weather mode"
+            title="Weather"
+            type="button"
+          />
+          <button
+            className={`search-mode-btn${searchMode === 'wiki' ? ' active' : ''}`}
+            data-mode="wiki"
+            onClick={() => toggleMode('wiki')}
+            aria-label="Wikipedia mode"
+            title="Wikipedia"
+            type="button"
+          />
+        </div>
         {loading && <span className="search-spinner" />}
         {query && !loading && (
           <button className="search-clear" onClick={clear} aria-label="Clear">×</button>
@@ -834,6 +1006,16 @@ export const SearchBar = forwardRef<SearchBarHandle, SearchBarProps>(function Se
               <span className="search-wiki-title">{wiki.title}</span>
               <span className="search-wiki-extract">{wiki.extract}</span>
             </a>
+          )}
+          {wikiResults.length > 0 && (
+            <div className="search-wiki-results">
+              {wikiResults.map((item, i) => (
+                <a key={i} href={item.url} target="_blank" rel="noopener noreferrer" className="search-wiki-card">
+                  <span className="search-wiki-card-title">{item.title}</span>
+                  {item.extract && <span className="search-wiki-card-extract">{item.extract}</span>}
+                </a>
+              ))}
+            </div>
           )}
           {news.length > 0 && (
             <div className="search-news-grid">
