@@ -201,7 +201,7 @@ function highlightNewsCountries(
   // Feed publisher country — strong signal
   for (const item of items) {
     if (item.country) {
-      highlights[item.country] = { scale: 0.9, color: '#4a9eff', extrusion: 0.9 };
+      highlights[item.country] = { scale: 0.9, color: '#4a9eff', extrusion: 0.7 };
     }
   }
   // Countries mentioned in article titles — weaker signal (e.g. "Italian GP", "Monaco Grand Prix")
@@ -211,7 +211,7 @@ function highlightNewsCountries(
       for (const entity of entities) {
         const name = toEnglish(entity.value);
         if (!highlights[name]) {
-          highlights[name] = { scale: 0.6, color: '#4a9eff', extrusion: 0.6 };
+          highlights[name] = { scale: 0.6, color: '#4a9eff', extrusion: 0.5 };
         }
       }
     }
@@ -595,7 +595,7 @@ export const SearchBar = forwardRef<SearchBarHandle, SearchBarProps>(function Se
   const highlightCountries = useCallback((countryEntities: { value: string }[]) => {
     const highlights: Record<string, CountryHighlight> = {};
     for (const entity of countryEntities) {
-      highlights[toEnglish(entity.value)] = { scale: 1, color: '#00ff88', extrusion: 1.2 };
+      highlights[toEnglish(entity.value)] = { scale: 1, color: '#00ff88', extrusion: 0.8 };
     }
     onCountryHighlight?.(highlights);
   }, [onCountryHighlight]);
@@ -663,7 +663,7 @@ export const SearchBar = forwardRef<SearchBarHandle, SearchBarProps>(function Se
           .filter((e: { type: string }) => e.type === 'country');
         for (const entity of entities) {
           const name = toEnglish(entity.value);
-          if (!highlights[name]) highlights[name] = { scale: 0.7, color: '#e2e8f0', extrusion: 0.7 };
+          if (!highlights[name]) highlights[name] = { scale: 0.7, color: '#e2e8f0', extrusion: 0.6 };
         }
       }
 
@@ -678,7 +678,7 @@ export const SearchBar = forwardRef<SearchBarHandle, SearchBarProps>(function Se
             .filter((e: { type: string }) => e.type === 'country');
           for (const entity of entities) {
             const name = toEnglish(entity.value);
-            if (!highlights[name]) highlights[name] = { scale: 0.6, color: '#e2e8f0', extrusion: 0.5 };
+            if (!highlights[name]) highlights[name] = { scale: 0.6, color: '#e2e8f0', extrusion: 0.4 };
           }
         }
       }
@@ -772,7 +772,7 @@ export const SearchBar = forwardRef<SearchBarHandle, SearchBarProps>(function Se
         setNews(translated);
         const newsHighlights: Record<string, CountryHighlight> = {};
         for (const c of ['United States', 'China', 'France', 'United Kingdom', 'Russia', 'Japan', 'Germany', 'Brazil', 'India', 'Australia']) {
-          newsHighlights[c] = { scale: 0.7, color: '#ef4444', extrusion: 0.7 };
+          newsHighlights[c] = { scale: 0.7, color: '#ef4444', extrusion: 0.6 };
         }
         onCountryHighlight?.(newsHighlights);
       });
@@ -816,7 +816,7 @@ export const SearchBar = forwardRef<SearchBarHandle, SearchBarProps>(function Se
       fetchEnrichment(wikiCountry, typedPlaceholder, true);
     } else if (weatherCountry) {
       // Weather showcase: strong single-country extrusion, then show weather card + local time
-      onCountryHighlight?.({ [weatherCountry]: { scale: 1.4, color: '#00ff88', extrusion: 1.8 } });
+      onCountryHighlight?.({ [weatherCountry]: { scale: 1.2, color: '#00ff88', extrusion: 0.8 } });
       fetchEnrichment(weatherCountry, 'météo', true);
     } else if (newsTopic) {
       // News: fetch topic articles + highlight countries from results
