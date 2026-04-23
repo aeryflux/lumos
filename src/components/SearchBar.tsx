@@ -34,7 +34,7 @@ const SHOWCASE_COUNTRY_MAP: Record<string, string> = {
 interface Entity { type: string; value: string; normalizedValue: string }
 interface SearchResult { intent?: { category: string }; entities?: Entity[] }
 interface CountryHighlight { scale: number; color?: string; extrusion?: number }
-interface WikiSnippet { title: string; extract: string; url: string; rawExtract?: string }
+interface WikiSnippet { title: string; extract: string; url: string; rawExtract?: string; articleLinks?: string[] }
 interface NewsItem { title: string; link: string; source?: string; color?: string; country?: string }
 interface WeatherCard { temperature: number; condition: string; color: string; unit: string }
 interface WeatherSummaryItem { name: string; temperature: number; color: string }
@@ -427,8 +427,12 @@ function detectQueryLang(query: string): string | null {
   return null;
 }
 
-// Universal Wikipedia search — returns up to 3 article snippets for any keyword
-// Uses two requests: search → extract, to avoid HTML snippet markup from list=search
+// Universal Wikipedia search — returns up to 3 article snippets for any keyword.
+// Two requests:
+//   1. list=search → get ranked titles
+//   2. prop=extracts|info|links on all titles (+ pllimit=50 for first article) → one round-trip
+// Links from the first (most relevant) article are used to find related countries that
+// the intro text doesn't mention explicitly (e.g. WWII intro says "Allies / Axis" not country names).
 async function fetchWikiSearch(query: string, lang = 'en'): Promise<WikiSnippet[]> {
   if (!query.trim()) return [];
   const scriptLang = detectQueryLang(query);
@@ -443,13 +447,15 @@ async function fetchWikiSearch(query: string, lang = 'en'): Promise<WikiSnippet[
     const searchData = await searchRes.json();
     const hits: Array<{ title: string }> = searchData.query?.search ?? [];
     if (hits.length === 0) return targetLang !== 'en' ? fetchWikiSearch(query, 'en') : [];
-    // Fetch extracts for all results in one request
+    // Fetch extracts + internal links in one request
+    // Links are fetched only for the first (most relevant) result via pllimit
     const titles = hits.map(h => h.title).join('|');
     const extractRes = await fetch(
       `https://${targetLang}.wikipedia.org/w/api.php?` +
-      new URLSearchParams({ action: 'query', titles, prop: 'extracts|info',
+      new URLSearchParams({ action: 'query', titles, prop: 'extracts|info|links',
         exintro: '1', explaintext: '1', exsectionformat: 'plain',
-        exlimit: '3', inprop: 'url', format: 'json', origin: '*' })
+        exlimit: '3', inprop: 'url', pllimit: '80', plnamespace: '0',
+        format: 'json', origin: '*' })
     );
     if (!extractRes.ok) return hits.map(h => ({
       title: h.title, extract: '',
@@ -458,15 +464,18 @@ async function fetchWikiSearch(query: string, lang = 'en'): Promise<WikiSnippet[
     const extractData = await extractRes.json();
     const pages = Object.values(extractData.query?.pages ?? {}) as Array<{
       title: string; extract?: string; fullurl?: string;
+      links?: Array<{ title: string }>;
     }>;
     const pageMap = new Map(pages.map(p => [p.title, p]));
-    return hits.map(h => {
+    return hits.map((h, idx) => {
       const page = pageMap.get(h.title);
       const extract = page?.extract ?? '';
       return {
         title: h.title,
         extract: extract.slice(0, 160) + (extract.length > 160 ? '...' : ''),
-        rawExtract: extract.slice(0, 600), // full intro for country extraction
+        rawExtract: extract.slice(0, 600),
+        // Carry article links only for the first result — used for country extraction
+        articleLinks: idx === 0 ? (page?.links ?? []).map(l => l.title) : undefined,
         url: page?.fullurl ?? `https://${targetLang}.wikipedia.org/wiki/${encodeURIComponent(h.title)}`,
       };
     }).filter(r => r.title);
@@ -588,20 +597,36 @@ export const SearchBar = forwardRef<SearchBarHandle, SearchBarProps>(function Se
       if (!userActiveRef.current) return;
       setWikiResults(results);
       const highlights: Record<string, CountryHighlight> = {};
+
+      // Pass 1 — extract from text (title + intro up to 600 chars)
+      // Strip French/Italian/Spanish elisions ("l'Allemagne" → " Allemagne") so
+      // the tokenizer sees the country name as a standalone token.
       for (const r of results) {
-        // Use rawExtract (full intro, up to 600 chars) for entity extraction.
-        // Strip French/Italian/Spanish elisions ("l'Allemagne" → " Allemagne") so
-        // the tokenizer doesn't fuse the article with the country name into one token
-        // that misses the COUNTRY_MAPPINGS lookup.
         const rawText = (r.rawExtract ?? r.extract).replace(/\b[ldnjcmts]'/gi, ' ');
-        const sourceText = r.title + ' ' + rawText;
-        const entities = extractor.extract(sourceText)
+        const entities = extractor.extract(r.title + ' ' + rawText)
           .filter((e: { type: string }) => e.type === 'country');
         for (const entity of entities) {
           const name = toEnglish(entity.value);
           if (!highlights[name]) highlights[name] = { scale: 0.7, color: '#e2e8f0', extrusion: 0.2 };
         }
       }
+
+      // Pass 2 — scan article links from the first result.
+      // Wikipedia internally links to every country it discusses, so this reliably catches
+      // countries that only appear deep in the article — beyond the intro snippet —
+      // e.g. "Seconde Guerre mondiale" intro says "Alliés / Axe" without naming countries.
+      if (results[0]?.articleLinks) {
+        for (const linkTitle of results[0].articleLinks) {
+          const cleaned = linkTitle.replace(/\b[ldnjcmts]'/gi, ' ');
+          const entities = extractor.extract(cleaned)
+            .filter((e: { type: string }) => e.type === 'country');
+          for (const entity of entities) {
+            const name = toEnglish(entity.value);
+            if (!highlights[name]) highlights[name] = { scale: 0.6, color: '#e2e8f0', extrusion: 0.15 };
+          }
+        }
+      }
+
       if (Object.keys(highlights).length > 0) onCountryHighlight?.(highlights);
     } finally { setLoading(false); }
   }, [lang, extractor, onCountryHighlight]);
