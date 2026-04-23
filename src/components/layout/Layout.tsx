@@ -31,10 +31,11 @@ export function Layout() {
     return () => document.removeEventListener('mousedown', handler);
   }, [settingsOpen]);
 
-  // Apply reduce-motion class to root
+  // Apply reduce-motion class to root + notify sibling components (Globe in Home)
   useEffect(() => {
     document.documentElement.classList.toggle('reduce-motion', reduceMotion);
     localStorage.setItem(REDUCE_MOTION_KEY, String(reduceMotion));
+    window.dispatchEvent(new CustomEvent('aery-reduce-motion', { detail: reduceMotion }));
   }, [reduceMotion]);
 
   const clearCache = () => {

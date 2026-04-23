@@ -40,9 +40,10 @@ function BottomBar({ t }: { t: (k: string) => string }) {
 
   if (tipVisible) {
     return (
-      <div className="bottom-bar tip-bar" onClick={() => setTipVisible(false)}>
+      <div className="bottom-bar tip-bar">
         <span className="bottom-bar-tip-icon">💡</span>
         <span className="bottom-bar-text">{t('tip.globe')}</span>
+        <button className="bottom-bar-close" onClick={() => setTipVisible(false)} aria-label="Close">×</button>
       </div>
     );
   }
@@ -52,22 +53,36 @@ function BottomBar({ t }: { t: (k: string) => string }) {
 
 const Globe = lazy(() => import('@aeryflux/globe/react').then(m => ({ default: m.Globe })));
 
-// Ocean tint: idle = deep navy, active (country highlighted) = slightly brighter
-const OCEAN_TINT_IDLE   = '#040d1a';
-const OCEAN_TINT_ACTIVE = '#071e3d';
+// Ocean tint: idle = dark navy, active (country highlighted) = slightly brighter
+const OCEAN_TINT_IDLE   = '#071e3d';
+const OCEAN_TINT_ACTIVE = '#0d2a52';
+const REDUCE_MOTION_KEY = 'aery_reduce_motion';
 
 export function Home() {
   const { t } = useI18n();
   const [countryData, setCountryData] = useState<Record<string, { scale: number; color?: string; extrusion?: number }>>({});
   const [oceanTint, setOceanTint] = useState(OCEAN_TINT_IDLE);
+  const [reduceMotion, setReduceMotion] = useState(() => localStorage.getItem(REDUCE_MOTION_KEY) === 'true');
+  const reduceMotionRef = useRef(reduceMotion);
   const searchRef = useRef<SearchBarHandle>(null);
   const globeRef = useRef<GlobeHandle>(null);
+
+  // Sync reduce-motion preference from the settings panel (dispatched via CustomEvent)
+  useEffect(() => {
+    const handler = (e: Event) => {
+      const v = (e as CustomEvent<boolean>).detail;
+      setReduceMotion(v);
+      reduceMotionRef.current = v;
+    };
+    window.addEventListener('aery-reduce-motion', handler);
+    return () => window.removeEventListener('aery-reduce-motion', handler);
+  }, []);
 
   const handleCountryHighlight = useCallback((data: Record<string, { scale: number; color?: string; extrusion?: number }>) => {
     setCountryData(data);
     const keys = Object.keys(data);
     if (keys.length === 1) {
-      globeRef.current?.flyTo(keys[0]);
+      if (!reduceMotionRef.current) globeRef.current?.flyTo(keys[0]);
       setOceanTint(OCEAN_TINT_ACTIVE);
     } else {
       setOceanTint(OCEAN_TINT_IDLE);
@@ -93,13 +108,13 @@ export function Home() {
             showGlobeFill={true}
             enableControls={true}
             rotationSpeed={0.0005}
-            bloomStrength={0.15}
-            glowIntensity={0.8}
-            introAnimation={true}
+            bloomStrength={reduceMotion ? 0 : 0.15}
+            glowIntensity={reduceMotion ? 0.3 : 0.8}
+            introAnimation={!reduceMotion}
             introDuration={2.5}
             countryData={countryData}
             globeFillTint={oceanTint}
-            globeFillAnimation={true}
+            globeFillAnimation={!reduceMotion}
             onCountryClick={handleCountryClick}
             style={{ width: '100%', height: '100%' }}
           />
