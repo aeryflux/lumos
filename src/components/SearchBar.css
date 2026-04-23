@@ -274,6 +274,16 @@
   text-transform: uppercase;
 }
 
+.search-weather-time {
+  margin-left: auto;
+  font-size: 18px;
+  font-family: var(--font-display);
+  font-weight: 300;
+  color: var(--color-text-muted);
+  letter-spacing: 1px;
+  opacity: 0.6;
+}
+
 /* ============================================================
    WEATHER SUMMARY — global hottest / coldest
    ============================================================ */
@@ -351,6 +361,141 @@
 .search-music-btn:hover {
   background: rgba(0, 255, 136, 0.15);
   color: var(--color-text-primary);
+}
+
+/* ============================================================
+   MODE SELECTOR — 3 dots (news/weather/wiki)
+   ============================================================ */
+
+.search-mode-selector {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+/* Play/pause toggle */
+.search-showcase-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: var(--color-text-muted);
+  opacity: 0.35;
+  padding: 0;
+  transition: opacity var(--duration-fast), color var(--duration-fast);
+  flex-shrink: 0;
+}
+
+.search-showcase-toggle:hover { opacity: 0.75; }
+.search-showcase-toggle:active { opacity: 1; }
+
+.search-mode-btn {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  border: 1.5px solid currentColor;
+  background: transparent;
+  cursor: pointer;
+  padding: 0;
+  opacity: 0.35;
+  transition: opacity var(--duration-fast), transform var(--duration-fast), background var(--duration-fast);
+  flex-shrink: 0;
+}
+
+.search-mode-btn[data-mode="news"]    { color: #ef4444; }
+.search-mode-btn[data-mode="weather"] { color: #00ff88; }
+.search-mode-btn[data-mode="wiki"]    { color: #e2e8f0; }
+
+.search-mode-btn:hover         { opacity: 0.7; transform: scale(1.2); }
+.search-mode-btn.active        { opacity: 0.75; background: currentColor; transform: scale(1.1); }
+.search-mode-btn.active.forced { opacity: 1; transform: scale(1.15); }
+
+/* Tooltips — shared between mode dots and play/pause */
+.search-mode-btn,
+.search-showcase-toggle {
+  position: relative;
+}
+
+.search-mode-btn::before,
+.search-showcase-toggle::before {
+  content: attr(data-label);
+  position: absolute;
+  bottom: calc(100% + 7px);
+  left: 50%;
+  transform: translateX(-50%) translateY(3px);
+  font-size: 9px;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  background: rgba(8, 10, 18, 0.92);
+  border: 1px solid var(--border-subtle);
+  border-radius: 4px;
+  padding: 2px 6px;
+  transition: opacity 0.15s ease, transform 0.15s ease;
+  z-index: 10;
+}
+
+.search-mode-btn:hover::before,
+.search-showcase-toggle:hover::before {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+/* Input wrapper border tint when a mode is forced */
+.search-bar[data-mode="news"]    .search-input-wrapper { border-color: rgba(239, 68, 68, 0.35); }
+.search-bar[data-mode="weather"] .search-input-wrapper { border-color: rgba(0, 255, 136, 0.35); }
+.search-bar[data-mode="wiki"]    .search-input-wrapper { border-color: rgba(226, 232, 240, 0.25); }
+
+/* ============================================================
+   WIKI RESULTS — multiple article cards
+   ============================================================ */
+
+.search-wiki-results {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.search-wiki-card {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  text-decoration: none;
+  padding: 8px 10px;
+  border-left: 2px solid rgba(226, 232, 240, 0.2);
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.02);
+  transition: background var(--duration-fast), border-color var(--duration-fast);
+}
+
+.search-wiki-card:hover {
+  background: rgba(255, 255, 255, 0.05);
+  border-left-color: rgba(226, 232, 240, 0.45);
+}
+
+.search-wiki-card-title {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--color-text-primary);
+  letter-spacing: 0.2px;
+}
+
+.search-wiki-card-extract {
+  font-size: 11px;
+  color: var(--color-text-muted);
+  line-height: 1.5;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
 /* ============================================================
