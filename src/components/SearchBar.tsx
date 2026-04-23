@@ -579,6 +579,7 @@ export const SearchBar = forwardRef<SearchBarHandle, SearchBarProps>(function Se
   const inputRef = useRef<HTMLInputElement>(null);
   const debounceRef = useRef<ReturnType<typeof setTimeout>>(undefined);
   const userActiveRef = useRef(false);
+  const searchRef2 = useRef<(input: string, isShowcase?: boolean) => Promise<void>>(() => Promise.resolve());
 
   // Prefetch global weather on mount so cache is warm when showcase reaches __global_weather__
   useEffect(() => { fetchGlobalWeather(); }, []);
@@ -744,11 +745,14 @@ export const SearchBar = forwardRef<SearchBarHandle, SearchBarProps>(function Se
     }
   }, [onCountryHighlight, lang, highlightCountries, fetchEnrichment, extractCountries, extractor]);
 
+  // Keep searchRef2 always pointing to the latest search function
+  searchRef2.current = search;
+
   useImperativeHandle(ref, () => ({
     setQuery: (q: string) => {
       setQuery(q);
       // Do NOT set userActive — external calls (globe click) must not block fetchEnrichment guards
-      search(q);
+      searchRef2.current(q);
     },
   }));
 
