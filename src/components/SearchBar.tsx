@@ -604,31 +604,33 @@ export const SearchBar = forwardRef<SearchBarHandle, SearchBarProps>(function Se
     setGlobalWeatherSummary(null);
     setLoading(true);
     try {
-      if (isShowcase) {
-        const w = await fetchWikiSnippet(countryName, lang);
-        if (!userActiveRef.current) setWiki(w);
-      } else if (hasWeatherIntent(rawInput)) {
+      if (hasWeatherIntent(rawInput)) {
         // Fetch full weather data (uses global cache if warm), then filter for the target country
-        const highlights = await fetchGlobalWeather();
-        if (!userActiveRef.current) return;
-        if (highlights) onCountryHighlight?.(highlights);
+        await fetchGlobalWeather();
+        // Cancel if the user has taken control (typed something) — but allow showcase to proceed
+        if (userActiveRef.current) return;
+        // In showcase keep the single-country highlight — don't override with global heatmap
+        if (!isShowcase && weatherCache) onCountryHighlight?.(weatherCache);
         const englishName = toEnglish(countryName);
         const entry = weatherRawData?.[englishName];
         if (entry) {
           setCountryWeather({ temperature: entry.temperature, condition: entry.condition, color: entry.color, unit: entry.viewUnit || '°C', countryName: englishName });
         }
+      } else if (isShowcase) {
+        const w = await fetchWikiSnippet(countryName, lang);
+        if (!userActiveRef.current) setWiki(w);
       } else if (hasNewsIntent(rawInput)) {
         const items = await fetchCountryNews(countryName);
-        if (userActiveRef.current && items.length > 0) {
+        if (!userActiveRef.current && items.length > 0) {
           const translated = await translateTitles(items, lang);
-          if (userActiveRef.current) setNews(translated);
+          if (!userActiveRef.current) setNews(translated);
         }
       } else {
         const items = await fetchCountryNews(countryName);
-        if (userActiveRef.current && items.length > 0) {
+        if (!userActiveRef.current && items.length > 0) {
           const translated = await translateTitles(items, lang);
-          if (userActiveRef.current) setNews(translated);
-        } else if (userActiveRef.current) {
+          if (!userActiveRef.current) setNews(translated);
+        } else if (!userActiveRef.current) {
           const w = await fetchWikiSnippet(countryName, lang);
           setWiki(w);
         }
@@ -809,9 +811,10 @@ export const SearchBar = forwardRef<SearchBarHandle, SearchBarProps>(function Se
       highlightCountries([{ value: wikiCountry }]);
       fetchEnrichment(wikiCountry, typedPlaceholder, true);
     } else if (weatherCountry) {
-      // Weather: highlight country + fetch country weather
+      // Weather showcase: highlight only the target country (not full global heatmap),
+      // then show the country weather card with local time
       highlightCountries([{ value: weatherCountry }]);
-      fetchEnrichment(weatherCountry, 'weather', false);
+      fetchEnrichment(weatherCountry, 'météo', false);
     } else if (newsTopic) {
       // News: fetch topic articles + highlight countries from results
       setLoading(true);
