@@ -161,7 +161,9 @@
 }
 
 .nav-settings-btn {
-  padding: 8px;
+  background: none;
+  border: none;
+  cursor: pointer;
 }
 
 .nav-settings-panel {
