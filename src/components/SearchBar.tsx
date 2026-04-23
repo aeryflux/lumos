@@ -34,7 +34,7 @@ const SHOWCASE_COUNTRY_MAP: Record<string, string> = {
 interface Entity { type: string; value: string; normalizedValue: string }
 interface SearchResult { intent?: { category: string }; entities?: Entity[] }
 interface CountryHighlight { scale: number; color?: string; extrusion?: number }
-interface WikiSnippet { title: string; extract: string; url: string }
+interface WikiSnippet { title: string; extract: string; url: string; rawExtract?: string }
 interface NewsItem { title: string; link: string; source?: string; color?: string; country?: string }
 interface WeatherCard { temperature: number; condition: string; color: string; unit: string }
 interface WeatherSummaryItem { name: string; temperature: number; color: string }
@@ -453,6 +453,7 @@ async function fetchWikiSearch(query: string, lang = 'en'): Promise<WikiSnippet[
       return {
         title: h.title,
         extract: extract.slice(0, 160) + (extract.length > 160 ? '...' : ''),
+        rawExtract: extract.slice(0, 600), // full intro for country extraction
         url: page?.fullurl ?? `https://${targetLang}.wikipedia.org/wiki/${encodeURIComponent(h.title)}`,
       };
     }).filter(r => r.title);
@@ -575,7 +576,10 @@ export const SearchBar = forwardRef<SearchBarHandle, SearchBarProps>(function Se
       setWikiResults(results);
       const highlights: Record<string, CountryHighlight> = {};
       for (const r of results) {
-        const entities = extractor.extract(r.title + ' ' + r.extract)
+        // Use rawExtract (full intro, up to 600 chars) for entity extraction —
+        // display extract is capped at 160 chars and misses countries named further in the text
+        const sourceText = r.title + ' ' + (r.rawExtract ?? r.extract);
+        const entities = extractor.extract(sourceText)
           .filter((e: { type: string }) => e.type === 'country');
         for (const entity of entities) {
           const name = toEnglish(entity.value);
