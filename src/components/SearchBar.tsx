@@ -343,6 +343,19 @@ const COUNTRY_EN: Record<string, string> = Object.assign(
     'indonesien': 'Indonesia', 'malaysia': 'Malaysia',
     'nya zeeland': 'New Zealand', 'sydkorea': 'South Korea',
   },
+  // Historical / alternate names (encyclopedia articles)
+  {
+    'soviet union': 'Russia', 'union sovietique': 'Russia', 'urss': 'Russia', 'ussr': 'Russia',
+    'russian empire': 'Russia', 'empire russe': 'Russia',
+    'third reich': 'Germany', 'nazi germany': 'Germany', 'allemagne nazie': 'Germany',
+    'weimar republic': 'Germany', 'west germany': 'Germany', 'east germany': 'Germany',
+    'german democratic republic': 'Germany', 'holy roman empire': 'Germany',
+    'austro-hungarian empire': 'Austria', 'austria-hungary': 'Austria',
+    'ottoman empire': 'Turkey', 'empire ottoman': 'Turkey',
+    'british empire': 'United Kingdom', 'great britain': 'United Kingdom', 'grande-bretagne': 'United Kingdom',
+    'roman empire': 'Italy', 'empire romain': 'Italy',
+    'byzantine empire': 'Greece',
+  },
   // Indonesian
   {
     'jepang': 'Japan', 'jerman': 'Germany',
@@ -576,9 +589,12 @@ export const SearchBar = forwardRef<SearchBarHandle, SearchBarProps>(function Se
       setWikiResults(results);
       const highlights: Record<string, CountryHighlight> = {};
       for (const r of results) {
-        // Use rawExtract (full intro, up to 600 chars) for entity extraction —
-        // display extract is capped at 160 chars and misses countries named further in the text
-        const sourceText = r.title + ' ' + (r.rawExtract ?? r.extract);
+        // Use rawExtract (full intro, up to 600 chars) for entity extraction.
+        // Strip French/Italian/Spanish elisions ("l'Allemagne" → " Allemagne") so
+        // the tokenizer doesn't fuse the article with the country name into one token
+        // that misses the COUNTRY_MAPPINGS lookup.
+        const rawText = (r.rawExtract ?? r.extract).replace(/\b[ldnjcmts]'/gi, ' ');
+        const sourceText = r.title + ' ' + rawText;
         const entities = extractor.extract(sourceText)
           .filter((e: { type: string }) => e.type === 'country');
         for (const entity of entities) {
