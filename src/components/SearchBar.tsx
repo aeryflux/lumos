@@ -867,8 +867,14 @@ export const SearchBar = forwardRef<SearchBarHandle, SearchBarProps>(function Se
 
     // 2. Debounced enrichment — forced mode takes priority over auto-detection
     if (searchMode === 'wiki') {
-      // Forced wiki: any keyword → Wikipedia search
-      setNews([]); setWiki(null); setCountryWeather(null); setGlobalWeatherSummary(null);      debounceRef.current = setTimeout(() => handleWikiSearch(value), 400);
+      // Forced wiki: exact country name → direct enrichment (avoids noisy multi-results)
+      // Generic keyword → Wikipedia search
+      setNews([]); setWiki(null); setCountryWeather(null); setGlobalWeatherSummary(null);
+      if (localCountries.length > 0) {
+        debounceRef.current = setTimeout(() => fetchEnrichment(localCountries[0].value, value), 400);
+      } else {
+        debounceRef.current = setTimeout(() => handleWikiSearch(value), 400);
+      }
     } else if (searchMode === 'news') {
       // Forced news: always fetch topic news
       setWikiResults([]); setWiki(null); setCountryWeather(null); setGlobalWeatherSummary(null);      debounceRef.current = setTimeout(async () => {
