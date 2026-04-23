@@ -1,9 +1,54 @@
-import { lazy, Suspense, useState, useCallback, useRef } from 'react';
+import { lazy, Suspense, useState, useCallback, useRef, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { SearchBar, type SearchBarHandle } from '../components/SearchBar';
 import type { GlobeHandle } from '@aeryflux/globe/react';
 import { useI18n } from '../i18n';
 import './Home.css';
+
+const COOKIE_KEY = 'aery_cookie_consent';
+
+function BottomBar({ t }: { t: (k: string) => string }) {
+  const [consent, setConsent] = useState<'accepted' | 'refused' | null>(() => {
+    const v = localStorage.getItem(COOKIE_KEY);
+    return v === 'accepted' || v === 'refused' ? v : null;
+  });
+  const [tipVisible, setTipVisible] = useState(false);
+
+  useEffect(() => {
+    if (consent !== null) {
+      setTipVisible(true);
+      const timer = setTimeout(() => setTipVisible(false), 8000);
+      return () => clearTimeout(timer);
+    }
+  }, [consent]);
+
+  const accept = () => { localStorage.setItem(COOKIE_KEY, 'accepted'); setConsent('accepted'); };
+  const refuse = () => { localStorage.setItem(COOKIE_KEY, 'refused'); setConsent('refused'); };
+
+  if (consent === null) {
+    return (
+      <div className="bottom-bar cookie-bar">
+        <span className="bottom-bar-text">{t('cookie.text')}</span>
+        <a href="/cgu" className="bottom-bar-policy">{t('cookie.policy')}</a>
+        <div className="bottom-bar-actions">
+          <button className="bottom-bar-btn bottom-bar-btn-refuse" onClick={refuse}>{t('cookie.refuse')}</button>
+          <button className="bottom-bar-btn bottom-bar-btn-accept" onClick={accept}>{t('cookie.accept')}</button>
+        </div>
+      </div>
+    );
+  }
+
+  if (tipVisible) {
+    return (
+      <div className="bottom-bar tip-bar" onClick={() => setTipVisible(false)}>
+        <span className="bottom-bar-tip-icon">💡</span>
+        <span className="bottom-bar-text">{t('tip.globe')}</span>
+      </div>
+    );
+  }
+
+  return null;
+}
 
 const Globe = lazy(() => import('@aeryflux/globe/react').then(m => ({ default: m.Globe })));
 
@@ -75,6 +120,7 @@ export function Home() {
       </div>
 
       <footer className="home-footer">
+        <BottomBar t={t} />
         <nav className="home-footer-legal">
           <Link to="/docs"    className="home-footer-legal-link">Docs</Link>
           <Link to="/cgu"     className="home-footer-legal-link">CGU</Link>

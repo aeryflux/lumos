@@ -157,6 +157,99 @@
 }
 
 /* ============================================================
+   BOTTOM BAR — cookie consent / tips, centered in footer
+   ============================================================ */
+
+.bottom-bar {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: 12px;
+  max-width: 480px;
+  width: max-content;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 14px;
+  background: rgba(10, 12, 20, 0.88);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--border-subtle);
+  border-radius: 10px;
+  z-index: 3;
+  pointer-events: auto;
+  animation: aery-fade-in 0.2s ease;
+}
+
+.bottom-bar-text {
+  font-size: 11px;
+  color: var(--color-text-muted);
+  opacity: 0.8;
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.bottom-bar-policy {
+  font-size: 10px;
+  color: var(--color-text-muted);
+  opacity: 0.5;
+  text-decoration: underline;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.bottom-bar-policy:hover {
+  opacity: 0.9;
+}
+
+.bottom-bar-actions {
+  display: flex;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.bottom-bar-btn {
+  padding: 4px 10px;
+  border-radius: 5px;
+  font-size: 11px;
+  cursor: pointer;
+  border: 1px solid var(--border-subtle);
+  transition: background 0.15s ease, opacity 0.15s ease;
+}
+
+.bottom-bar-btn-refuse {
+  background: transparent;
+  color: var(--color-text-muted);
+  opacity: 0.6;
+}
+
+.bottom-bar-btn-refuse:hover {
+  opacity: 1;
+}
+
+.bottom-bar-btn-accept {
+  background: rgba(0, 255, 136, 0.12);
+  color: #00ff88;
+  border-color: rgba(0, 255, 136, 0.3);
+}
+
+.bottom-bar-btn-accept:hover {
+  background: rgba(0, 255, 136, 0.2);
+}
+
+.tip-bar {
+  cursor: pointer;
+  gap: 8px;
+}
+
+.bottom-bar-tip-icon {
+  font-size: 13px;
+  flex-shrink: 0;
+}
+
+/* ============================================================
    MOBILE — globe full-screen, content overlay at bottom
    (same model as desktop: globe is absolute, content overlays)
    ============================================================ */
