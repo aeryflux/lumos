@@ -1049,8 +1049,8 @@ export const SearchBar = forwardRef<SearchBarHandle, SearchBarProps>(function Se
           <button
             className="search-showcase-toggle"
             onClick={toggleShowcase}
-            aria-label={showcasePlaying ? 'Pause showcase' : 'Play showcase'}
-            title={showcasePlaying ? 'Pause' : 'Play'}
+            aria-label={showcasePlaying ? t('showcase.pause') : t('showcase.play')}
+            data-label={showcasePlaying ? t('showcase.pause') : t('showcase.play')}
             type="button"
           >
             {showcasePlaying ? (
@@ -1067,25 +1067,25 @@ export const SearchBar = forwardRef<SearchBarHandle, SearchBarProps>(function Se
           <button
             className={`search-mode-btn${activeDisplayMode === 'news' ? ' active' : ''}${searchMode === 'news' ? ' forced' : ''}`}
             data-mode="news"
+            data-label={t('mode.news')}
             onClick={() => toggleMode('news')}
-            aria-label="News mode"
-            title="News"
+            aria-label={t('mode.news')}
             type="button"
           />
           <button
             className={`search-mode-btn${activeDisplayMode === 'weather' ? ' active' : ''}${searchMode === 'weather' ? ' forced' : ''}`}
             data-mode="weather"
+            data-label={t('mode.weather')}
             onClick={() => toggleMode('weather')}
-            aria-label="Weather mode"
-            title="Weather"
+            aria-label={t('mode.weather')}
             type="button"
           />
           <button
             className={`search-mode-btn${activeDisplayMode === 'wiki' ? ' active' : ''}${searchMode === 'wiki' ? ' forced' : ''}`}
             data-mode="wiki"
+            data-label={t('mode.wiki')}
             onClick={() => toggleMode('wiki')}
-            aria-label="Wikipedia mode"
-            title="Wikipedia"
+            aria-label={t('mode.wiki')}
             type="button"
           />
         </div>

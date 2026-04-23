@@ -415,6 +415,40 @@
 .search-mode-btn.active        { opacity: 0.75; background: currentColor; transform: scale(1.1); }
 .search-mode-btn.active.forced { opacity: 1; transform: scale(1.15); }
 
+/* Tooltips — shared between mode dots and play/pause */
+.search-mode-btn,
+.search-showcase-toggle {
+  position: relative;
+}
+
+.search-mode-btn::before,
+.search-showcase-toggle::before {
+  content: attr(data-label);
+  position: absolute;
+  bottom: calc(100% + 7px);
+  left: 50%;
+  transform: translateX(-50%) translateY(3px);
+  font-size: 9px;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  background: rgba(8, 10, 18, 0.92);
+  border: 1px solid var(--border-subtle);
+  border-radius: 4px;
+  padding: 2px 6px;
+  transition: opacity 0.15s ease, transform 0.15s ease;
+  z-index: 10;
+}
+
+.search-mode-btn:hover::before,
+.search-showcase-toggle:hover::before {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
 /* Input wrapper border tint when a mode is forced */
 .search-bar[data-mode="news"]    .search-input-wrapper { border-color: rgba(239, 68, 68, 0.35); }
 .search-bar[data-mode="weather"] .search-input-wrapper { border-color: rgba(0, 255, 136, 0.35); }
