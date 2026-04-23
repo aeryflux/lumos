@@ -569,6 +569,7 @@ export const SearchBar = forwardRef<SearchBarHandle, SearchBarProps>(function Se
   const [wiki, setWiki] = useState<WikiSnippet | null>(null);
   const [wikiResults, setWikiResults] = useState<WikiSnippet[]>([]);
   const [searchMode, setSearchMode] = useState<SearchMode>('auto');
+  const searchModeRef = useRef<SearchMode>('auto');
   const [showcasePlaying, setShowcasePlaying] = useState(true);
   const showcasePlayingRef = useRef(true);
   const [news, setNews] = useState<NewsItem[]>([]);
@@ -697,7 +698,7 @@ export const SearchBar = forwardRef<SearchBarHandle, SearchBarProps>(function Se
     }
 
     // Clear stale showcase/previous results before any async work
-    setWiki(null); setNews([]); setCountryWeather(null);
+    setWiki(null); setWikiResults([]); setNews([]); setCountryWeather(null);
     setGlobalWeatherSummary(null);
     setLoading(true);
     try {
@@ -720,7 +721,12 @@ export const SearchBar = forwardRef<SearchBarHandle, SearchBarProps>(function Se
 
       const searchName = countryEntities.length > 0 ? countryEntities[0].value : null;
       if (searchName) {
-        fetchEnrichment(searchName, input, isShowcase);
+        // Respect forced wiki mode — skip news routing
+        if (searchModeRef.current === 'wiki') {
+          fetchWikiSnippet(searchName, lang).then(w => { if (w) setWiki(w); }).catch(() => {});
+        } else {
+          fetchEnrichment(searchName, input, isShowcase);
+        }
       } else if (data.intent?.category === 'search' || detectMode(input) === 'news') {
         fetchTopicNews(input).then(async items => {
           if (!userActiveRef.current) return;
@@ -969,6 +975,7 @@ export const SearchBar = forwardRef<SearchBarHandle, SearchBarProps>(function Se
   const toggleMode = (mode: SearchMode) => {
     const next = searchMode === mode ? 'auto' : mode;
     setSearchMode(next);
+    searchModeRef.current = next;
     // Pause showcase so it doesn't override the explicit mode selection
     setShowcasePlaying(false);
     showcasePlayingRef.current = false;
