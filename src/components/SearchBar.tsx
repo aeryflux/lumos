@@ -104,6 +104,10 @@ const CONDITION_LABELS: Record<string, Partial<Record<string, string>>> = {
   snowy:         { en: 'Snowy', fr: 'Neigeux', es: 'Nevado', de: 'Verschneit', it: 'Nevoso', pt: 'Nevado', ru: 'Снежно', ja: '雪', ko: '눈', zh: '雪天', nl: 'Sneeuwachtig', pl: 'Śnieżnie', tr: 'Karlı', sv: 'Snöigt', id: 'Bersalju' },
   stormy:        { en: 'Stormy', fr: 'Orageux', es: 'Tormentoso', de: 'Stürmisch', it: 'Tempestoso', pt: 'Tempestuoso', ru: 'Штормовой', ja: '嵐', ko: '폭풍', zh: '暴风雨', nl: 'Stormachtig', pl: 'Burzowo', tr: 'Fırtınalı', sv: 'Stormigt', id: 'Badai' },
   foggy:         { en: 'Foggy', fr: 'Brumeux', es: 'Neblinoso', de: 'Neblig', it: 'Nebbioso', pt: 'Nebuloso', ru: 'Туманно', ja: '霧', ko: '안개', zh: '雾天', nl: 'Mistig', pl: 'Mgliście', tr: 'Sisli', sv: 'Dimmigt', id: 'Berkabut' },
+  fog:           { en: 'Foggy', fr: 'Brumeux', es: 'Neblinoso', de: 'Neblig', it: 'Nebbioso', pt: 'Nebuloso', ru: 'Туманно', ja: '霧', ko: '안개', zh: '雾天', nl: 'Mistig', pl: 'Mgliście', tr: 'Sisli', sv: 'Dimmigt', id: 'Berkabut' },
+  rain:          { en: 'Rainy', fr: 'Pluvieux', es: 'Lluvioso', de: 'Regnerisch', it: 'Piovoso', pt: 'Chuvoso', ru: 'Дождливо', ja: '雨', ko: '비', zh: '雨天', nl: 'Regenachtig', pl: 'Deszczowo', tr: 'Yağmurlu', sv: 'Regnigt', id: 'Hujan' },
+  snow:          { en: 'Snowy', fr: 'Neigeux', es: 'Nevado', de: 'Verschneit', it: 'Nevoso', pt: 'Nevado', ru: 'Снежно', ja: '雪', ko: '눈', zh: '雪天', nl: 'Sneeuwachtig', pl: 'Śnieżnie', tr: 'Karlı', sv: 'Snöigt', id: 'Bersalju' },
+  storm:         { en: 'Stormy', fr: 'Orageux', es: 'Tormentoso', de: 'Stürmisch', it: 'Tempestoso', pt: 'Tempestuoso', ru: 'Штормовой', ja: '嵐', ko: '폭풍', zh: '暴风雨', nl: 'Stormachtig', pl: 'Burzowo', tr: 'Fırtınalı', sv: 'Stormigt', id: 'Badai' },
 };
 
 function translateCondition(condition: string, lang: string): string {
@@ -197,7 +201,7 @@ function highlightNewsCountries(
   // Feed publisher country — strong signal
   for (const item of items) {
     if (item.country) {
-      highlights[item.country] = { scale: 0.9, color: '#4a9eff', extrusion: 0.3 };
+      highlights[item.country] = { scale: 0.9, color: '#4a9eff', extrusion: 0.9 };
     }
   }
   // Countries mentioned in article titles — weaker signal (e.g. "Italian GP", "Monaco Grand Prix")
@@ -207,7 +211,7 @@ function highlightNewsCountries(
       for (const entity of entities) {
         const name = toEnglish(entity.value);
         if (!highlights[name]) {
-          highlights[name] = { scale: 0.6, color: '#4a9eff', extrusion: 0.2 };
+          highlights[name] = { scale: 0.6, color: '#4a9eff', extrusion: 0.6 };
         }
       }
     }
@@ -591,7 +595,7 @@ export const SearchBar = forwardRef<SearchBarHandle, SearchBarProps>(function Se
   const highlightCountries = useCallback((countryEntities: { value: string }[]) => {
     const highlights: Record<string, CountryHighlight> = {};
     for (const entity of countryEntities) {
-      highlights[toEnglish(entity.value)] = { scale: 1, color: '#00ff88', extrusion: 0.4 };
+      highlights[toEnglish(entity.value)] = { scale: 1, color: '#00ff88', extrusion: 1.2 };
     }
     onCountryHighlight?.(highlights);
   }, [onCountryHighlight]);
@@ -659,7 +663,7 @@ export const SearchBar = forwardRef<SearchBarHandle, SearchBarProps>(function Se
           .filter((e: { type: string }) => e.type === 'country');
         for (const entity of entities) {
           const name = toEnglish(entity.value);
-          if (!highlights[name]) highlights[name] = { scale: 0.7, color: '#e2e8f0', extrusion: 0.2 };
+          if (!highlights[name]) highlights[name] = { scale: 0.7, color: '#e2e8f0', extrusion: 0.7 };
         }
       }
 
@@ -674,7 +678,7 @@ export const SearchBar = forwardRef<SearchBarHandle, SearchBarProps>(function Se
             .filter((e: { type: string }) => e.type === 'country');
           for (const entity of entities) {
             const name = toEnglish(entity.value);
-            if (!highlights[name]) highlights[name] = { scale: 0.6, color: '#e2e8f0', extrusion: 0.15 };
+            if (!highlights[name]) highlights[name] = { scale: 0.6, color: '#e2e8f0', extrusion: 0.5 };
           }
         }
       }
@@ -768,7 +772,7 @@ export const SearchBar = forwardRef<SearchBarHandle, SearchBarProps>(function Se
         setNews(translated);
         const newsHighlights: Record<string, CountryHighlight> = {};
         for (const c of ['United States', 'China', 'France', 'United Kingdom', 'Russia', 'Japan', 'Germany', 'Brazil', 'India', 'Australia']) {
-          newsHighlights[c] = { scale: 0.7, color: '#ef4444', extrusion: 0.2 };
+          newsHighlights[c] = { scale: 0.7, color: '#ef4444', extrusion: 0.7 };
         }
         onCountryHighlight?.(newsHighlights);
       });
